@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { AUTHOR_LETTERS, PROJECT_INTRODUCTION } from '../content/projectIntroduction'
 import '../styles/project-introduction.css'
 
@@ -7,6 +7,7 @@ const props = defineProps({ mode: { type: String, required: true } })
 const emit = defineEmits(['close', 'open-tutorial'])
 const root = ref(null)
 const closeButton = ref(null)
+const articleBody = ref(null)
 const dismissed = ref(false)
 const articleIndex = ref(0)
 const isAuthor = computed(() => props.mode === 'author')
@@ -16,6 +17,11 @@ const article = computed(() =>
 let previousFocus
 let underlyingApp
 let wasInert
+
+watch(articleIndex, async () => {
+  await nextTick()
+  if (articleBody.value) articleBody.value.scrollTop = 0
+})
 
 function close() {
   emit('close', !isAuthor.value && dismissed.value)
@@ -90,6 +96,7 @@ onBeforeUnmount(() => {
             <button
               v-for="(letter, index) in AUTHOR_LETTERS"
               :key="letter.id"
+              :data-author-letter="letter.id"
               type="button"
               :aria-current="index === articleIndex ? 'true' : undefined"
               :class="
@@ -103,14 +110,29 @@ onBeforeUnmount(() => {
               ><small>{{ letter.date }}</small>
             </button>
           </nav>
-          <article class="project-introduction__body" data-testid="intro-body" tabindex="0">
+          <article
+            ref="articleBody"
+            class="project-introduction__body"
+            data-testid="intro-body"
+            tabindex="0"
+          >
             <h3 v-if="isAuthor">{{ article.title }}</h3>
-            <p>{{ article.lead }}</p>
+            <p v-if="article.lead">{{ article.lead }}</p>
+            <p
+              v-for="(paragraph, index) in article.paragraphs"
+              :key="`${article.id}-${index}`"
+              class="project-introduction__paragraph"
+            >
+              {{ paragraph }}
+            </p>
             <section v-for="section in article.sections" :key="section.title">
               <h3>{{ section.title }}</h3>
               <p>{{ section.text }}</p>
             </section>
-            <p class="project-introduction__ending">{{ article.ending }}</p>
+            <p v-if="article.ending" class="project-introduction__ending">{{ article.ending }}</p>
+            <p v-if="article.signature" class="project-introduction__signature">
+              {{ article.signature }}
+            </p>
           </article>
         </div>
         <footer>
