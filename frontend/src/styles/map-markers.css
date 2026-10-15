@@ -1,0 +1,287 @@
+.map-symbol-marker {
+  --map-marker-color: #174f9a;
+  align-items: center;
+  background: var(--map-marker-color);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgb(26 47 43 / 28%);
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  height: var(--map-place-symbol-size);
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
+  width: var(--map-place-symbol-size);
+}
+
+/* 路线节点保持完整强调，其余地图图标统一降到 60%，避免底图信息争抢视线。 */
+.map-symbol-marker:not(.plan-map-marker) {
+  opacity: 0.6;
+}
+
+/* 40 个正式景点保持完全不透明；其他非路线图标继续弱化以控制地图信息密度。 */
+.map-symbol-marker.attraction-map-marker {
+  opacity: 1;
+  height: var(--map-attraction-symbol-size);
+  width: var(--map-attraction-symbol-size);
+}
+
+.map-symbol-marker:hover,
+.map-symbol-marker:focus-visible,
+.map-symbol-marker--selected {
+  box-shadow: 0 3px 12px rgb(26 47 43 / 38%);
+  outline: none;
+  transform: scale(1.14);
+}
+
+.map-symbol-marker--selected {
+  border-color: #fff7d6;
+}
+
+.map-symbol-marker__icon {
+  height: 17px;
+  pointer-events: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  width: 17px;
+}
+
+.map-symbol-marker.map-symbol-marker--attraction-image {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  height: 48px;
+  opacity: 1;
+  width: 48px;
+}
+
+.map-symbol-marker__attraction-image {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 2px rgb(26 47 43 / 30%));
+}
+
+.map-symbol-marker--attraction-image .map-symbol-marker__attraction-fallback {
+  display: none;
+}
+
+.map-workspace[data-attraction-icons='hidden'] .map-symbol-marker--attraction-image {
+  background: var(--map-marker-color);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgb(26 47 43 / 28%);
+  height: 25px;
+  width: 25px;
+}
+
+.map-workspace[data-attraction-icons='hidden']
+  .map-symbol-marker--attraction-image.attraction-map-marker,
+.map-workspace[data-attraction-icons='hidden']
+  .map-symbol-marker--attraction-image.plan-map-marker.marker-attraction,
+.map-symbol-marker.plan-map-marker.marker-attraction:not(.map-symbol-marker--attraction-image) {
+  height: var(--map-attraction-symbol-size);
+  width: var(--map-attraction-symbol-size);
+}
+
+.map-workspace[data-attraction-icons='hidden']
+  .map-symbol-marker--attraction-image
+  .map-symbol-marker__attraction-image {
+  display: none;
+}
+
+.map-workspace[data-attraction-icons='hidden']
+  .map-symbol-marker--attraction-image
+  .map-symbol-marker__attraction-fallback {
+  display: block;
+}
+
+.map-symbol-marker--attraction-image:focus-visible {
+  outline: 2px solid #174f9a;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.map-symbol-marker__caption {
+  color: #174f9a;
+  font-size: 11px;
+  font-weight: 700;
+  left: 50%;
+  line-height: 1.2;
+  max-width: 112px;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+  text-overflow: ellipsis;
+  text-shadow:
+    -1px -1px 0 rgb(255 255 255 / 92%),
+    1px -1px 0 rgb(255 255 255 / 92%),
+    -1px 1px 0 rgb(255 255 255 / 92%),
+    1px 1px 0 rgb(255 255 255 / 92%);
+  top: calc(100% + 3px);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.map-symbol-marker--attractions.map-symbol-marker--selected .map-symbol-marker__caption {
+  color: #d6a231;
+}
+
+.map-symbol-marker--attractions.map-symbol-marker--selected {
+  border-color: #fff;
+  outline: 0;
+  transform: none;
+}
+
+.map-workspace[data-attraction-icons='visible']
+  .map-symbol-marker--attractions.map-symbol-marker--selected {
+  transform: scale(1.5);
+}
+
+/* Keep labels and route numbers at their original size while enlarging the symbol. */
+.map-workspace[data-attraction-icons='visible']
+  .map-symbol-marker--attractions.map-symbol-marker--selected
+  .map-symbol-marker__caption {
+  transform: translateX(-50%) scale(0.6666666667);
+  transform-origin: center top;
+}
+
+.map-workspace[data-attraction-icons='visible']
+  .map-symbol-marker--attractions.map-symbol-marker--selected
+  .map-symbol-marker__sequence {
+  transform: scale(0.6666666667);
+  transform-origin: center;
+}
+
+.map-symbol-marker__sequence {
+  align-items: center;
+  background: #fff;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: var(--map-marker-color);
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 700;
+  height: 16px;
+  justify-content: center;
+  min-width: 16px;
+  padding: 0 3px;
+  position: absolute;
+  right: -7px;
+  top: -7px;
+}
+
+.map-symbol-marker--searchPoint {
+  height: 25px;
+  width: 25px;
+}
+
+.map-symbol-marker--searchPoint .map-symbol-marker__icon {
+  display: none;
+}
+
+.metro-map-marker {
+  height: 25px;
+  width: 25px;
+}
+
+.metro-map-marker--interchange {
+  height: 25px;
+  width: 25px;
+}
+.map-symbol-marker.metro-map-marker--dot {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+.metro-map-marker--dot::before {
+  content: '';
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--map-marker-color);
+}
+
+.map-symbol-marker.current-lodging-map-marker,
+.map-symbol-marker.plan-lodging-map-marker {
+  height: var(--map-lodging-symbol-size);
+  width: var(--map-lodging-symbol-size);
+  opacity: 1;
+}
+
+.map-container[data-marker-display='dots']
+  .map-symbol-marker:is(
+    .map-symbol-marker--hotels,
+    .map-symbol-marker--dining,
+    .map-symbol-marker--duck,
+    .map-symbol-marker--saltedDuck,
+    .map-symbol-marker--duckSoup,
+    .map-symbol-marker--roastDuck,
+    .map-symbol-marker--pressedDuck,
+    .search-result-map-marker
+  ):not(
+    .plan-map-marker,
+    [data-hotel-source='area'],
+    .current-lodging-map-marker,
+    .search-result-map-marker.map-symbol-marker--selected
+  ) {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.map-container[data-marker-display='dots']
+  .map-symbol-marker:is(
+    .map-symbol-marker--hotels,
+    .map-symbol-marker--dining,
+    .map-symbol-marker--duck,
+    .map-symbol-marker--saltedDuck,
+    .map-symbol-marker--duckSoup,
+    .map-symbol-marker--roastDuck,
+    .map-symbol-marker--pressedDuck,
+    .search-result-map-marker
+  ):not(
+    .plan-map-marker,
+    [data-hotel-source='area'],
+    .current-lodging-map-marker,
+    .search-result-map-marker.map-symbol-marker--selected
+  )::before {
+  content: '';
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--map-marker-color);
+}
+
+.map-container[data-marker-display='dots']
+  .map-symbol-marker:is(
+    .map-symbol-marker--hotels,
+    .map-symbol-marker--dining,
+    .map-symbol-marker--duck,
+    .map-symbol-marker--saltedDuck,
+    .map-symbol-marker--duckSoup,
+    .map-symbol-marker--roastDuck,
+    .map-symbol-marker--pressedDuck,
+    .search-result-map-marker
+  ):not(
+    .plan-map-marker,
+    [data-hotel-source='area'],
+    .current-lodging-map-marker,
+    .search-result-map-marker.map-symbol-marker--selected
+  )
+  > * {
+  display: none;
+}

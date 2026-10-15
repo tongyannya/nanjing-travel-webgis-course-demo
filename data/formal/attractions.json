@@ -1,0 +1,3314 @@
+[
+  {
+    "id": "attr_001",
+    "name": "中山陵景区",
+    "aliases": [
+      "中山陵"
+    ],
+    "district": "玄武区",
+    "address": "南京市玄武区中山门外石象路7号钟山风景名胜区内",
+    "location": {
+      "longitude": 118.851672,
+      "latitude": 32.055966,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "red_culture",
+      "photography"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "每周一闭馆（法定节假日及孙中山先生诞辰、逝世纪念日除外）；墓室仅周二至周五开放",
+      "last_entry": null,
+      "notes": "原停止入场说明：16:30停止检票入园；墓室仅周二至周五开放；特殊纪念日及法定节假日安排以官方通知为准"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "陵寝主体免费开放，无优惠票分类；景区内另行收费项目按各自规定执行，特殊人群凭有效证件享相应减免。 原表票价记录：成人票免费（需实名预约）；学生票免费（需实名预约）；儿童票免费（需实名预约）。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京钟山风景区”微信公众号、“中山陵园票务中心”微信服务号、钟山风景名胜区小程序、美团APP、景区现场预约自助机",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "中山陵是孙中山先生的陵寝及纪念建筑群，依山势沿中轴线层层展开。牌坊、陵门、碑亭和祭堂构成庄严序列，也是了解中国近代史与近代建筑的重要地点。",
+    "description_detail": null,
+    "highlights": [
+      "博爱坊",
+      "392级石阶",
+      "祭堂与墓室"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市中山陵园管理局相关页面",
+        "url": "https://zschina.nanjing.gov.cn/zszx/dtxx/202506/t20250626_5593899.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：钟山风景区。 原停止入场说明：16:30停止检票入园。 原提前预约说明：最多提前7天预约，每日16:00投放名额。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_002",
+    "name": "明孝陵景区（含梅花山）",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区中山门外石象路7号钟山风景名胜区内",
+    "location": {
+      "longitude": 118.833304,
+      "latitude": 32.046117,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "nature",
+      "photography"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "06:30",
+          "close": "18:30"
+        }
+      ],
+      "closed_rules": null,
+      "last_entry": null,
+      "notes": "原停止入场说明：18:30停止售票；原闭馆规则备注“清晨6:30前可免费入园”属于补充说明，不参与路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 180,
+      "minimum_minutes": 120
+    },
+    "ticket": {
+      "adult": 70.0,
+      "student": 35,
+      "child": 35,
+      "senior": 35,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生半价；60—69周岁老人半价；70周岁以上老人及符合规定的军人、残疾人等免票，均须持有效证件。 原表票价记录：成人票70元/人；学生票全日制大学本科及以下学历在校学生半价；儿童票6周岁（含）以下或身高1.4米（含）以下儿童免费；6周岁（不含）至18周岁（含）未成年人半价。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：说明明确全日制大中小学生及6—18周岁未成年人半价→70/2；低龄儿童免费条件只保留在票价说明；60—69周岁老人半价→35"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京钟山风景区”微信公众号、钟山风景名胜区小程序、美团APP等",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "明孝陵是明太祖朱元璋与马皇后的合葬陵寝，为明清皇家陵寝制度的重要源头。景区兼有神道石刻、明代遗迹与梅花山四季景观，历史与自然体验相结合。",
+    "description_detail": null,
+    "highlights": [
+      "石象路神道",
+      "明楼与宝顶",
+      "梅花山"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市中山陵园管理局相关页面",
+        "url": "https://zschina.nanjing.gov.cn/zszx/dtxx/202506/t20250626_5593899.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：钟山风景区。 原停止入场说明：18:30停止售票。 原提前预约说明：建议提前1-7天预约购票。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_003",
+    "name": "灵谷景区",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区灵谷寺路2号钟山风景名胜区内",
+    "location": {
+      "longitude": 118.865379,
+      "latitude": 32.049829,
+      "coord_system": "GCJ-02"
+    },
+    "category": "religious_architecture",
+    "tags": [
+      "history",
+      "architecture",
+      "religion",
+      "nature"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "06:30",
+          "close": "18:30"
+        }
+      ],
+      "closed_rules": null,
+      "last_entry": null,
+      "notes": "原停止入场说明：18:30停止售票；原闭馆规则备注“清晨6:30前或傍晚18:30后可免费入园”属于补充说明，不参与路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 150,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 35.0,
+      "student": 17.5,
+      "child": 17.5,
+      "senior": 17.5,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生半价；60—69周岁老人半价；70周岁以上老人及符合规定的军人、残疾人等免票，均须持有效证件。 原表票价记录：成人票35元/人；学生票全日制大学本科及以下学历在校学生半价；儿童票6周岁（含）以下或身高1.4米（含）以下儿童免费；6周岁（不含）至18周岁（含）未成年人半价。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：说明明确全日制大中小学生及6—18周岁未成年人半价→35/2；低龄儿童免费条件只保留在票价说明；60—69周岁老人半价→17.5"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京钟山风景区”微信公众号、钟山风景名胜区小程序、美团APP等",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "灵谷景区位于钟山东麓，以无梁殿、灵谷寺、灵谷塔等历史建筑为核心，林木幽深，环境清静。这里融合佛教文化、近代纪念建筑与山林步道，适合慢游。",
+    "description_detail": null,
+    "highlights": [
+      "无梁殿",
+      "灵谷塔",
+      "灵谷寺"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市中山陵园管理局相关页面",
+        "url": "https://zschina.nanjing.gov.cn/zszx/dtxx/202506/t20250626_5593899.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：钟山风景区。 原停止入场说明：18:30停止售票。 原提前预约说明：建议提前1-7天预约购票。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_004",
+    "name": "美龄宫",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区中山门外石象路7号钟山风景名胜区内",
+    "location": {
+      "longitude": 118.845626,
+      "latitude": 32.046442,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "photography",
+      "art"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "07:30",
+          "close": "18:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:30停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 30.0,
+      "student": 15,
+      "child": 15,
+      "senior": 15,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生半价；60—69周岁老人半价；70周岁以上老人及符合规定的军人、残疾人等免票，均须持有效证件。 原表票价记录：成人票30元/人；学生票全日制大学本科及以下学历在校学生半价；儿童票6周岁（含）以下或身高1.4米（含）以下儿童免费；6周岁（不含）至18周岁（含）未成年人半价。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：说明明确全日制大中小学生及6—18周岁未成年人半价→30/2；低龄儿童免费条件只保留在票价说明；60—69周岁老人半价→15"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "美龄宫原名国民政府主席官邸，是钟山风景区内具有代表性的近代建筑。建筑外观典雅，室内陈设保留时代气息，可从建筑、生活与历史三个角度参观。",
+    "description_detail": null,
+    "highlights": [
+      "琉璃瓦屋顶",
+      "室内陈设",
+      "近代建筑细部"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市中山陵园管理局相关页面",
+        "url": "https://zschina.nanjing.gov.cn/fjms/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：钟山风景区。 原停止入场说明：17:30停止入园。 原提前预约说明：无需预约，建议提前1天线上购票享优惠。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_005",
+    "name": "中山陵音乐台",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区中山陵园风景区中山陵广场东南侧",
+    "location": {
+      "longitude": 118.854182,
+      "latitude": 32.055622,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "art",
+      "photography"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "06:30",
+          "close": "18:30"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：18:30停止售票"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 10.0,
+      "student": 5,
+      "child": 5,
+      "senior": 5,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生半价；60—69周岁老人半价；70周岁以上老人及符合规定的军人、残疾人等免票，均须持有效证件。 原表票价记录：成人票10元/人；学生票全日制大学本科及以下学历在校学生半价；儿童票6周岁（含）以下或身高1.4米（含）以下儿童免费；6周岁（不含）至18周岁（含）未成年人半价。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：说明明确全日制大中小学生及6—18周岁未成年人半价→10/2；低龄儿童免费条件只保留在票价说明；60—69周岁老人半价→5"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "中山陵音乐台建于20世纪30年代，是用于纪念典礼和音乐演出的半圆形露天建筑。弧形照壁、草坪与水榭相互呼应，白鸽群也成为游客熟悉的景观。",
+    "description_detail": null,
+    "highlights": [
+      "弧形照壁",
+      "露天舞台",
+      "白鸽与草坪"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市中山陵园管理局相关页面",
+        "url": "https://zschina.nanjing.gov.cn/fjms/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：钟山风景区。 原停止入场说明：18:30停止售票。 原提前预约说明：无需预约，可当天购买。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html 数据规范修正：最短合理游玩时间由20分钟调整为30分钟。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_006",
+    "name": "南京博物院",
+    "aliases": [
+      "南博"
+    ],
+    "district": "玄武区",
+    "address": "南京市玄武区中山东路321号",
+    "location": {
+      "longitude": 118.825064,
+      "latitude": 32.040802,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "art",
+      "family"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "周一闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：16:00停止检票"
+    },
+    "duration": {
+      "suggested_minutes": 240,
+      "minimum_minutes": 120
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "基本陈列免费开放，无优惠票分类；特展或收费项目如另行售票，儿童、学生、老人等优惠以该项目公告及有效证件为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "南京博物院公众号预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京博物院是中国较早建立的大型综合性博物馆之一，设历史馆、艺术馆、特展馆、民国馆等展区。藏品门类丰富，适合系统了解江苏及中国历史文化。",
+    "description_detail": null,
+    "highlights": [
+      "历史馆",
+      "民国馆",
+      "馆藏精品专题展"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京博物院官方网站",
+        "url": "https://www.njmuseum.com/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：长江路—玄武文博线。 原停止入场说明：16：00停止检票。 原提前预约说明：可提前7日。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_007",
+    "name": "南京总统府（南京中国近代史遗址博物馆）",
+    "aliases": [
+      "南京总统府",
+      "总统府"
+    ],
+    "district": "玄武区",
+    "address": "南京市玄武区长江路292号",
+    "location": {
+      "longitude": 118.797451,
+      "latitude": 32.042689,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "red_culture",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "18:00"
+        }
+      ],
+      "closed_rules": "周一闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00停止入馆；原备注“周末结束时间18:01”已按明显录入错误修正为18:00"
+    },
+    "duration": {
+      "suggested_minutes": 180,
+      "minimum_minutes": 120
+    },
+    "ticket": {
+      "adult": 35.0,
+      "student": 17.5,
+      "child": 0.0,
+      "senior": 17.5,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生半价；60—69周岁老人半价；70周岁以上老人及符合规定的军人、残疾人等免票，凭有效证件办理。 原表票价记录：成人票35；学生票17.5；儿童票0。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "南京总统府公众号预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京总统府建筑群见证了太平天国、晚清和民国时期多段重要历史。园林、官署与近代办公建筑并存，现通过原状陈列和专题展览呈现中国近代史脉络。",
+    "description_detail": null,
+    "highlights": [
+      "总统府门楼",
+      "煦园",
+      "孙中山临时大总统办公室"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：长江路—玄武文博线。 原停止入场说明：17：00停止入馆。 原提前预约说明：可提前2日。 数据规范修正：周末结束时间中的18:01按明显录入错误修正为18:00。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_008",
+    "name": "六朝博物馆",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区长江路302号",
+    "location": {
+      "longitude": 118.799124,
+      "latitude": 32.04284,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "art",
+      "photography"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "周一闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 30.0,
+      "student": 15.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人按公布票价享半价；70周岁以上老人和符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票30；学生票15；儿童票0。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "六朝博物馆依托六朝建康城遗址建设，以都城、文化和生活为主线展示南京六朝时期的历史。建筑由贝聿铭之子贝建中团队设计，展陈空间兼具遗址感与现代美学。",
+    "description_detail": null,
+    "highlights": [
+      "六朝建康城遗址",
+      "青瓷精品",
+      "现代展陈建筑"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京市博物总馆官方网站",
+        "url": "https://www.njmuseumadmin.com/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：长江路—玄武文博线。 原停止入场说明：17：00停止入园。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_009",
+    "name": "江宁织造博物馆",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区长江路123号",
+    "location": {
+      "longitude": 118.794347,
+      "latitude": 32.042039,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "folk_custom",
+      "art"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "周一闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 30.0,
+      "student": 15.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人按公布票价享半价；70周岁以上老人和符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票30；学生票15；儿童票0。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "江宁织造博物馆建于清代江宁织造遗址之上，围绕织造署历史、云锦工艺与《红楼梦》文化设置展览。建筑由吴良镛设计，传统园林意境与现代空间相结合。",
+    "description_detail": null,
+    "highlights": [
+      "江宁织造遗址",
+      "云锦展陈",
+      "《红楼梦》文化展"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市文化和旅游局相关页面",
+        "url": "https://wlj.nanjing.gov.cn/whcg/bwg/jnzzbwg/201807/t20180731_1078649.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：长江路—玄武文博线。 原停止入场说明：17：00停止入园。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_010",
+    "name": "梅园新村纪念馆",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区汉府街18-1号",
+    "location": {
+      "longitude": 118.802149,
+      "latitude": 32.042401,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "red_culture",
+      "museum",
+      "architecture"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "周一闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00停止入场"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "场馆免费开放，无优惠票分类；未成年人、老人及其他观众按预约和安全管理要求入馆，特殊展览或活动以馆方公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "梅园新村纪念馆以中共代表团办事处旧址为核心，保存周恩来等人在南京谈判时期工作生活的场所。原状陈列、史料展览与街区环境共同呈现重要革命历史。",
+    "description_detail": null,
+    "highlights": [
+      "中共代表团办事处旧址",
+      "周恩来图书馆",
+      "史料陈列"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：长江路—玄武文博线。 原停止入场说明：17：00停止入场。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_011",
+    "name": "夫子庙大成殿",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区贡院西街53号夫子庙景区内",
+    "location": {
+      "longitude": 118.788885,
+      "latitude": 32.020596,
+      "coord_system": "GCJ-02"
+    },
+    "category": "religious_architecture",
+    "tags": [
+      "history",
+      "architecture",
+      "folk_custom",
+      "night_view"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "22:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：21:30停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 60,
+      "minimum_minutes": 30
+    },
+    "ticket": {
+      "adult": 30.0,
+      "student": 15.0,
+      "child": 15.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票30；学生票15；儿童票15。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "夫子庙大成殿是南京孔庙的核心建筑，集中展示祭孔礼制、儒家文化与秦淮民俗。殿前广场、照壁和沿河街巷共同构成夫子庙景区最具代表性的文化空间。",
+    "description_detail": null,
+    "highlights": [
+      "大成殿",
+      "天下文枢坊",
+      "孔庙礼制陈列"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京夫子庙官方网站",
+        "url": "https://www.njfzm.net/index.htm",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：夫子庙—秦淮核心线。 原停止入场说明：21:30停止入园。 原提前预约说明：无限制。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_012",
+    "name": "南京中国科举博物馆（江南贡院）",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区贡院街95号",
+    "location": {
+      "longitude": 118.791271,
+      "latitude": 32.020799,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "architecture",
+      "night_view"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "22:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：22:00停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 50.0,
+      "student": 25.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票50；学生票25；儿童票0。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京中国科举博物馆依托江南贡院遗址建设，以地下展馆、明远楼和号舍遗存讲述中国科举制度。展览串联考试流程、士子生活与教育文化，夜间景观也较有特色。",
+    "description_detail": null,
+    "highlights": [
+      "江南贡院遗址",
+      "明远楼",
+      "地下博物馆"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京中国科举博物馆官方网站",
+        "url": "https://www.njiemuseum.com/in1.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：夫子庙—秦淮核心线。 原停止入场说明：22:00停止入园。 原提前预约说明：无限制。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_013",
+    "name": "瞻园",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区瞻园路128号",
+    "location": {
+      "longitude": 118.785231,
+      "latitude": 32.020218,
+      "coord_system": "GCJ-02"
+    },
+    "category": "garden_park",
+    "tags": [
+      "history",
+      "garden",
+      "architecture",
+      "photography"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "21:00"
+        },
+        {
+          "period_label": "每年4月7日至12月31日周一闭馆",
+          "days": [
+            "monday"
+          ],
+          "open": "08:30",
+          "close": "21:00"
+        },
+        {
+          "period_label": "每年6月18日至8月31日周一 8:30-17:30（17:00停止入园）",
+          "days": [
+            "monday"
+          ],
+          "open": "08:30",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "周一闭馆规则按季节不同，见常规开放时段各行说明",
+      "last_entry": null,
+      "notes": "原停止入场说明：20:30停止入园；夏季周一开放的准确日期范围（每年6月18日—8月31日）无法被现有路线模块按日期解释，规划阶段只按星期判断"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 30.0,
+      "student": 15.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的优抚对象免票；夜游或演出优惠另见项目公告。 原表票价记录：成人票30；学生票15；儿童票0。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "瞻园是南京保存较完整的明代古典园林，园内以假山、水池、亭廊和古建筑组织出曲折空间。这里也设有太平天国历史陈列，兼具园林观赏与历史参观价值。",
+    "description_detail": null,
+    "highlights": [
+      "北假山",
+      "静妙堂",
+      "太平天国历史陈列"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市人民政府相关页面",
+        "url": "https://www.nanjing.gov.cn/zzb/ywdt/njxx/202404/t20240423_4214399.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：夫子庙—秦淮核心线。 原停止入场说明：20：30停止入园。 原提前预约说明：无限制。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_014",
+    "name": "中华门瓮城",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区中华路中华门城堡内",
+    "location": {
+      "longitude": 118.78181,
+      "latitude": 32.013094,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "night_view",
+      "photography"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "22:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：21:30停止入园；夜游项目以单独公告为准"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 50.0,
+      "student": 25.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的优抚对象免票，夜游项目以单独公告为准。 原表票价记录：成人票50；学生票25；儿童票0。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "中华门瓮城是南京明城墙保存最完整、结构最复杂的城门之一，设多重瓮城、藏兵洞和宽阔城台。登城可近观古代城防体系，并俯瞰老城南街巷与秦淮风貌。",
+    "description_detail": null,
+    "highlights": [
+      "多重瓮城",
+      "藏兵洞",
+      "城台夜景"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京城墙官方网站",
+        "url": "https://english.njcitywall.cn/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：夫子庙—秦淮核心线。 原停止入场说明：21:30停止入园。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_015",
+    "name": "老门东历史文化街区",
+    "aliases": [
+      "老门东"
+    ],
+    "district": "秦淮区",
+    "address": "南京市秦淮区箍桶巷与剪子巷一带",
+    "location": {
+      "longitude": 118.787898,
+      "latitude": 32.012777,
+      "coord_system": "GCJ-02"
+    },
+    "category": "urban_district",
+    "tags": [
+      "history",
+      "urban_walk",
+      "food",
+      "night_view",
+      "folk_custom"
+    ],
+    "quality_grade": "5A",
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "街区内商户、展馆和演出按各自时间开放"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "街区公共空间免费开放，无优惠票分类；街区内展馆、演出、体验及商业项目分别售票，其儿童、学生、老人等优惠以各项目现场或官方公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "老门东位于南京老城南，保留传统街巷尺度和历史建筑风貌，并汇集南京小吃、非遗工坊与文创店铺。白天适合看建筑逛巷子，夜间灯光与市井氛围更突出。",
+    "description_detail": null,
+    "highlights": [
+      "传统街巷",
+      "德云社与文创空间",
+      "南京特色小吃"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市人民政府相关页面",
+        "url": "https://www.nanjing.gov.cn/zzb/ywdt/njxx/202404/t20240423_4214399.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：夫子庙—秦淮核心线。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_016",
+    "name": "玄武湖景区",
+    "aliases": [
+      "玄武湖"
+    ],
+    "district": "玄武区",
+    "address": "南京市玄武区玄武巷1号",
+    "location": {
+      "longitude": 118.786999,
+      "latitude": 32.070831,
+      "coord_system": "GCJ-02"
+    },
+    "category": "garden_park",
+    "tags": [
+      "nature",
+      "garden",
+      "leisure_walk",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "环湖路区域全年24小时开放；五洲及情侣园限时开放：4月至10月 6:00-22:00，11月至次年3月 6:00-21:00，不参与路线规划；2010年起全面免费开放"
+    },
+    "duration": {
+      "suggested_minutes": 180,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "景区公共区域免费开放，无优惠票分类；游船、观光车、展览等收费项目按各自规定执行，儿童、学生、老人等优惠以项目公示为准。 原表票价记录：成人票免费；学生票免费；儿童票免费。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "玄武湖位于南京城墙北侧，是兼具湖泊风光、洲岛园林与城市休闲功能的大型公园。环湖可远眺紫金山和明城墙，樱洲、梁洲等区域四季景观各有特色。",
+    "description_detail": null,
+    "highlights": [
+      "五洲景观",
+      "明城墙湖景",
+      "环湖步道"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京玄武湖景区官方网站",
+        "url": "https://www.xuanwuhu.net",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "2010年起全面免费开放；环湖路区域全年24小时开放 原分组：城墙—玄武湖—鼓楼线。 原停止入场说明：环湖路无停止时间；五洲及情侣园按开放时段结束。 原提前预约说明：无。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_017",
+    "name": "鸡鸣寺",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区鸡鸣寺路1号",
+    "location": {
+      "longitude": 118.795767,
+      "latitude": 32.060244,
+      "coord_system": "GCJ-02"
+    },
+    "category": "religious_architecture",
+    "tags": [
+      "religion",
+      "architecture",
+      "history",
+      "photography"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "07:30",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：7:30-17:00；农历初一、十五提前至5:30开放；门票为香花券，特殊日期15元；原闭馆规则列“周一不闭馆”确认无固定闭馆日"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 10,
+      "student": 10,
+      "child": 10,
+      "senior": null,
+      "notes": "香花券及寺内项目优惠规则以寺院现场和官方公告为准；未检索到统一的儿童票、学生票和老人票适用条件，相关价格未知时应留空。 原表票价记录：成人票10元（特殊日期15元）；学生票无；儿童票无信息。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：负责人确认：鸡鸣寺实际以每人10元香花券作为强制入寺费用，不取香也需支付；学生无单独优惠，儿童按南京本地游客既往实际体验同样支付10元，路线预算统一按每人10元估算"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "周一闭馆（法定节假日除外）；暑期周五-周日延长至20:00",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "鸡鸣寺始建于南朝，现有药师佛塔、毗卢宝殿等建筑，是南京较有代表性的佛教寺院。寺院临近明城墙与玄武湖，春季樱花大道和登高视野尤受欢迎。",
+    "description_detail": null,
+    "highlights": [
+      "药师佛塔",
+      "樱花大道",
+      "俯瞰玄武湖"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市文化和旅游局相关页面",
+        "url": "https://wlj.nanjing.gov.cn/zwgk/wwbhml/202501/P020250919606961064335.pdf",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "门票为“香花券”；支持现场购纸质票 原分组：城墙—玄武湖—鼓楼线。 原停止入场说明：7:30-17:00。 原提前预约说明：当前。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_018",
+    "name": "南京城墙景区（台城段）",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区解放门8号",
+    "location": {
+      "longitude": 118.796639,
+      "latitude": 32.062296,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "photography",
+      "leisure_walk"
+    ],
+    "quality_grade": null,
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "日间时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：8:30-17:00；晚间17:00-22:00开放（21:30停止售票），晚间时段未纳入路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 30.0,
+      "student": 15.0,
+      "child": 15,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生和60—69周岁老人半价；70周岁以上老人及符合规定的军人、残疾人等免票，凭有效证件。 原表票价记录：成人票30元；学生票15元；儿童票无信息。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：负责人确认：优惠说明明确6—18周岁未成年人半价，按成人票30元的一半计算儿童参考价15元"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京城墙”官方微信小程序",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "台城段位于解放门至太平门一带，是观赏南京明城墙、玄武湖和紫金山关系的经典路段。城砖铭文、城垣结构与登城步道能够直观呈现古代都城防御体系。",
+    "description_detail": null,
+    "highlights": [
+      "明城墙城砖",
+      "解放门",
+      "玄武湖全景"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京城墙官方网站",
+        "url": "https://english.njcitywall.cn/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "位于玄武区解放门8号；可俯瞰玄武湖全景 原分组：城墙—玄武湖—鼓楼线。 原停止入场说明：8:30-17:00。 原提前预约说明：可提前7日。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_019",
+    "name": "阅江楼景区",
+    "aliases": [],
+    "district": "鼓楼区",
+    "address": "南京市鼓楼区建宁路202号",
+    "location": {
+      "longitude": 118.747855,
+      "latitude": 32.091929,
+      "coord_system": "GCJ-02"
+    },
+    "category": "religious_architecture",
+    "tags": [
+      "history",
+      "architecture",
+      "photography",
+      "urban_walk"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:00",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：8:00-17:30；天妃宫 9:00-17:00 周一闭馆；静海寺 9:00-17:00 周一闭馆；子区域开放时间不参与路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 40.0,
+      "student": 20.0,
+      "child": 20,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的军人、残疾人等免票，凭有效证件。 原表票价记录：成人票40元；学生票20元；儿童票1.4米以下儿童免费。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：说明明确6—18周岁未成年人半价→40/2；低龄或1.4米以下儿童免费条件只保留在票价说明"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京阅江楼风景区”微信小程序、携程等OTA平台",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "阅江楼坐落在狮子山顶，因明太祖朱元璋《阅江楼记》而得名。登楼可眺望长江、南京长江大桥与下关城区，景区内还分布古炮台等历史文化景观。",
+    "description_detail": null,
+    "highlights": [
+      "阅江楼主楼",
+      "长江与大桥视野",
+      "狮子山古炮台"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "分3个时段预约：8:00-11:00、11:00-14:00、14:00-17:00；取消线下售票窗口 原分组：城墙—玄武湖—鼓楼线。 原停止入场说明：8:00-17:30。 原提前预约说明：提前预约。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_020",
+    "name": "南京城墙博物馆",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区边营1号",
+    "location": {
+      "longitude": 118.783016,
+      "latitude": 32.012551,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "architecture",
+      "art"
+    ],
+    "quality_grade": null,
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "每周一闭馆（法定节假日除外）",
+      "last_entry": null,
+      "notes": "原停止入场说明：9:00-17:00；暑期周五至周日延长至20:00，未纳入路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "常设展览免费开放，无优惠票分类；收费特展、活动或文创体验如单独售票，儿童、学生、老人等优惠以馆方公告为准。 原表票价记录：成人票免费；学生票免费；儿童票免费。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京城墙”官方微信公众号",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京城墙博物馆位于中华门东侧，以南京明城墙的营建、管理和保护为主题。展厅通过城砖、文献、模型与数字展示，帮助理解这座超大尺度城垣的历史价值。",
+    "description_detail": null,
+    "highlights": [
+      "巨型城砖展墙",
+      "城墙营造展",
+      "中华门视角"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京城墙官方网站",
+        "url": "https://english.njcitywall.cn/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "分上下午两场限流；不接受现场线下预约 原分组：城墙—玄武湖—鼓楼线。 原停止入场说明：9:00-17:00。 原提前预约说明：至少提前一天。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_021",
+    "name": "侵华日军南京大屠杀遇难同胞纪念馆",
+    "aliases": [],
+    "district": "建邺区",
+    "address": "南京市建邺区水西门大街418号",
+    "location": {
+      "longitude": 118.74504,
+      "latitude": 32.034969,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "red_culture"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "每周一闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00停止入馆；7月1日至9月1日延长至18:00，未纳入路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 180,
+      "minimum_minutes": 120
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "场馆免费开放，无优惠票分类；所有观众均按实名预约和安检要求入馆，未成年人及行动不便观众按馆方参观规定由监护人或陪同人员照护。 原表票价记录：成人票免费（0元）；学生票免费；儿童票免费（需通过“亲子预约”绑定成年人，14周岁以下未成年人不得单独预约）。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“侵华日军南京大屠杀遇难同胞纪念馆”官方微信公众号（唯一官方渠道）",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "纪念馆以史料、文物、遗址和遇难者名单保存南京大屠杀历史记忆，包含史实展、万人坑遗址与和平公园等区域。参观氛围庄重，建议预留充分时间。",
+    "description_detail": null,
+    "highlights": [
+      "史实展",
+      "万人坑遗址",
+      "和平公园"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "侵华日军南京大屠杀遇难同胞纪念馆官方网站",
+        "url": "https://www.19371213.com.cn/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：纪念场馆—城市文化线。 原停止入场说明：17:00停止入馆。 原提前预约说明：提前1-7天预约，每日放票时间为8:00和17:00。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_022",
+    "name": "雨花台风景区",
+    "aliases": [],
+    "district": "雨花台区",
+    "address": "南京市雨花台区雨花路215号",
+    "location": {
+      "longitude": 118.781727,
+      "latitude": 31.997896,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "red_culture",
+      "history",
+      "garden",
+      "leisure_walk"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "core",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "雨花台烈士纪念馆开放时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "16:00"
+        }
+      ],
+      "closed_rules": "雨花台烈士纪念馆周一闭馆（法定节假日除外）",
+      "last_entry": null,
+      "notes": "原停止入场说明：园区17:00停止入园、纪念馆16:00停止入馆；园区开放时间为8:00-17:00，路线按纪念馆时间执行"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0,
+      "notes": "景区公共区域和主要纪念设施免费开放，无优惠票分类；临时展览、讲解或其他收费项目的减免条件以景区公告及有效证件为准。 原表票价记录：成人票免费（主景区）；学生票主景区免费；儿童票主景区免费；1.2米以下儿童免票。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "conditional",
+      "channel_name": "“中国雨花台”官方微信公众号、“雨花台景区预约”小程序",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "雨花台风景区以雨花英烈纪念建筑群为核心，并有纪念馆、烈士群雕和园林绿地。这里既是开展革命历史教育的重要场所，也是南京南部规模较大的城市公园。",
+    "description_detail": null,
+    "highlights": [
+      "雨花台烈士纪念碑",
+      "烈士群雕",
+      "雨花台烈士纪念馆"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：纪念场馆—城市文化线。 原停止入场说明：园区17:00停止入园；纪念馆16:00停止入馆。 原提前预约说明：建议提前预约，未明确限定天数。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_023",
+    "name": "南京市博物馆（朝天宫）",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区朝天宫4号",
+    "location": {
+      "longitude": 118.774951,
+      "latitude": 32.0333,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "history",
+      "museum",
+      "architecture",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "18:00"
+        }
+      ],
+      "closed_rules": "周一闭馆（法定节假日除外）",
+      "last_entry": null,
+      "notes": "原停止入场说明：16:30停止入馆（或17:00停止售票）；第一进院落区域免费；在宁大学生（含硕士博士）免费"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 25.0,
+      "student": 12.5,
+      "child": 0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票25元/人（第一进院落区域免费）；学生票全日制高校学生凭学生证半价；在宁大学生（含硕士博士）免费；儿童票18周岁以下未成年人免费（需监护人陪同）。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：说明明确全日制高校学生凭学生证半价→25/2；18周岁以下未成年人免费（需监护人陪同）→0"
+    },
+    "reservation": {
+      "required": "unknown",
+      "channel_name": "“博物南京”官方微信公众号、“总馆票务”小程序",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京市博物馆设于朝天宫古建筑群内，馆藏和展览以南京城市历史为主。红墙黄瓦、棂星门和大成殿保留传统礼制空间，参观兼具文物欣赏与古建体验。",
+    "description_detail": null,
+    "highlights": [
+      "朝天宫古建筑群",
+      "南京城市史展",
+      "棂星门"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京市博物总馆官方网站",
+        "url": "https://www.njmuseumadmin.com/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：纪念场馆—城市文化线。 原停止入场说明：16:30停止入馆（或17:00停止售票）。 原提前预约说明：未明确限定，建议提前1天。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_024",
+    "name": "大报恩寺遗址公园",
+    "aliases": [
+      "大报恩寺"
+    ],
+    "district": "秦淮区",
+    "address": "南京市秦淮区雨花路1号",
+    "location": {
+      "longitude": 118.781238,
+      "latitude": 32.00921,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "religion",
+      "art"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "每月最后一周周三闭馆维护（法定节假日除外）",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00停止入园；部分节假日延长至20:30，未纳入路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 150,
+      "minimum_minutes": 120
+    },
+    "ticket": {
+      "adult": 90.0,
+      "student": 45.0,
+      "child": 45,
+      "senior": 45,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生及60—69周岁老人半价；70周岁以上老人和符合规定的军人、残疾人等免票，凭有效证件。 原表票价记录：成人票90元/人（线上提前购票更优惠）；学生票45元/人（全日制本科及以下学历大中小学生）；儿童票6周岁以下或身高1.4米以下儿童免费。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：6周岁以下或1.4米以下儿童免票，按保守常规价规则儿童通常支付较高常规档→6—18周岁半价45；60—69周岁老人半价→45"
+    },
+    "reservation": {
+      "required": "conditional",
+      "channel_name": "官方微信公众号",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "大报恩寺遗址公园以明代皇家寺院遗址和出土文物为核心，结合玻璃保护厅与现代报恩塔展示南京佛教文化。遗址、考古成果和数字艺术共同构成参观体验。",
+    "description_detail": null,
+    "highlights": [
+      "明代寺院遗址",
+      "琉璃构件",
+      "现代报恩塔"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：纪念场馆—城市文化线。 原停止入场说明：17:00停止入园。 原提前预约说明：未明确限定，建议提前1天。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_025",
+    "name": "南京科技馆",
+    "aliases": [],
+    "district": "雨花台区",
+    "address": "南京市雨花台区紫荆花路9号",
+    "location": {
+      "longitude": 118.782782,
+      "latitude": 31.988222,
+      "coord_system": "GCJ-02"
+    },
+    "category": "themed_experience",
+    "tags": [
+      "family",
+      "museum",
+      "art"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "每周一、周二闭馆",
+      "last_entry": null,
+      "notes": "原停止入场说明：16:00停止进园"
+    },
+    "duration": {
+      "suggested_minutes": 180,
+      "minimum_minutes": 120
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "常设展厅免费开放，无优惠票分类；球幕影院、临时展览或教育活动如单独收费，儿童、学生等优惠及陪同要求以科技馆公告为准。 原表票价记录：成人票免费（0元）；学生票免费；儿童票免费（12周岁以下且身高不足1.4米的儿童须有监护人陪同）。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京科技馆”官方小程序",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京科技馆面向公众开展科学普及，设宇宙探索、地球万象、智慧主人等互动展区。大量可操作展项适合亲子体验，也便于通过实验理解基础科学原理。",
+    "description_detail": null,
+    "highlights": [
+      "互动科学展项",
+      "宇宙探索展区",
+      "球幕影院"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京科技馆官方网站",
+        "url": "https://www.njstm.org.cn/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：纪念场馆—城市文化线。 原停止入场说明：16:00停止进园。 原提前预约说明：未明确限定，建议提前预约。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_026",
+    "name": "红山森林动物园",
+    "aliases": [
+      "红山动物园"
+    ],
+    "district": "玄武区",
+    "address": "南京市玄武区和燕路168号",
+    "location": {
+      "longitude": 118.79951,
+      "latitude": 32.093633,
+      "coord_system": "GCJ-02"
+    },
+    "category": "themed_experience",
+    "tags": [
+      "family",
+      "nature",
+      "leisure_walk",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "16:30"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：16:30"
+    },
+    "duration": {
+      "suggested_minutes": 240,
+      "minimum_minutes": 180
+    },
+    "ticket": {
+      "adult": 66.0,
+      "student": 35.0,
+      "child": 33.0,
+      "senior": 33,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生和60—69周岁老人半价；70周岁以上老人及符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票66；学生票35；儿童票33。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "conditional",
+      "channel_name": "美团/抖音",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "红山森林动物园利用丘陵林地营造动物展区，强调动物福利、自然教育与物种保护。园内步道起伏较多，分布熊猫、灵长类、猫科动物等多个特色场馆。",
+    "description_detail": null,
+    "highlights": [
+      "本土物种保育展区",
+      "大熊猫馆",
+      "自然教育活动"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：自然生态—城市休闲线。 原停止入场说明：16:30。 原提前预约说明：建议提前购票。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_027",
+    "name": "莫愁湖景区",
+    "aliases": [],
+    "district": "建邺区",
+    "address": "南京市建邺区水西门大街132号",
+    "location": {
+      "longitude": 118.763238,
+      "latitude": 32.031714,
+      "coord_system": "GCJ-02"
+    },
+    "category": "garden_park",
+    "tags": [
+      "garden",
+      "nature",
+      "history",
+      "leisure_walk"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "06:00",
+          "close": "21:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：21:00停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 0,
+      "student": 0,
+      "child": 0,
+      "senior": null,
+      "notes": "景区公共区域免费开放，无优惠票分类；胜棋楼等内部展陈、活动或游船若单独收费，儿童、学生、老人等优惠以项目公告为准。 原表票价记录：成人票未查到；学生票未查到；儿童票未查到。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：成人、学生、儿童三项均为空，说明明确景区公共区域免费开放→整体按 0 处理（无需显式覆盖，由管线规则自动产生）"
+    },
+    "reservation": {
+      "required": "conditional",
+      "channel_name": "美团/抖音",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "莫愁湖是南京老城西部的历史园林，以湖面、荷花、胜棋楼和莫愁女传说著称。园内道路平缓，适合散步赏景，春季海棠与夏季荷花是主要季节看点。",
+    "description_detail": null,
+    "highlights": [
+      "胜棋楼",
+      "荷花景观",
+      "莫愁女文化"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：自然生态—城市休闲线。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_028",
+    "name": "栖霞山风景名胜区",
+    "aliases": [],
+    "district": "栖霞区",
+    "address": "南京市栖霞区栖霞街88号",
+    "location": {
+      "longitude": 118.965153,
+      "latitude": 32.145722,
+      "coord_system": "GCJ-02"
+    },
+    "category": "natural_scenery",
+    "tags": [
+      "nature",
+      "religion",
+      "architecture",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "07:00",
+          "close": "21:30"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；临时调整以景区公告为准",
+      "last_entry": null,
+      "notes": "原停止入场说明：17:00；红枫季票制以当季公告为准"
+    },
+    "duration": {
+      "suggested_minutes": 240,
+      "minimum_minutes": 180
+    },
+    "ticket": {
+      "adult": 50.0,
+      "student": 50.0,
+      "child": 0.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生和60—69周岁老人半价；70周岁以上老人及符合规定的优抚对象免票，红枫季票制以当季公告为准。 原表票价记录：成人票50；学生票50；儿童票免费（1.4米以上，不含1.4米）。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "conditional",
+      "channel_name": "美团/抖音",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "栖霞山以深秋红叶闻名，山中分布栖霞寺、舍利塔和千佛岩等历史遗迹。登山线路串联寺院、石刻与观景台，既可看自然景色，也能了解佛教文化。",
+    "description_detail": null,
+    "highlights": [
+      "栖霞寺",
+      "千佛岩",
+      "秋季红叶"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：自然生态—城市休闲线。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_029",
+    "name": "牛首山文化旅游区",
+    "aliases": [],
+    "district": "江宁区",
+    "address": "南京市江宁区宁丹大道18号",
+    "location": {
+      "longitude": 118.757646,
+      "latitude": 31.910169,
+      "coord_system": "GCJ-02"
+    },
+    "category": "religious_architecture",
+    "tags": [
+      "religion",
+      "modern_city",
+      "art",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "17:30"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；临时调整以景区公告为准",
+      "last_entry": null,
+      "notes": "原停止入场说明：16:30停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 300,
+      "minimum_minutes": 240
+    },
+    "ticket": {
+      "adult": 160.0,
+      "student": 80.0,
+      "child": 80.0,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生和60—69周岁老人按公布票价享优惠；70周岁以上老人及符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票160；学生票80；儿童票80。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。"
+    },
+    "reservation": {
+      "required": "conditional",
+      "channel_name": "美团/抖音",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "牛首山文化旅游区以佛顶宫和佛顶塔为核心，将山体矿坑修复、佛教文化与现代建筑艺术结合。景区面积较大，主景区与交通接驳均需预留时间。",
+    "description_detail": null,
+    "highlights": [
+      "佛顶宫",
+      "佛顶塔",
+      "地下禅境空间"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "牛首山文化旅游区官方网站",
+        "url": "https://www.niushoushan.net/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：自然生态—城市休闲线。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_030",
+    "name": "河西南京眼旅游区",
+    "aliases": [
+      "南京眼"
+    ],
+    "district": "建邺区",
+    "address": "南京市建邺区河西大街239号附近南京眼步行桥",
+    "location": {
+      "longitude": 118.707481,
+      "latitude": 31.994399,
+      "coord_system": "GCJ-02"
+    },
+    "category": "modern_landmark",
+    "tags": [
+      "modern_city",
+      "night_view",
+      "photography",
+      "leisure_walk"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "步行桥及滨江公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；遇维护、极端天气、交通管制或活动可能临时调整",
+      "last_entry": null,
+      "notes": "亮灯、维护、活动和临时管制以现场及官方通知为准"
+    },
+    "duration": {
+      "suggested_minutes": 60,
+      "minimum_minutes": 30
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "步行桥及滨江公共空间免费开放，无优惠票分类；周边展馆、演出或商业体验如单独收费，其优惠条件以运营方公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京眼是连接河西新城与江心洲的步行桥，双塔斜拉结构形似眼睛，是青奥轴线的重要现代地标。傍晚可观江景和城市天际线，亮灯后更适合拍照。",
+    "description_detail": null,
+    "highlights": [
+      "南京眼步行桥",
+      "长江落日",
+      "河西夜景"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "原分组：自然生态—城市休闲线。 数据规范修正：原闭馆规则误填为“免费开放”，已改为无固定闭馆日。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_031",
+    "name": "珍珠泉风景区",
+    "aliases": [],
+    "district": "浦口区",
+    "address": "南京市浦口区顶山街道珍珠街178号",
+    "location": {
+      "longitude": 118.659261,
+      "latitude": 32.119662,
+      "coord_system": "GCJ-02"
+    },
+    "category": "natural_scenery",
+    "tags": [
+      "nature",
+      "family",
+      "leisure_walk",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：工作日16:00停止入园、周末16:30停止入园；周末开放 08:30-17:30，未纳入路线规划；路线票价按通常游览选择景区+动物园联票计算"
+    },
+    "duration": {
+      "suggested_minutes": 240,
+      "minimum_minutes": 180
+    },
+    "ticket": {
+      "adult": 70,
+      "student": 50,
+      "child": 50,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生和60—69周岁老人按公布票价享优惠；70周岁以上老人及符合规定的优抚对象免票，联票项目另按公告。 原表票价记录：成人票大门票40元；野生动物园60元；景区+动物园联票70元；学生票全日制大学本科及以下学历在校学生半价；儿童票1.4米以下儿童免费。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：负责人确认：游客通常会同时游览动物园，路线预算统一采用景区+动物园联票；成人70元，学生和儿童均为50元"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "珍珠泉风景区位于老山南麓，以泉水、湖泊、竹林和山地景观为主要特色。除观泉和环湖游览外，还有动物生态园等项目，适合安排半日亲子休闲。",
+    "description_detail": null,
+    "highlights": [
+      "珍珠泉泉眼",
+      "镜山湖",
+      "山林步道"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "国家4A级旅游景区 原分组：近郊休闲—主题游乐线。 原停止入场说明：工作日16:00停止入园；周末16:30停止入园。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_032",
+    "name": "南京欢乐谷景区",
+    "aliases": [],
+    "district": "栖霞区",
+    "address": "南京市栖霞区经济技术开发区欢乐谷北路8号",
+    "location": {
+      "longitude": 118.998438,
+      "latitude": 32.164909,
+      "coord_system": "GCJ-02"
+    },
+    "category": "themed_experience",
+    "tags": [
+      "family",
+      "night_view",
+      "art"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "10:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；运营时间随时令和节庆活动变化，以现场公示为准",
+      "last_entry": null,
+      "notes": "原停止入场说明：闭园前1小时停止售票、检票入园；周末开放 08:30-17:30（16:30停止入园），未纳入路线规划；成人全价通票260元"
+    },
+    "duration": {
+      "suggested_minutes": 480,
+      "minimum_minutes": 240
+    },
+    "ticket": {
+      "adult": 180,
+      "student": 220,
+      "child": 120,
+      "senior": null,
+      "notes": "身高1.2米以下儿童通常免票但须成人陪同；儿童、青少年、大学生及长者优惠票按身高、年龄或全日制学籍核验；残疾人等优待政策和特殊日期票价以官方当日票种说明为准。 原表票价记录：成人票180元（全价票）；学生票220元（大学生票；儿童票120元（儿童长者票，1.2-1.5米）。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：使用工作簿明确数字：成人全价票180元、大学生票220元、儿童长者票（1.2-1.5米）120元；学生票高于成人票属于乐园大学生票种实际价格，保留原值并已列入问题清单"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "“南京欢乐谷”官方购票平台",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "南京欢乐谷是大型主题乐园，设欢乐时光、奇想海洋、甜品王国等主题区域，包含过山车、亲子设施和演艺活动。项目较多，节假日应为排队预留时间。",
+    "description_detail": null,
+    "highlights": [
+      "大型过山车",
+      "主题街区",
+      "夜间演艺"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京欢乐谷官方网站",
+        "url": "https://nj.happyvalley.cn/",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "成人全价通票260元 原分组：近郊休闲—主题游乐线。 原停止入场说明：闭园前1小时停止售票、检票入园。 补充来源：https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_033",
+    "name": "汤山紫清湖旅游区",
+    "aliases": [],
+    "district": "江宁区",
+    "address": "南京市江宁区汤山街道环镇北路8号",
+    "location": {
+      "longitude": 119.039104,
+      "latitude": 32.06195,
+      "coord_system": "GCJ-02"
+    },
+    "category": "themed_experience",
+    "tags": [
+      "leisure_walk",
+      "family",
+      "nature"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日",
+      "last_entry": null,
+      "notes": "原停止入场说明：温泉21:00停止入园、野生动物世界15:30停止入园；温泉开放时间工作日13:00-22:00、周末10:00-22:00；大马戏每周二闭园，均不参与整体路线规划"
+    },
+    "duration": {
+      "suggested_minutes": 360,
+      "minimum_minutes": 180
+    },
+    "ticket": {
+      "adult": 129,
+      "student": 129,
+      "child": 75,
+      "senior": null,
+      "notes": "身高或年龄符合规定的儿童可享免票或优惠票；学生、老人及优抚对象是否优惠取决于温泉、野生动物世界等具体产品，须按所购项目说明并出示有效证件。 原表票价记录：成人票野生动物世界180元；温泉118元（工作日）/（周末价格以现场为准）；学生票全日制大学本科及以下学历学生半价；儿童票1.0-1.4米儿童执行儿童价。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：负责人确认：原180元为包含游乐设施的组合票，不作为常规路线参考价；成人和学生按129元、儿童按75元计算"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "汤山紫清湖旅游区以温泉度假、湖景园林和动物互动体验为特色，内部产品类型较多。游客可按季节选择温泉、亲子游或休闲住宿，票种需对应具体项目。",
+    "description_detail": null,
+    "highlights": [
+      "汤山温泉",
+      "湖景园林",
+      "野生动物世界"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "国家4A级旅游景区 原分组：近郊休闲—主题游乐线。 原停止入场说明：温泉21:00停止入园；野生动物世界15:30停止入园。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_034",
+    "name": "南京市明文化村（阳山碑材）景区",
+    "aliases": [],
+    "district": "江宁区",
+    "address": "南京市江宁区汤山街道阳山碑材景区",
+    "location": {
+      "longitude": 119.000646,
+      "latitude": 32.062022,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "nature",
+      "photography"
+    ],
+    "quality_grade": "4A",
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "5月至10月",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "16:30"
+        },
+        {
+          "period_label": "11月至次年4月",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "08:30",
+          "close": "16:00"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；临时调整以官方通知为准",
+      "last_entry": null,
+      "notes": "部分来源显示夏季开放至17:00；闭园前停止入园"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 40.0,
+      "student": 20,
+      "child": 20,
+      "senior": null,
+      "notes": "6周岁以下或身高1.4米以下儿童免票；6—18周岁未成年人、全日制大中小学生和60—69周岁老人按公布票价享优惠；70周岁以上老人及符合规定的优抚对象免票，凭有效证件。 原表票价记录：成人票40元；学生票全日制大学本科及以下学历在校学生半价；儿童票6周岁以下或1.4米以下儿童免费。 老人票价按年龄或项目分档，未填写单一数值，具体条件见本栏说明。 票价推导依据：负责人核实：学生和儿童均按成人票40元的半价计算，参考价均为20元；低龄或1.4米以下儿童免费条件仅保留在说明"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "阳山碑材是明成祖为明孝陵神功圣德碑开凿而未完成的巨型碑石遗迹，碑额、碑身和碑座仍留在山体。其巨大尺度可直观反映明代采石和工程组织能力。",
+    "description_detail": null,
+    "highlights": [
+      "巨型碑额",
+      "碑身与碑座",
+      "明代采石遗迹"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市国家等级旅游景区名录（截至2026年8月）",
+        "url": "https://wlj.nanjing.gov.cn/zwfw/bszlxz/202601/t20260121_5773976.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "部分来源显示夏季开放至17:00 原分组：近郊休闲—主题游乐线。 原停止入场说明：闭园前停止入园。 数据规范修正：原冬季开放时间误填在闭馆规则列，现已合并回常规开放时间。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_041",
+    "name": "南京古生物博物馆",
+    "aliases": [
+      "古生物博物馆"
+    ],
+    "district": "玄武区",
+    "address": "南京市玄武区北京东路39号",
+    "location": {
+      "longitude": 118.795606,
+      "latitude": 32.060006,
+      "coord_system": "GCJ-02"
+    },
+    "category": "museum_venue",
+    "tags": [
+      "museum",
+      "family",
+      "nature"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "全年常规时段",
+          "days": [
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "09:00",
+          "close": "17:00"
+        }
+      ],
+      "closed_rules": "周一、周二闭馆，节假日安排以馆方公告为准",
+      "last_entry": "16:00",
+      "notes": "16:00停止入馆；须在南京古生物博物馆官方微信公众号实名预约，成年人及儿童均需预约。"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 0,
+      "student": 0,
+      "child": 0,
+      "senior": 0,
+      "notes": "免费开放；成年人及儿童均需提前实名预约。"
+    },
+    "reservation": {
+      "required": "yes",
+      "channel_name": "南京古生物博物馆微信公众号",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "位于鸡鸣寺附近的古生物专题博物馆，通过化石、模型和展览介绍地球与生命演化。可观赏澄江动物群、热河生物群等珍贵化石，适合亲子科普参观。",
+    "description_detail": null,
+    "highlights": [
+      "生命演化史展览",
+      "澄江动物群化石",
+      "热河生物群与中华龙鸟化石"
+    ],
+    "transport": {
+      "nearest_metro": "鸡鸣寺站（3号线、4号线）",
+      "exit": "5号口",
+      "walk_minutes": 3
+    },
+    "sources": [
+      {
+        "source_type": "official_website",
+        "title": "南京古生物博物馆官网：参观指南",
+        "url": "https://www.nmp.ac.cn/bwggk/cgzn/",
+        "verified_at": "2026-10-06"
+      }
+    ],
+    "collector": "tongyannya",
+    "notes": "展览介绍：https://www.nmp.ac.cn/bwggk/js/；鸡鸣寺站5号口步行约200米。",
+    "is_mock": false
+  },
+  {
+    "id": "attr_036",
+    "name": "陵园路（梧桐大道）",
+    "aliases": [],
+    "district": "玄武区",
+    "address": "南京市玄武区陵园路（中山门至中山陵一带）",
+    "location": {
+      "longitude": 118.841586,
+      "latitude": 32.04605,
+      "coord_system": "GCJ-02"
+    },
+    "category": "urban_district",
+    "tags": [
+      "nature",
+      "urban_walk",
+      "photography",
+      "leisure_walk"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；遇维护、极端天气、交通管制或活动可能临时调整",
+      "last_entry": null,
+      "notes": "公共道路，游览时注意车辆和临时交通管制；秋季落叶期及节假日人流较大"
+    },
+    "duration": {
+      "suggested_minutes": 60,
+      "minimum_minutes": 30
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "公共空间免费开放，无优惠票分类；其中展馆、活动、商业体验或临时收费项目按各运营方规定执行，具体优待条件以项目公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "陵园路梧桐大道是通往中山陵的重要礼仪道路，两侧高大梧桐形成连续林荫穹顶。道路四季色彩鲜明，人行天桥、大金门和远处山景共同组成南京辨识度很高的拍照画面。",
+    "description_detail": null,
+    "highlights": [
+      "梧桐林荫穹顶",
+      "网红人行天桥",
+      "大金门视角"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市中山陵园管理局相关页面",
+        "url": "https://zschina.nanjing.gov.cn/lyzx/202601/t20260113_5763812.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "公共道路，游览时注意车辆和临时交通管制；秋季落叶期及节假日人流较大。 原分组：网红打卡—城市漫步线。 原停止入场说明：无统一停止入场时间。 补充来源：https://www.nanjing.gov.cn/njxx/202601/t20260121_5773712.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_037",
+    "name": "颐和路历史文化街区",
+    "aliases": [],
+    "district": "鼓楼区",
+    "address": "南京市鼓楼区颐和路、江苏路及宁海路围合片区",
+    "location": {
+      "longitude": 118.768152,
+      "latitude": 32.063949,
+      "coord_system": "GCJ-02"
+    },
+    "category": "urban_district",
+    "tags": [
+      "history",
+      "architecture",
+      "urban_walk",
+      "photography",
+      "leisure_walk"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；遇维护、极端天气、交通管制或活动可能临时调整",
+      "last_entry": null,
+      "notes": "街区公共道路全天开放；个别院落、展馆和商业空间按各自营业时间开放"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "公共空间免费开放，无优惠票分类；其中展馆、活动、商业体验或临时收费项目按各运营方规定执行，具体优待条件以项目公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "颐和路历史文化街区集中保存大批民国时期住宅院落，街巷尺度舒缓，梧桐与老洋房相映成景。部分院落活化为展馆、艺术空间和咖啡店，适合建筑观察与城市漫步。",
+    "description_detail": null,
+    "highlights": [
+      "民国公馆建筑群",
+      "梧桐街巷",
+      "颐和路数字展示馆"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市人民政府相关页面",
+        "url": "https://www.nanjing.gov.cn/xxgkn/jytabljggk/2024njytabl/shizxta/202411/t20241120_5014183.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "街区公共道路全天开放；个别院落、展馆和商业空间按各自营业时间开放。 原分组：网红打卡—城市漫步线。 原停止入场说明：无统一停止入场时间。 补充来源：https://www.nanjing.gov.cn/njxx/202601/t20260121_5773712.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_038",
+    "name": "浦口火车站历史风貌区",
+    "aliases": [],
+    "district": "浦口区",
+    "address": "南京市浦口区泰山街道津浦路30号及周边历史风貌区",
+    "location": {
+      "longitude": 118.720209,
+      "latitude": 32.097647,
+      "coord_system": "GCJ-02"
+    },
+    "category": "historic_site",
+    "tags": [
+      "history",
+      "architecture",
+      "urban_walk",
+      "photography"
+    ],
+    "quality_grade": null,
+    "recommendation_level": null,
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；遇维护、极端天气、交通管制或活动可能临时调整",
+      "last_entry": null,
+      "notes": "历史风貌区公共空间免费；部分核心建筑可能因保护、布展或活动安排限制进入"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "公共空间免费开放，无优惠票分类；其中展馆、活动、商业体验或临时收费项目按各运营方规定执行，具体优待条件以项目公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "浦口火车站曾是津浦铁路重要终点，老站房、站台及周边街区保存着近代铁路交通记忆。完成保护更新后，红砖建筑、复古店铺和滨江空间成为体验百年车站历史的热门地点。",
+    "description_detail": null,
+    "highlights": [
+      "百年老站房",
+      "近代铁路建筑",
+      "更新后的历史街区"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市地方志工作办公室相关页面",
+        "url": "https://dfz.nanjing.gov.cn/gzdt/202505/t20250521_5566898.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "历史风貌区公共空间免费；部分核心建筑可能因保护、布展或活动安排限制进入。 原分组：网红打卡—城市漫步线。 原停止入场说明：无统一停止入场时间。 补充来源：https://www.nanjing.gov.cn/njxx/202601/t20260121_5773712.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_039",
+    "name": "小西湖历史风貌区",
+    "aliases": [],
+    "district": "秦淮区",
+    "address": "南京市秦淮区马道街、堆草巷与大油坊巷一带",
+    "location": {
+      "longitude": 118.785642,
+      "latitude": 32.016371,
+      "coord_system": "GCJ-02"
+    },
+    "category": "urban_district",
+    "tags": [
+      "history",
+      "architecture",
+      "urban_walk",
+      "folk_custom",
+      "photography"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "supplement",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；遇维护、极端天气、交通管制或活动可能临时调整",
+      "last_entry": null,
+      "notes": "属于生活型街区，请避免进入未开放民居或影响居民；商户营业时间各不相同"
+    },
+    "duration": {
+      "suggested_minutes": 90,
+      "minimum_minutes": 60
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "公共空间免费开放，无优惠票分类；其中展馆、活动、商业体验或临时收费项目按各运营方规定执行，具体优待条件以项目公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "小西湖是南京老城南具有生活气息的历史风貌区，以渐进式微更新保留居民、老屋和传统街巷。共享院落、花墙、咖啡馆与日常生活并存，适合观察城市更新和拍摄巷弄细节。",
+    "description_detail": null,
+    "highlights": [
+      "共生院落",
+      "老城南传统街巷",
+      "马道街文艺空间"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京市人民政府：南京城市更新再获国际荣誉 小西湖入选全球城市更新十佳案例",
+        "url": "https://www.nanjing.gov.cn/zgnjsjb/jrtt/202606/t20260620_5863434.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "属于生活型街区，请避免进入未开放民居或影响居民；商户营业时间各不相同。 原分组：网红打卡—城市漫步线。 原停止入场说明：无统一停止入场时间。 补充来源：https://www.nanjing.gov.cn/njxx/202601/t20260121_5773712.html 主要来源已于2026-09-01核对并更换为南京市人民政府页面；补充来源：https://dfz.nanjing.gov.cn/gzdt/202412/t20241206_5027452.html",
+    "is_mock": false
+  },
+  {
+    "id": "attr_040",
+    "name": "南京鱼嘴湿地公园",
+    "aliases": [],
+    "district": "建邺区",
+    "address": "南京市建邺区河西新城南端，扬子江大道与秦新路附近",
+    "location": {
+      "longitude": 118.661894,
+      "latitude": 31.968602,
+      "coord_system": "GCJ-02"
+    },
+    "category": "natural_scenery",
+    "tags": [
+      "nature",
+      "modern_city",
+      "photography",
+      "leisure_walk"
+    ],
+    "quality_grade": null,
+    "recommendation_level": "standard",
+    "opening": {
+      "regular": [
+        {
+          "period_label": "公共空间",
+          "days": [
+            "monday",
+            "tuesday",
+            "wednesday",
+            "thursday",
+            "friday",
+            "saturday",
+            "sunday"
+          ],
+          "open": "00:00",
+          "close": "23:59"
+        }
+      ],
+      "closed_rules": "无固定闭馆日；遇维护、极端天气、交通管制或活动可能临时调整",
+      "last_entry": null,
+      "notes": "滨江空间受天气、水位和大型活动影响；拍摄日落建议提前到达并注意临水安全"
+    },
+    "duration": {
+      "suggested_minutes": 120,
+      "minimum_minutes": 90
+    },
+    "ticket": {
+      "adult": 0.0,
+      "student": 0.0,
+      "child": 0.0,
+      "senior": 0.0,
+      "notes": "公共空间免费开放，无优惠票分类；其中展馆、活动、商业体验或临时收费项目按各运营方规定执行，具体优待条件以项目公告为准。 原表票价记录：成人票0；学生票0；儿童票0。 老人票确认为免费。"
+    },
+    "reservation": {
+      "required": "no",
+      "channel_name": "无需预约",
+      "url": null,
+      "notes": "小程序或公众号没有网页链接时，以渠道名称为准。"
+    },
+    "description_short": "鱼嘴湿地公园位于长江、夹江与秦淮新河交汇处，以滨江湿地、芦苇和开阔江景闻名。红白灯塔是标志性拍摄点，傍晚常可欣赏长江落日和城市天际线。",
+    "description_detail": null,
+    "highlights": [
+      "红白灯塔",
+      "长江落日",
+      "滨江湿地与芦苇"
+    ],
+    "transport": {
+      "nearest_metro": null,
+      "exit": null,
+      "walk_minutes": null
+    },
+    "sources": [
+      {
+        "source_type": "government",
+        "title": "南京河西新城区开发建设管委会相关页面",
+        "url": "https://newtown.nanjing.gov.cn/xcyx/pzxc/bjwlgw/202003/t20200316_2110640.html",
+        "verified_at": "2026-09-01"
+      }
+    ],
+    "collector": null,
+    "notes": "滨江空间受天气、水位和大型活动影响；拍摄日落建议提前到达并注意临水安全。 原分组：网红打卡—城市漫步线。 原停止入场说明：无统一停止入场时间。 补充来源：https://gzw.nanjing.gov.cn/gzdt/202501/t20250126_5066534.html",
+    "is_mock": false
+  }
+]

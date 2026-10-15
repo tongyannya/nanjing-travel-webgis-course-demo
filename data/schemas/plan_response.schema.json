@@ -1,0 +1,553 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.example/schemas/plan_response.schema.json",
+  "title": "PlanResponse v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "generated_at", "data_version", "is_mock", "plans", "global_warnings"],
+  "properties": {
+    "request_id": {"$ref": "#/$defs/id"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "data_version": {"type": "string", "minLength": 1},
+    "is_mock": {"type": "boolean"},
+    "plans": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/plan"}
+    },
+    "global_warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "time": {"type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"},
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["longitude", "latitude", "coord_system"],
+      "properties": {
+        "longitude": {"type": "number"},
+        "latitude": {"type": "number"},
+        "coord_system": {"const": "GCJ-02"}
+      }
+    },
+    "location_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_method", "name", "location"],
+      "properties": {
+        "source_method": {"enum": ["search", "current_location", "map_click", "station", "hotel"]},
+        "name": {"type": "string", "minLength": 1},
+        "location": {"$ref": "#/$defs/location"}
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "type", "ref_id", "name", "start_time", "end_time", "duration_minutes", "location", "ticket_cost", "meal_kind", "locked", "notes"],
+      "properties": {
+        "item_id": {"$ref": "#/$defs/id"},
+        "type": {"enum": ["start", "attraction", "meal_area", "duck_restaurant", "free_time", "end"]},
+        "ref_id": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "null"}]},
+        "name": {"type": "string", "minLength": 1},
+        "start_time": {"$ref": "#/$defs/time"},
+        "end_time": {"$ref": "#/$defs/time"},
+        "duration_minutes": {"type": "integer", "minimum": 0},
+        "location": {"$ref": "#/$defs/location"},
+        "ticket_cost": {"type": "number", "minimum": 0},
+        "meal_kind": {"type": ["string", "null"], "enum": ["lunch", "dinner", "snack", null]},
+        "locked": {"type": "boolean"},
+        "notes": {"type": ["string", "null"]},
+        "dining_area": {
+          "anyOf": [
+            {"$ref": "#/$defs/dining_area"},
+            {"type": "null"}
+          ]
+        },
+        "duck_restaurant": {
+          "anyOf": [
+            {"$ref": "#/$defs/duck_restaurant_poi"},
+            {"type": "null"}
+          ]
+        },
+        "featured_duck_type": {
+          "type": ["string", "null"],
+          "enum": ["salted_duck", "duck_blood_soup", "roast_duck", "pressed_duck", "nanjing_cuisine", null]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": {"type": {"const": "meal_area"}}
+          },
+          "then": {
+            "required": ["dining_area"],
+            "properties": {"dining_area": {"$ref": "#/$defs/dining_area"}}
+          },
+          "else": {"properties": {"dining_area": {"type": "null"}}}
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": {"type": {"const": "duck_restaurant"}}
+          },
+          "then": {
+            "required": ["duck_restaurant", "featured_duck_type"],
+            "properties": {
+              "ref_id": {"type": "string", "minLength": 1},
+              "duck_restaurant": {"$ref": "#/$defs/duck_restaurant_poi"},
+              "featured_duck_type": {"enum": ["salted_duck", "duck_blood_soup", "roast_duck", "pressed_duck", "nanjing_cuisine"]}
+            }
+          },
+          "else": {
+            "properties": {
+              "ref_id": {"anyOf": [{"$ref": "#/$defs/id"}, {"type": "null"}]},
+              "duck_restaurant": {"type": "null"},
+              "featured_duck_type": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "restaurant_poi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["poi_id", "name", "address", "location", "category", "distance_m", "rating", "average_cost", "telephone", "duck_types", "source", "fetched_at"],
+      "properties": {
+        "poi_id": {"type": "string", "minLength": 1},
+        "name": {"type": "string", "minLength": 1},
+        "address": {"type": ["string", "null"]},
+        "location": {"$ref": "#/$defs/location"},
+        "category": {"type": ["string", "null"]},
+        "distance_m": {"type": ["integer", "null"], "minimum": 0},
+        "rating": {"type": ["number", "null"], "minimum": 0, "maximum": 5},
+        "average_cost": {"type": ["number", "null"], "minimum": 0},
+        "telephone": {"type": ["string", "null"]},
+        "duck_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["salted_duck", "duck_blood_soup", "roast_duck", "pressed_duck", "nanjing_cuisine"]}
+        },
+        "source": {"const": "amap"},
+        "fetched_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "duck_restaurant_poi": {
+      "allOf": [
+        {"$ref": "#/$defs/restaurant_poi"},
+        {
+          "properties": {
+            "duck_types": {"minItems": 1}
+          }
+        }
+      ]
+    },
+    "dining_area": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "center", "radius_meters", "evaluated_radii_meters", "restaurant_count", "density_level", "density_label", "has_suitable_area", "near_item_id", "restaurant_preview", "pages_queried", "is_capped", "message", "source", "note"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "name": {"type": "string", "minLength": 1},
+        "center": {"$ref": "#/$defs/location"},
+        "radius_meters": {"type": "integer", "minimum": 100, "maximum": 3000},
+        "evaluated_radii_meters": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 100, "maximum": 3000}
+        },
+        "restaurant_count": {"type": "integer", "minimum": 0},
+        "density_level": {"enum": ["unsuitable", "normal", "rich", "cluster"]},
+        "density_label": {"type": "string", "minLength": 1},
+        "has_suitable_area": {"const": true},
+        "near_item_id": {"type": ["string", "null"]},
+        "restaurant_preview": {
+          "type": "array",
+          "maxItems": 5,
+          "items": {"$ref": "#/$defs/restaurant_poi"}
+        },
+        "pages_queried": {"type": "integer", "minimum": 1, "maximum": 4},
+        "is_capped": {"type": "boolean"},
+        "message": {"type": "string", "minLength": 1},
+        "source": {"const": "amap"},
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "transit_ride_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "line_name", "departure_stop", "arrival_stop", "duration_minutes"],
+      "properties": {
+        "mode": {"enum": ["bus", "metro", "taxi", "railway"]},
+        "line_name": {"type": ["string", "null"]},
+        "departure_stop": {"type": ["string", "null"]},
+        "arrival_stop": {"type": ["string", "null"]},
+        "duration_minutes": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "transit_transfer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_line_name", "to_line_name", "arrival_stop", "departure_stop"],
+      "properties": {
+        "from_line_name": {"type": ["string", "null"]},
+        "to_line_name": {"type": ["string", "null"]},
+        "arrival_stop": {"type": ["string", "null"]},
+        "departure_stop": {"type": ["string", "null"]}
+      }
+    },
+    "transit_route_segment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "line_name", "path"],
+      "properties": {
+        "mode": {"enum": ["walk", "bus", "metro", "taxi", "railway"]},
+        "line_name": {"type": ["string", "null"]},
+        "path": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {"type": "number", "minimum": -180, "maximum": 180},
+              {"type": "number", "minimum": -90, "maximum": 90}
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        }
+      }
+    },
+    "transit_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_minutes", "conservative_minutes", "walking_distance_m", "walking_minutes", "transfer_count", "ride_segments", "route_segments", "transfers", "summary"],
+      "properties": {
+        "total_minutes": {"type": "integer", "minimum": 1},
+        "conservative_minutes": {"type": "integer", "minimum": 30, "multipleOf": 30},
+        "walking_distance_m": {"type": ["integer", "null"], "minimum": 0},
+        "walking_minutes": {"type": ["integer", "null"], "minimum": 0},
+        "transfer_count": {"type": "integer", "minimum": 0},
+        "ride_segments": {"type": "array", "items": {"$ref": "#/$defs/transit_ride_segment"}},
+        "route_segments": {"type": "array", "items": {"$ref": "#/$defs/transit_route_segment"}},
+        "transfers": {"type": "array", "items": {"$ref": "#/$defs/transit_transfer"}},
+        "summary": {"type": "string", "minLength": 1}
+      }
+    },
+    "meal_hexagon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "center",
+        "boundary",
+        "ordinary_count",
+        "duck_meal_count",
+        "duck_types",
+        "data_version"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^dining_hex_-?\\d+_-?\\d+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "center": {
+          "$ref": "#/$defs/location"
+        },
+        "boundary": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "items": false,
+            "minItems": 2,
+            "maxItems": 2
+          }
+        },
+        "ordinary_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duck_meal_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "duck_types": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "salted_duck",
+              "duck_blood_soup",
+              "roast_duck",
+              "pressed_duck"
+            ]
+          }
+        },
+        "data_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "route_meal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "meal_kind",
+        "start_time",
+        "end_time",
+        "duration_minutes",
+        "area_kind",
+        "area",
+        "match_source",
+        "elapsed_minutes",
+        "message"
+      ],
+      "properties": {
+        "meal_kind": {
+          "enum": [
+            "lunch",
+            "dinner"
+          ]
+        },
+        "start_time": {
+          "$ref": "#/$defs/time"
+        },
+        "end_time": {
+          "$ref": "#/$defs/time"
+        },
+        "duration_minutes": {
+          "const": 60
+        },
+        "area_kind": {
+          "enum": [
+            "ordinary",
+            "duck"
+          ]
+        },
+        "area": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/meal_hexagon"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "match_source": {
+          "enum": [
+            "endpoint",
+            "walk",
+            "road",
+            "station",
+            "unmatched"
+          ]
+        },
+        "elapsed_minutes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "path_details": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "total_minutes",
+        "route_segments",
+        "stops"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "walk",
+            "public_transit",
+            "taxi",
+            "self_drive"
+          ]
+        },
+        "total_minutes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "route_segments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode",
+              "line_name",
+              "path",
+              "duration_minutes"
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "walk",
+                  "metro",
+                  "bus",
+                  "railway",
+                  "taxi",
+                  "self_drive"
+                ]
+              },
+              "line_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "path": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "type": "array",
+                  "prefixItems": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ],
+                  "items": false,
+                  "minItems": 2,
+                  "maxItems": 2
+                }
+              },
+              "duration_minutes": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        },
+        "stops": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "location",
+              "elapsed_minutes"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "location": {
+                "$ref": "#/$defs/location"
+              },
+              "elapsed_minutes": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "leg": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_item_id", "to_item_id", "mode", "duration_minutes_raw", "duration_minutes_rounded", "route_summary", "is_estimated", "transit_details"],
+      "properties": {
+        "from_item_id": {"$ref": "#/$defs/id"},
+        "to_item_id": {"$ref": "#/$defs/id"},
+        "mode": {"enum": ["public_transit", "taxi", "self_drive", "walk"]},
+        "duration_minutes_raw": {"type": "integer", "minimum": 0},
+        "duration_minutes_rounded": {"type": "integer", "minimum": 0, "multipleOf": 30},
+        "route_summary": {"type": "array", "items": {"type": "string"}},
+        "is_estimated": {"type": "boolean"},
+        "meals": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/route_meal"}},
+        "path_details": {"anyOf": [{"$ref": "#/$defs/path_details"}, {"type": "null"}]},
+        "transit_details": {
+          "anyOf": [
+            {"$ref": "#/$defs/transit_details"},
+            {"type": "null"}
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["mode"],
+            "properties": {"mode": {"enum": ["taxi", "self_drive", "walk"]}}
+          },
+          "then": {"properties": {"transit_details": {"type": "null"}}}
+        }
+      ]
+    },
+    "day": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "start_location", "end_location", "items", "legs"],
+      "properties": {
+        "date": {"type": "string", "format": "date"},
+        "start_location": {"$ref": "#/$defs/location_ref"},
+        "end_location": {"$ref": "#/$defs/location_ref"},
+        "end_time_adjustment": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["planned_end_time", "extended_end_time", "reason"],
+          "properties": {
+            "planned_end_time": {"$ref": "#/$defs/time"},
+            "extended_end_time": {"$ref": "#/$defs/time"},
+            "reason": {"type": "string", "minLength": 1}
+          }
+        },
+        "items": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/item"}},
+        "legs": {"type": "array", "items": {"$ref": "#/$defs/leg"}}
+      }
+    },
+    "unplanned": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attraction_id", "reason_code", "message"],
+      "properties": {
+        "attraction_id": {"$ref": "#/$defs/id"},
+        "reason_code": {"enum": ["closed", "time_conflict", "budget", "too_far", "excluded", "missing_data", "capacity"]},
+        "message": {"type": "string", "minLength": 1}
+      }
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["plan_type", "summary", "total_ticket_cost", "budget_exceeded", "days", "warnings", "unplanned_attractions"],
+      "properties": {
+        "plan_type": {"enum": ["relaxed", "compact", "duck"]},
+        "summary": {"type": "string", "minLength": 1},
+        "total_ticket_cost": {"type": "number", "minimum": 0},
+        "budget_exceeded": {"type": "boolean"},
+        "days": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"$ref": "#/$defs/day"}},
+        "warnings": {"type": "array", "items": {"type": "string"}},
+        "unplanned_attractions": {"type": "array", "items": {"$ref": "#/$defs/unplanned"}}
+      }
+    }
+  }
+}

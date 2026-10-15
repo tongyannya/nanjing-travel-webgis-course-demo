@@ -1,0 +1,129 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  min-width: 1180px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  background: var(--ink-900);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+:is(
+  a[href],
+  summary,
+  [role='link'],
+  .text-action,
+  .text-button,
+  .wizard-link,
+  .overview-panel__tutorial,
+  .overview-panel__secondary-button,
+  .duck-culture-link,
+  .map-info-culture-link,
+  .layer-group__header > button:last-child
+):hover {
+  filter: brightness(1.18);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+code {
+  font-family: Consolas, monospace;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+input[type='checkbox']:not(.sr-only) {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  cursor: pointer;
+}
+input[type='checkbox']:not(.sr-only):checked {
+  background: var(--teal);
+  border-color: var(--teal);
+}
+input[type='checkbox']:not(.sr-only):checked::after {
+  content: '✓';
+  color: #0e1817;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+input[type='checkbox']:disabled {
+  opacity: 0.58;
+  cursor: default;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

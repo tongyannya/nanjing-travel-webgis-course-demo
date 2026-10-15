@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.local-cache/
+.tools/
+*.log
+outputs/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

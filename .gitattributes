@@ -1,0 +1,18 @@
+* text=auto
+
+*.css text eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.vue text eol=lf
+*.yml text eol=lf
+
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.docx binary
+*.png binary
+*.xlsx binary

@@ -1,0 +1,199 @@
+.restaurant-map-marker {
+  height: 25px;
+  width: 25px;
+}
+
+.dining-sublayers {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.dining-sublayers .layer-switch {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  min-height: 34px;
+  padding: 5px 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.dining-sublayers .layer-switch:hover,
+.dining-sublayers .layer-switch:focus-visible {
+  background: rgba(255, 255, 255, 0.08);
+}
+.dining-sublayers .layer-switch b {
+  color: white;
+  font-size: 11.5px;
+}
+@media (max-width: 1320px) {
+  .dining-sublayers .layer-switch b {
+    font-size: 10.5px;
+  }
+}
+.dining-sublayers .layer-switch em {
+  color: var(--layer-accent);
+}
+.dining-sublayers .layer-switch--active .layer-switch__check,
+body.duck-mode .dining-sublayers .layer-switch--active .layer-switch__check {
+  background: var(--dining-sublayer-color);
+  border-color: var(--dining-sublayer-color);
+}
+.dining-sublayers__entry > small {
+  display: block;
+  margin-left: 31px;
+  color: var(--bone-3);
+  font-size: 10px;
+  line-height: 1.55;
+}
+.dining-density-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex: 0 0 auto;
+}
+.dining-density-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+}
+.dining-density-legend__blue {
+  background: #2f7de1;
+}
+.dining-density-legend__yellow {
+  background: #f2c744;
+}
+.dining-density-legend__red {
+  background: #e3483d;
+}
+
+.restaurant-map-marker--selected {
+  border-color: white;
+  box-shadow:
+    0 0 0 5px rgba(214, 162, 49, 0.26),
+    0 4px 12px rgba(8, 20, 17, 0.42);
+}
+
+.duck-restaurant-map-marker {
+  height: 25px;
+  border: 2px solid #f2c96d;
+  width: 25px;
+}
+
+.duck-type-filters .layer-switch b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.duck-type-filters .layer-switch {
+  --dining-sublayer-color: #c6a477;
+}
+.duck-type-filters .layer-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--dining-sublayer-color);
+  flex-shrink: 0;
+}
+.duck-point-counts em {
+  color: var(--layer-accent);
+  font-style: normal;
+}
+.duck-restaurant-map-marker .map-symbol-marker__caption[hidden] {
+  display: none;
+}
+.duck-restaurant-map-marker .map-symbol-marker__caption {
+  color: #9a5b22;
+}
+.duck-restaurant-map-marker__takeaway {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  background: #f2c96d;
+  color: #3a1f10;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 13px;
+  width: 13px;
+  text-align: center;
+}
+
+.dining-area-map-sequence {
+  align-items: center;
+  background: #fff;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: #c13f2c;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 10px;
+  font-weight: 700;
+  height: 16px;
+  justify-content: center;
+  min-width: 16px;
+  padding: 0 3px;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.dining-area-map-sequence:hover,
+.dining-area-map-sequence:focus-visible,
+.dining-area-map-sequence--selected {
+  box-shadow: 0 0 0 4px rgb(214 162 49 / 28%);
+  outline: none;
+  transform: scale(1.12);
+}
+
+.duck-density-legend {
+  display: flex;
+  gap: 12px;
+  margin: 10px 0;
+}
+.duck-density-legend span {
+  display: grid;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--bone-2);
+}
+.duck-stripe {
+  width: 42px;
+  height: 24px;
+  border: 1px solid #67432d;
+  background: repeating-linear-gradient(135deg, transparent 0 26.5px, #67432d 26.5px 28px);
+}
+.duck-stripe--1 {
+  background: repeating-linear-gradient(135deg, transparent 0 16.5px, #67432d 16.5px 18px);
+}
+.duck-stripe--2 {
+  background: repeating-linear-gradient(135deg, transparent 0 9.5px, #67432d 9.5px 11px);
+}
+.duck-stripe {
+  background-color: #f7ebd1;
+}
+.duck-culture-link {
+  display: block;
+  margin-top: 8px;
+  color: var(--gold);
+}
+.map-info-culture-link {
+  display: block;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--layer-accent);
+  cursor: pointer;
+  font-size: 10px;
+}
+.map-info-culture-link:hover,
+.map-info-culture-link:focus-visible {
+  color: var(--bone);
+  text-decoration: underline;
+}
+
+.dining-sublayers__entry .text-button {
+  padding: 0;
+  color: var(--layer-accent);
+  font-size: 11.5px;
+}

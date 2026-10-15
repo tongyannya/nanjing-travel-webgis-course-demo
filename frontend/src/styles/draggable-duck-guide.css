@@ -1,0 +1,308 @@
+.draggable-duck-guide-mount,
+.draggable-duck-guide-layer {
+  position: absolute;
+  z-index: 60;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.draggable-duck-guide-layer[hidden] {
+  display: none;
+}
+
+.draggable-duck-guide-layer__safe-area {
+  position: absolute;
+  inset: 24px;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.draggable-duck-guide-layer__duck {
+  position: absolute;
+  display: grid;
+  width: 171.6px;
+  height: 171.6px;
+  padding: 0;
+  place-items: center;
+  color: #4a2e1a;
+  background: transparent;
+  border: 0;
+  border-radius: 28px;
+  box-shadow: none;
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.draggable-duck-guide-layer__duck:hover {
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+
+.draggable-duck-guide-layer__duck:focus-visible {
+  background: transparent;
+  box-shadow: none;
+  outline: 3px solid rgb(50 129 120 / 48%);
+  outline-offset: 2px;
+}
+
+.draggable-duck-guide-layer__duck--dragging {
+  background: transparent;
+  box-shadow: none;
+  cursor: grabbing;
+  outline: none;
+}
+
+.draggable-duck-guide-layer__sprite {
+  display: block;
+  width: 171.6px;
+  height: 171.6px;
+  overflow: hidden;
+  filter: drop-shadow(0 8px 8px rgb(45 37 28 / 26%));
+  pointer-events: none;
+  transition: filter 160ms ease;
+}
+
+.draggable-duck-guide-layer__sprite img {
+  display: block;
+  width: 300%;
+  max-width: none;
+  height: 100%;
+  animation: duck-guide-page-turn 1.8s step-end infinite;
+  pointer-events: none;
+  transform: translateX(0);
+  user-select: none;
+}
+
+.draggable-duck-guide-layer__duck:hover .draggable-duck-guide-layer__sprite {
+  filter: drop-shadow(0 10px 10px rgb(45 37 28 / 34%));
+}
+
+.draggable-duck-guide-layer__duck--dragging .draggable-duck-guide-layer__sprite img {
+  animation-play-state: paused;
+}
+
+.draggable-duck-guide-layer__dialog {
+  position: absolute;
+  pointer-events: auto;
+}
+
+.draggable-duck-guide-layer__dialog::before {
+  position: absolute;
+  z-index: 0;
+  top: clamp(30px, var(--duck-guide-tail-y, 160px), calc(100% - 30px));
+  display: none;
+  width: 22px;
+  height: 22px;
+  content: '';
+  background: #fffaf0;
+  border: 1px solid rgb(161 104 46 / 34%);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.draggable-duck-guide-layer__dialog--open::before {
+  display: block;
+}
+
+.draggable-duck-guide-layer__dialog--right::before {
+  left: -10px;
+}
+
+.draggable-duck-guide-layer__dialog--left::before {
+  right: -10px;
+}
+
+.duck-guide-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(324px, calc(100vw - 48px));
+  max-height: min(360px, calc(100vh - 184px));
+  overflow: auto;
+  color: #27332f;
+  background: #fffaf0;
+  border: 1px solid rgb(161 104 46 / 34%);
+  border-radius: 26px;
+  box-shadow: 0 18px 48px rgb(48 39 27 / 24%);
+  outline: none;
+}
+
+.duck-guide-dialog:focus-visible {
+  box-shadow:
+    0 0 0 3px rgb(50 129 120 / 28%),
+    0 18px 48px rgb(48 39 27 / 24%);
+}
+
+.duck-guide-dialog__close {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  color: #72543b;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  font-size: 1.45rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.duck-guide-dialog__close:hover,
+.duck-guide-dialog__close:focus-visible {
+  color: #fffaf0;
+  background: #a86235;
+  outline: none;
+}
+
+.duck-guide-dialog__status {
+  display: grid;
+  gap: 8px;
+  min-height: 128px;
+  align-content: center;
+  padding: 48px 22px 24px;
+  color: #61584d;
+  text-align: center;
+}
+
+.duck-guide-dialog__status b {
+  color: #3c3025;
+}
+
+.duck-guide-dialog__status p {
+  margin: 0;
+  line-height: 1.55;
+}
+
+.duck-guide-dialog__status--error {
+  color: #8e493d;
+}
+
+.duck-guide-dialog__status button,
+.duck-guide-dialog__footer button {
+  min-height: 36px;
+  padding: 7px 14px;
+  color: #fffaf0;
+  background: #8b5b34;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.duck-guide-dialog__content {
+  display: grid;
+  gap: 10px;
+  padding: 20px 54px 12px 20px;
+}
+
+.duck-guide-dialog__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+
+.duck-guide-dialog__eyebrow span {
+  padding: 3px 8px;
+  color: #5e5144;
+  background: #f2e4c8;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.duck-guide-dialog__content h3 {
+  margin: 0;
+  color: #33261c;
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  font-size: 1.12rem;
+  line-height: 1.35;
+}
+
+.duck-guide-dialog__content > p:last-of-type {
+  margin: 0;
+  color: #51483f;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.duck-guide-dialog__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 20px 18px;
+}
+
+.duck-guide-dialog__details {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9a5b22;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.duck-guide-dialog__details:hover,
+.duck-guide-dialog__details:focus-visible {
+  color: #bd8149;
+  text-decoration: underline;
+}
+
+.duck-guide-dialog__footer small {
+  color: #8d7b68;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1320px), (max-height: 820px) {
+  .duck-guide-dialog {
+    width: min(300px, calc(100vw - 40px));
+    max-height: calc(100vh - 152px);
+    border-radius: 18px;
+  }
+
+  .duck-guide-dialog__content {
+    padding: 16px 50px 10px 16px;
+  }
+
+  .duck-guide-dialog__footer {
+    padding: 0 16px 14px;
+  }
+}
+
+@keyframes duck-guide-page-turn {
+  0% {
+    transform: translateX(0);
+  }
+
+  33.3333% {
+    transform: translateX(-33.3333%);
+  }
+
+  66.6667%,
+  100% {
+    transform: translateX(-66.6667%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .draggable-duck-guide-layer__duck,
+  .duck-guide-dialog,
+  .duck-guide-dialog * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
+  .draggable-duck-guide-layer__sprite img {
+    animation: none !important;
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "nanjing-travel-webgis-course-demo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "html-to-image": "^1.11.13",
+    "vue": "^3.5.41"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.8",
+    "vite": "^8.2.2"
+  }
+}

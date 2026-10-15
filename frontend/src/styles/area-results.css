@@ -1,0 +1,264 @@
+.dining-area-panel {
+  min-height: 100%;
+  padding: 16px;
+  color: var(--bone-2);
+}
+
+.dining-area-panel__empty,
+.dining-area-panel__notice {
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+}
+
+.dining-area-panel__empty strong,
+.dining-area-panel__notice strong {
+  color: var(--bone);
+}
+
+.dining-area-panel__empty p,
+.dining-area-panel__notice p,
+.dining-area-panel__notice small {
+  margin: 0;
+  color: var(--bone-3);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.dining-area-panel__notice--warning {
+  background: rgba(193, 63, 44, 0.1);
+  border-color: rgba(193, 63, 44, 0.35);
+}
+
+.dining-area-panel__summary,
+.dining-area-panel__section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dining-area-panel__summary small,
+.dining-area-panel__section-heading small {
+  color: var(--bone-3);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.dining-area-panel__summary h3,
+.dining-area-panel__section-heading h4 {
+  margin: 2px 0 0;
+  color: var(--bone);
+  font-family: 'Noto Serif SC', 'Songti SC', SimSun, serif;
+}
+
+.dining-area-panel__summary h3 {
+  font-size: 16px;
+}
+
+.dining-area-panel__summary time {
+  display: block;
+  margin-top: 4px;
+  color: var(--teal);
+  font-size: 11px;
+}
+
+.density-badge {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  color: #e8f2ef;
+  background: rgba(78, 140, 134, 0.2);
+  border: 1px solid rgba(78, 140, 134, 0.45);
+  border-radius: 999px;
+  font-size: 10px;
+}
+
+.density-badge--blue {
+  background: rgba(47, 125, 225, 0.2);
+  border-color: rgba(47, 125, 225, 0.6);
+}
+
+.density-badge--cluster,
+.density-badge--yellow {
+  color: #f5dfad;
+  background: rgba(214, 162, 49, 0.16);
+  border-color: rgba(214, 162, 49, 0.4);
+}
+
+.density-badge--very_dense,
+.density-badge--red {
+  color: #ffd5ca;
+  background: rgba(215, 91, 69, 0.18);
+  border-color: rgba(215, 91, 69, 0.48);
+}
+
+.dining-area-panel__facts {
+  margin: 14px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.dining-area-panel__facts div {
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 9px;
+}
+
+.dining-area-panel__facts dt,
+.restaurant-detail dt {
+  color: var(--bone-3);
+  font-size: 9px;
+}
+
+.dining-area-panel__facts dd,
+.restaurant-detail dd {
+  margin: 3px 0 0;
+  color: var(--bone);
+  font-size: 11px;
+}
+
+.dining-area-panel__boundary {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(214, 162, 49, 0.08);
+  border-left: 2px solid rgba(214, 162, 49, 0.6);
+}
+
+.dining-area-panel__boundary p,
+.dining-area-panel__boundary small {
+  display: block;
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.dining-area-panel__boundary small {
+  margin-top: 4px;
+  color: var(--bone-3);
+}
+
+.dining-area-panel__restaurants {
+  margin-top: 16px;
+  padding-top: 13px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.dining-area-panel__section-heading h4 {
+  font-size: 14px;
+}
+
+.dining-area-panel__section-heading button {
+  min-height: 32px;
+  padding: 6px 9px;
+  color: #10201d;
+  background: var(--teal);
+  border: 0;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.dining-area-panel__status {
+  margin: 9px 0 0;
+  color: var(--bone-3);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.dining-area-panel__status--error {
+  color: #f0b2a8;
+}
+
+.dining-area-panel__loading {
+  margin-top: 9px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--bone-3);
+  font-size: 9px;
+}
+
+.dining-area-panel__loading i {
+  width: 5px;
+  height: 5px;
+  background: var(--teal);
+  border-radius: 50%;
+}
+
+.restaurant-list {
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+
+.restaurant-list button {
+  width: 100%;
+  padding: 9px 10px;
+  display: grid;
+  gap: 3px;
+  color: var(--bone-2);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  text-align: left;
+}
+
+.restaurant-list button:hover,
+.restaurant-list button.active {
+  background: rgba(78, 140, 134, 0.14);
+  border-color: rgba(78, 140, 134, 0.5);
+}
+
+.restaurant-list b {
+  color: var(--bone);
+  font-size: 11px;
+}
+
+.restaurant-list span,
+.restaurant-list small {
+  color: var(--bone-3);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.restaurant-detail {
+  margin-top: 10px;
+  padding: 11px;
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 10px;
+}
+
+.restaurant-detail > small {
+  color: var(--bone-3);
+  font-size: 9px;
+}
+
+.restaurant-detail h4 {
+  margin: 3px 0 8px;
+  color: var(--bone);
+}
+
+.restaurant-detail dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.restaurant-detail dl div:nth-child(n + 5) {
+  grid-column: 1 / -1;
+}
+
+.dining-area-panel__response-note {
+  display: block;
+  margin: 9px 0 0;
+  color: var(--bone-3);
+  font-size: 9px;
+  line-height: 1.55;
+}

@@ -1,0 +1,23 @@
+/* Overlay placement only; appearance comes from existing windows and markers. */
+.accommodation-map-card {
+  width: 230px;
+  text-align: left;
+  white-space: normal;
+  cursor: pointer;
+}
+/* The leader line connects this window to its circle instead of a popup tail. */
+.accommodation-map-card::after {
+  display: none;
+}
+.map-workspace--accommodation-areas .duck-map-decoration {
+  display: none;
+}
+.map-click-point {
+  pointer-events: none;
+}
+
+/* Keep the existing small point's size and color; only its geometry changes. */
+.map-click-point.metro-map-marker--dot::before {
+  border-radius: 0;
+  transform: rotate(45deg);
+}

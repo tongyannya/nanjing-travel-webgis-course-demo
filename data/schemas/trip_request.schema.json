@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.example/schemas/trip_request.schema.json",
+  "title": "TripRequest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["request_id", "trip_days", "lodging", "first_day_start", "last_day_end", "party", "ticket_budget", "transport_preference", "preferences", "manual_locks"],
+  "properties": {
+    "request_id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "trip_days": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["date", "start_time", "end_time"],
+        "properties": {
+          "date": {"type": "string", "format": "date"},
+          "start_time": {"$ref": "#/$defs/time"},
+          "end_time": {"$ref": "#/$defs/time"}
+        }
+      }
+    },
+    "lodging": {"$ref": "#/$defs/location_ref"},
+    "first_day_start": {"anyOf": [{"$ref": "#/$defs/location_ref"}, {"type": "null"}]},
+    "last_day_end": {"anyOf": [{"$ref": "#/$defs/location_ref"}, {"type": "null"}]},
+    "party": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adult", "student", "child", "senior"],
+      "properties": {
+        "adult": {"type": "integer", "minimum": 0, "maximum": 50},
+        "student": {"type": "integer", "minimum": 0, "maximum": 50},
+        "child": {"type": "integer", "minimum": 0, "maximum": 50},
+        "senior": {"type": "integer", "minimum": 0, "maximum": 50}
+      },
+      "anyOf": [
+        {"properties": {"adult": {"minimum": 1}}},
+        {"properties": {"student": {"minimum": 1}}},
+        {"properties": {"child": {"minimum": 1}}},
+        {"properties": {"senior": {"minimum": 1}}}
+      ]
+    },
+    "ticket_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unlimited", "total"],
+      "properties": {
+        "unlimited": {"type": "boolean"},
+        "total": {"type": ["number", "null"], "minimum": 0}
+      },
+      "allOf": [
+        {"if": {"properties": {"unlimited": {"const": true}}}, "then": {"properties": {"total": {"type": "null"}}}},
+        {"if": {"properties": {"unlimited": {"const": false}}}, "then": {"properties": {"total": {"type": "number", "minimum": 0}}}}
+      ]
+    },
+    "transport_preference": {"enum": ["public_transit", "taxi", "self_drive"]},
+    "allow_skip_meal_for_long_visit": {"type": "boolean", "default": false},
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["must_visit_ids", "interested_ids", "excluded_ids", "preferred_tags", "excluded_tags"],
+      "properties": {
+        "must_visit_ids": {"$ref": "#/$defs/id_list", "maxItems": 20},
+        "interested_ids": {"$ref": "#/$defs/id_list"},
+        "excluded_ids": {"$ref": "#/$defs/id_list", "maxItems": 20},
+        "preferred_tags": {"$ref": "#/$defs/tag_list"},
+        "excluded_tags": {"$ref": "#/$defs/tag_list"}
+      }
+    },
+    "manual_locks": {
+      "type": "array",
+      "maxItems": 0
+    }
+  },
+  "$defs": {
+    "time": {"type": "string", "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"},
+    "id": {"type": "string", "pattern": "^[a-z0-9_]+$"},
+    "id_list": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/id"}},
+    "tag_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"enum": ["history", "museum", "architecture", "religion", "red_culture", "nature", "garden", "urban_walk", "modern_city", "night_view", "art", "folk_custom", "family", "food", "photography", "leisure_walk"]}
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["longitude", "latitude", "coord_system"],
+      "properties": {
+        "longitude": {"type": "number", "minimum": 118.2, "maximum": 119.3},
+        "latitude": {"type": "number", "minimum": 31.2, "maximum": 32.7},
+        "coord_system": {"const": "GCJ-02"}
+      }
+    },
+    "location_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_method", "name", "location"],
+      "properties": {
+        "source_method": {"enum": ["search", "current_location", "map_click", "station", "hotel"]},
+        "name": {"type": "string", "minLength": 1},
+        "location": {"$ref": "#/$defs/location"}
+      }
+    }
+  }
+}
