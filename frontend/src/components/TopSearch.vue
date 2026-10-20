@@ -107,7 +107,7 @@ function selectResult(poi) {
         <LayerIcon :name="poi.searchIcon || 'search'" />
         <span>
           <b>{{ poi.name }}</b>
-          <small v-if="poi.isFormalAttraction">正式景点</small>
+          <small v-if="poi.isFormalAttraction">收录景点</small>
           <span>{{ poi.address }}</span>
         </span>
       </button>

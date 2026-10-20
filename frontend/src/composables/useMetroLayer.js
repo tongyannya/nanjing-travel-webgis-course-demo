@@ -53,7 +53,7 @@ export function useMetroLayer() {
         nextLines.length !== (Array.isArray(result?.lines) ? result.lines.length : -1) ||
         nextStations.length !== (Array.isArray(result?.stations) ? result.stations.length : -1)
       ) {
-        throw new Error('地铁线路数据的线路或站点字段不完整。')
+        throw new Error('地铁资料暂时无法读取，请稍后重试。')
       }
       lines.value = nextLines
       stations.value = nextStations

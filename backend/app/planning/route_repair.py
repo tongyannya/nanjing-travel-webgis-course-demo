@@ -9,6 +9,7 @@ from ..amap_transport import check_plan_deadline
 from .day_repair import replacement_options, valid_replacement
 from .route_order import visit_orders
 from .schedule import build_plan
+from .notices import traffic_removal_notices
 
 
 MAX_REPLACEMENT_PROBES = 32
@@ -21,8 +22,8 @@ async def refill_repaired_days(request: dict[str, Any], response: dict[str, Any]
                                travel_limits: dict[str, int]) -> dict[str, Any]:
     """Freeze all other days, reuse traffic, and try more than one alternative.
 
-    Only dates explicitly repaired after exchanges are eligible. The target
-    count restores those removed slots, never imposes a general daily cap.
+    Dates repaired after exchanges or losing visits during actual-route checks
+    are eligible. The target restores removed slots, never a general daily cap.
     The caller shares its original query/deadline budget with these probes.
     """
     result = deepcopy(response)
@@ -67,20 +68,16 @@ async def refill_repaired_days(request: dict[str, Any], response: dict[str, Any]
                         continue
                     candidate['warnings'] = list(dict.fromkeys([
                         *candidate['warnings'],
-                        *(warning for warning in previous['warnings']
-                          if warning.startswith('核对交通与开放时间后，')),
+                        *traffic_removal_notices(previous),
                     ]))
                     result['plans'][index] = candidate
                     inserted = True
                     break
                 if inserted:
                     continue
-                message = ('邻近／顺路替代景点的核对达到本次查询或尝试上限，保留当前安排；'
-                           '未认定其他景点全部不可行。' if exhausted else
-                           '已继续检查替代候选，但部分候选未取得可用实际交通，保留当前安排；'
-                           '未认定这些候选时间上不可行。' if unavailable else
-                           '已检查未安排的邻近／顺路替代及其他符合偏好的候选插入位置，'
-                           '本日未找到同时满足开放、游览、用餐、预算和交通条件的替代安排。')
+                message = ('本次未完成补充景点的查询，已保留当前安排。可稍后重新生成。' if exhausted else
+                           '部分补充景点的交通查询未成功，已保留当前安排。可稍后重新生成。' if unavailable else
+                           '本日没有找到符合开放时间、用餐、预算和交通条件的补充景点。')
                 result['plans'][index]['warnings'].append(f'{date}：{message}')
                 break
     return result

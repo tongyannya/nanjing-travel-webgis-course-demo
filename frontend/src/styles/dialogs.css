@@ -979,6 +979,9 @@
 .planning-wizard__options {
   gap: 8px;
 }
+.planning-wizard__body h2 + .planning-wizard__options {
+  margin-top: 16px;
+}
 .wizard-option {
   min-height: 0;
   padding: 13px 14px;

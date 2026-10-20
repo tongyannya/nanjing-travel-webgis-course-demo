@@ -29,7 +29,7 @@ const emit = defineEmits([
     <NanjingLandmarkSkyline />
     <div class="overview-panel__hero">
       <p>点击景点查看信息，或开始制定行程。</p>
-      <small>当前载入 {{ attractionCount }} 个项目景点；路线、票价和开放状态以真实返回为准。</small>
+      <small>收录 {{ attractionCount }} 个景点，查看资料并规划你的南京之行。</small>
     </div>
     <button
       type="button"
@@ -46,7 +46,7 @@ const emit = defineEmits([
       @click="emit('open-accommodation', $event.currentTarget)"
     >
       {{ hasPendingAccommodation ? '继续修改住宿安排' : lodgingName ? '修改住宿安排' : '住宿安排' }}
-      <span>{{ lodgingName || '尚未安排，先生成住宿再规划' }}</span>
+      <span>{{ lodgingName || '尚未安排，先选择住处再规划' }}</span>
     </button>
     <div class="overview-plan-actions" role="group" aria-label="方案文件与保存">
       <button

@@ -1,7 +1,6 @@
 <script setup>
 import { computed } from 'vue'
 
-import { FEATURE_STATES } from '../ui/featureAvailability'
 import {
   forecastLabel,
   tempRange,
@@ -50,7 +49,7 @@ const weatherTitle = computed(() => {
   if (props.weatherState === 'error') {
     return `${props.weatherMessage}（点击重试）`
   }
-  return props.weatherMessage || FEATURE_STATES.weather.description
+  return props.weatherMessage || '南京天气预报'
 })
 
 const NO_FORECAST_TITLE = '暂无'
@@ -180,7 +179,7 @@ const NO_FORECAST_TITLE = '暂无'
         </template>
         <template v-else>
           <b>{{ NO_FORECAST_TITLE }}</b>
-          <small>{{ weatherMessage || FEATURE_STATES.weather.description }}</small>
+          <small>{{ weatherMessage || '南京天气预报' }}</small>
         </template>
       </span>
     </div>

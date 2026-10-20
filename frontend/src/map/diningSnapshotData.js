@@ -10,7 +10,7 @@ const EMPTY_SHOPS = Object.freeze([])
 const MODES = ['meal_candidate', 'takeaway', 'other_meal_time']
 
 function requireValid(condition) {
-  if (!condition) throw new Error('本地餐饮图层数据无效，请重试或核对正式数据。')
+  if (!condition) throw new Error('餐饮资料暂时无法读取，请稍后重试。')
 }
 
 function ordinaryBand(count) {

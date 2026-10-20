@@ -23,6 +23,7 @@ export function useAccommodationFlow({
   let previousAreaLayers = null
   let pausedPickingSession = null
   let pausedAreaPicking = false
+  let continuePlanningAfterAccommodation = false
   const hasPendingAccommodation = computed(() => Boolean(accommodation.accommodationDraft.value))
   const isMapAccommodationSelection = computed(
     () =>
@@ -73,6 +74,7 @@ export function useAccommodationFlow({
   })
 
   function openAccommodationWizard(event) {
+    continuePlanningAfterAccommodation = false
     finishAreaPicking()
     accommodationReturnFocus = event instanceof HTMLElement ? event : document.activeElement
     // Reopening starts a new draft; an earlier picking session must not intercept its commit.
@@ -86,6 +88,7 @@ export function useAccommodationFlow({
   }
 
   function closeAccommodationWizard() {
+    continuePlanningAfterAccommodation = false
     pausedAreaPicking = areaPicking.value
     pausedPickingSession = pickingSession.value
     finishAreaPicking()
@@ -108,6 +111,7 @@ export function useAccommodationFlow({
   }
 
   function leaveMapAccommodationSelection() {
+    continuePlanningAfterAccommodation = false
     finishAreaPicking()
     accommodation.cancelPickingSession()
     accommodationResume = null
@@ -178,12 +182,17 @@ export function useAccommodationFlow({
     }
     const previous = accommodationPlanSignature(tripForm.value)
     const result = accommodation.commitDraftToForm()
-    if (!result) return
+    if (!result || !tripForm.value.accommodationConfirmed) return
     layerVisibility.value.search = true
     layerVisibility.value.currentLodging = true
     accommodationWizardOpen.value = false
-    restoreAccommodationFocus()
-    onCommitted?.({ changed: previous !== accommodationPlanSignature(tripForm.value) })
+    const continuePlanning = continuePlanningAfterAccommodation
+    continuePlanningAfterAccommodation = false
+    if (!continuePlanning) restoreAccommodationFocus()
+    onCommitted?.({
+      changed: previous !== accommodationPlanSignature(tripForm.value),
+      continuePlanning,
+    })
   }
 
   function handleAccommodationCancel() {
@@ -219,6 +228,7 @@ export function useAccommodationFlow({
   function guardPlanningBeforeAccommodation(event) {
     if (tripForm.value.accommodationConfirmed) return true
     continueAccommodationWizard(event instanceof HTMLElement ? event : undefined)
+    continuePlanningAfterAccommodation = true
     return false
   }
 

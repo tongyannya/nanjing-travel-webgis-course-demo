@@ -30,7 +30,7 @@ const emit = defineEmits([
 
 <template>
   <details class="utility-tools" data-testid="map-utility-tools">
-    <summary><span>真实地图查询</span><small>按需展开</small></summary>
+    <summary><span>地图查询</span><small>按需展开</small></summary>
     <section class="utility-tools__section">
       <h3>选点与搜索范围</h3>
       <label class="toggle-row">

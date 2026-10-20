@@ -25,6 +25,7 @@ const step = ref(0)
 const hasReviewedSummary = ref(false)
 const answers = reactive({})
 const partyAdultCount = ref('')
+const partyStudentCount = ref('')
 const partySecondCount = ref('')
 const otherBudget = ref('')
 const validationMessage = ref('')
@@ -49,11 +50,12 @@ if (props.seedFromForm) {
   })
   if (form.value.hasSelectedStartDate) answers.date = form.value.startDate
   partyAdultCount.value = String(form.value.party.adult)
+  partyStudentCount.value = String(form.value.party.student)
   partySecondCount.value = String(form.value.party.child)
   otherBudget.value = String(form.value.budgetTotal)
 }
 watch(
-  [answers, step, partyAdultCount, partySecondCount, otherBudget],
+  [answers, step, partyAdultCount, partyStudentCount, partySecondCount, otherBudget],
   () => {
     if (props.open) emit('draft-change')
   },
@@ -71,7 +73,7 @@ const questions = computed(() => [
       {
         value: 'full',
         label: '完整表单',
-        detail: '可分别设置每天的出发、结束时间，并单独填写学生人数。',
+        detail: '可分别设置每天的出发、结束时间，集中填写详细条件。',
       },
     ],
   },
@@ -96,7 +98,7 @@ const questions = computed(() => [
   {
     id: 'who',
     title: '旅行人数',
-    hint: '分别填写大人和小孩的人数；儿童可以留空按 0 计，学生可在完整表单中调整。',
+    hint: '分别填写成人、学生和儿童人数；空白按 0 计，至少填写 1 人。',
     type: 'single',
   },
   {
@@ -107,7 +109,12 @@ const questions = computed(() => [
     options: [
       { value: 'relaxed', optionKey: 'relaxed', label: '轻松', detail: '先查看留有缓冲的方案' },
       { value: 'compact', optionKey: 'compact', label: '紧凑', detail: '先查看安排更多景点的方案' },
-      { value: 'duck', optionKey: 'duck', label: '鸭子特色', detail: '先查看含真实鸭类餐饮的方案' },
+      {
+        value: 'duck',
+        optionKey: 'duck',
+        label: '鸭子特色',
+        detail: '先查看含南京鸭用餐区域的方案',
+      },
     ],
   },
   {
@@ -265,7 +272,7 @@ function previewAppliedForm() {
   if (counts)
     preview.party = {
       adult: counts.adults,
-      student: props.seedFromForm ? form.value.party.student : 0,
+      student: counts.students,
       child: counts.second,
       senior: props.seedFromForm ? form.value.party.senior : 0,
     }
@@ -362,17 +369,18 @@ function customPartyCount() {
     const value = Number(trimmed)
     return Number.isInteger(value) && value >= 0 && value <= 50 ? value : null
   }
-  const adults = parse(partyAdultCount.value)
-  const second = parse(partySecondCount.value, 0)
-  const extra = props.seedFromForm ? form.value.party.student + form.value.party.senior : 0
   if (
-    adults === null ||
-    second === null ||
-    (!props.seedFromForm && adults < 1) ||
-    adults + second + extra < 1
+    ![partyAdultCount.value, partyStudentCount.value, partySecondCount.value].some((value) =>
+      value.trim(),
+    )
   )
     return null
-  return { adults, second }
+  const adults = parse(partyAdultCount.value, 0)
+  const students = parse(partyStudentCount.value, 0)
+  const second = parse(partySecondCount.value, 0)
+  if (adults === null || students === null || second === null || adults + students + second < 1)
+    return null
+  return { adults, students, second }
 }
 
 function customBudgetTotal() {
@@ -439,7 +447,9 @@ function openFullForm() {
     step.value > 0 ||
     props.seedFromForm ||
     Object.keys(answers).some((key) => key !== 'entry') ||
-    partyAdultCount.value
+    partyAdultCount.value ||
+    partyStudentCount.value ||
+    partySecondCount.value
   )
     applyEffectiveForm()
   emit('open-full-form')
@@ -554,6 +564,7 @@ watch(
   () => props.open,
   (open) => {
     if (open) {
+      if (answers.entry === 'full') answers.entry = 'wizard'
       returnFocus = document.activeElement
       focusFirstControl()
     } else if (returnFocus?.focus) {
@@ -777,11 +788,8 @@ onBeforeUnmount(() => {
                 >
               </button>
             </div>
-            <p v-if="currentQuestion.id === 'who' && seedFromForm" class="planning-wizard__hint">
-              学生人数已保留，可在完整表单中单独调整。
-            </p>
             <div v-if="currentQuestion.id === 'who'" class="planning-wizard__fill-row">
-              <span>大人</span>
+              <span>成人</span>
               <input
                 v-model="partyAdultCount"
                 class="planning-wizard__other"
@@ -793,7 +801,19 @@ onBeforeUnmount(() => {
               <span>人</span>
             </div>
             <div v-if="currentQuestion.id === 'who'" class="planning-wizard__fill-row">
-              <span>小孩</span>
+              <span>学生</span>
+              <input
+                v-model="partyStudentCount"
+                class="planning-wizard__other"
+                data-testid="wizard-party-student"
+                type="text"
+                inputmode="numeric"
+                placeholder="没有填 0"
+              />
+              <span>人</span>
+            </div>
+            <div v-if="currentQuestion.id === 'who'" class="planning-wizard__fill-row">
+              <span>儿童</span>
               <input
                 v-model="partySecondCount"
                 class="planning-wizard__other"

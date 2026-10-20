@@ -207,7 +207,7 @@
     },
     "duration": {
       "suggested_minutes": 150,
-      "minimum_minutes": 90
+      "minimum_minutes": 120
     },
     "ticket": {
       "adult": 35.0,
@@ -288,7 +288,7 @@
       "notes": "原停止入场说明：17:30停止入园"
     },
     "duration": {
-      "suggested_minutes": 120,
+      "suggested_minutes": 90,
       "minimum_minutes": 60
     },
     "ticket": {
@@ -370,7 +370,7 @@
       "notes": "原停止入场说明：18:30停止售票"
     },
     "duration": {
-      "suggested_minutes": 90,
+      "suggested_minutes": 60,
       "minimum_minutes": 60
     },
     "ticket": {
@@ -454,7 +454,7 @@
     },
     "duration": {
       "suggested_minutes": 240,
-      "minimum_minutes": 120
+      "minimum_minutes": 180
     },
     "ticket": {
       "adult": 0.0,
@@ -863,7 +863,7 @@
     },
     "duration": {
       "suggested_minutes": 60,
-      "minimum_minutes": 30
+      "minimum_minutes": 60
     },
     "ticket": {
       "adult": 30.0,
@@ -1293,7 +1293,7 @@
     },
     "duration": {
       "suggested_minutes": 180,
-      "minimum_minutes": 90
+      "minimum_minutes": 120
     },
     "ticket": {
       "adult": 0.0,
@@ -1620,7 +1620,7 @@
     },
     "duration": {
       "suggested_minutes": 120,
-      "minimum_minutes": 90
+      "minimum_minutes": 60
     },
     "ticket": {
       "adult": 0.0,
@@ -1780,8 +1780,8 @@
       "notes": "原停止入场说明：园区17:00停止入园、纪念馆16:00停止入馆；园区开放时间为8:00-17:00，路线按纪念馆时间执行"
     },
     "duration": {
-      "suggested_minutes": 120,
-      "minimum_minutes": 90
+      "suggested_minutes": 180,
+      "minimum_minutes": 120
     },
     "ticket": {
       "adult": 0.0,
@@ -2191,7 +2191,7 @@
     },
     "duration": {
       "suggested_minutes": 120,
-      "minimum_minutes": 90
+      "minimum_minutes": 60
     },
     "ticket": {
       "adult": 0,
@@ -2439,7 +2439,7 @@
     },
     "duration": {
       "suggested_minutes": 60,
-      "minimum_minutes": 30
+      "minimum_minutes": 60
     },
     "ticket": {
       "adult": 0.0,
@@ -2683,7 +2683,7 @@
     },
     "duration": {
       "suggested_minutes": 360,
-      "minimum_minutes": 180
+      "minimum_minutes": 240
     },
     "ticket": {
       "adult": 129,
@@ -2860,7 +2860,7 @@
     },
     "duration": {
       "suggested_minutes": 120,
-      "minimum_minutes": 60
+      "minimum_minutes": 90
     },
     "ticket": {
       "adult": 0,
@@ -2942,7 +2942,7 @@
     },
     "duration": {
       "suggested_minutes": 60,
-      "minimum_minutes": 30
+      "minimum_minutes": 60
     },
     "ticket": {
       "adult": 0.0,
@@ -3025,7 +3025,7 @@
     },
     "duration": {
       "suggested_minutes": 120,
-      "minimum_minutes": 60
+      "minimum_minutes": 90
     },
     "ticket": {
       "adult": 0.0,
@@ -3107,7 +3107,7 @@
     },
     "duration": {
       "suggested_minutes": 120,
-      "minimum_minutes": 60
+      "minimum_minutes": 90
     },
     "ticket": {
       "adult": 0.0,

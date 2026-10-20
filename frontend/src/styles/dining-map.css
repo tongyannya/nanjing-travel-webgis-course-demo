@@ -118,20 +118,10 @@ body.duck-mode .dining-sublayers .layer-switch--active .layer-switch__check {
   text-align: center;
 }
 
-.dining-area-map-sequence {
-  align-items: center;
-  background: #fff;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  color: #c13f2c;
+.map-symbol-marker__sequence.dining-area-map-sequence {
+  --map-marker-color: #c13f2c;
   cursor: pointer;
-  display: inline-flex;
-  font-size: 10px;
-  font-weight: 700;
-  height: 16px;
-  justify-content: center;
-  min-width: 16px;
-  padding: 0 3px;
+  position: static;
   transition:
     box-shadow 120ms ease,
     transform 120ms ease;

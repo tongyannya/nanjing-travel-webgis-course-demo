@@ -390,8 +390,10 @@ export function useTravelMap({
         }
       }
       if (restaurantArea) {
-        if (restaurantArea.kind === 'duck') focusDuckDensityArea(restaurantArea.cell)
-        else focusDiningDensityArea(restaurantArea.cell)
+        const polygon = new AMap.Polygon({
+          path: restaurantArea.cell.boundary.map((point) => [...point]),
+        })
+        map.setFitView([polygon], false, [130, 110, 180, 110])
         return true
       }
       const p = map.lngLatToContainer?.([item.location.longitude, item.location.latitude])
@@ -546,6 +548,25 @@ export function useTravelMap({
     })
   }
 
+  function restaurantIsVisible(restaurant) {
+    const id = restaurant?.poi_id
+    if (restaurant?.collection === 'duck') {
+      return (
+        duckRestaurantLayerVisible.value && duckRestaurants.value.some((shop) => shop.poi_id === id)
+      )
+    }
+    if (restaurant?.dining_sources?.[0] === 'nanjing_cuisine') {
+      return restaurantLayerVisible.value && cuisineLayerVisible.value
+    }
+    return Boolean(
+      (duckRestaurantLayerVisible.value &&
+        duckRestaurants.value.some((shop) => shop.poi_id === id)) ||
+      (restaurantLayerVisible.value &&
+        ((nearbyDiningLayerVisible.value && restaurants.value.some((shop) => shop.poi_id === id)) ||
+          (cuisineLayerVisible.value && cuisineShops.value.some((shop) => shop.poi_id === id)))),
+    )
+  }
+
   function showRestaurantInfo(restaurant) {
     const location = restaurant?.location
     if (
@@ -585,7 +606,9 @@ export function useTravelMap({
       content.appendChild(link)
     }
     infoWindow.setContent(content)
-    infoWindow.open(map, [location.longitude, location.latitude])
+    if (selectedMapPoint.value?.kind !== 'restaurant' || restaurantIsVisible(restaurant)) {
+      infoWindow.open(map, [location.longitude, location.latitude])
+    } else infoWindow.close()
     return true
   }
 
@@ -612,7 +635,7 @@ export function useTravelMap({
         })(),
       ])
       if (!isCurrent()) return
-      if (!catalogLoaded) throw new Error('正式景点加载失败，请恢复后端连接后重试。')
+      if (!catalogLoaded) throw new Error('景点资料加载失败，请检查网络或稍后重试。')
       await nextTick()
       if (!isCurrent()) return
       AMap = loadedAMap
@@ -680,7 +703,7 @@ export function useTravelMap({
       const completeHandler = () => {
         if (!isCurrent() || map !== initializedMap) return
         mapState.value = 'ready'
-        mapMessage.value = `南京主要旅游区域 · ${attractions.value.length} 个正式景点`
+        mapMessage.value = `南京主要旅游区域 · ${attractions.value.length} 个收录景点`
         syncAccommodationLayers()
         if (!fitAccommodationAreas() && !activeDay.value) fitAttractions()
       }
@@ -961,6 +984,22 @@ export function useTravelMap({
     }
     syncPointSelection()
   })
+  watch(
+    [
+      restaurantLayerVisible,
+      nearbyDiningLayerVisible,
+      cuisineLayerVisible,
+      restaurants,
+      cuisineShops,
+      duckRestaurantLayerVisible,
+      duckRestaurants,
+    ],
+    () => {
+      const point = selectedMapPoint.value
+      if (point?.kind === 'restaurant' && !restaurantIsVisible(point.item)) infoWindow?.close()
+    },
+    { deep: true, flush: 'post' },
+  )
 
   return {
     clearPlanLayers,

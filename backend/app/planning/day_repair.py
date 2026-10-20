@@ -9,6 +9,7 @@ from .nearby_attractions import same_day_bonus
 from .rules import is_excluded_by_preferences, score_attraction
 from .time_rules import minutes
 from .transport import distance_km
+from .notices import constraint_warning_count
 
 
 MAX_UNRELATED_DETOUR_KM = 3.0
@@ -35,7 +36,7 @@ def is_unrelated_detour(day: dict[str, Any], attraction_id: str,
     """Only automatic, unmatched and isolated visits with >3km extra distance."""
     preferences = request['preferences']
     protected = (set(preferences['must_visit_ids']) | set(preferences['interested_ids'])
-                 | {lock['attraction_id'] for lock in request['manual_locks']})
+)
     if attraction_id in protected:
         return False
     attraction = attractions[attraction_id]
@@ -58,7 +59,6 @@ def replacement_options(plan: dict[str, Any], request: dict[str, Any], date: str
     day = next(day for day in plan['days'] if day['date'] == date)
     preferences = request['preferences']
     protected = set(preferences['must_visit_ids']) | set(preferences['interested_ids'])
-    locked_ids = {lock['attraction_id'] for lock in request['manual_locks']}
     selected = {item['ref_id'] for value in plan['days'] for item in _visits(value)}
     keep = [item['ref_id'] for item in _visits(day)]
     locations = ([day['start_location']['location']]
@@ -68,7 +68,7 @@ def replacement_options(plan: dict[str, Any], request: dict[str, Any], date: str
     options = []
     for attraction in load_attractions():
         attraction_id = attraction['id']
-        if attraction_id in selected | banned | locked_ids:
+        if attraction_id in selected | banned:
             continue
         if is_excluded_by_preferences(attraction, set(preferences['excluded_ids']),
                                       set(preferences['excluded_tags']), set(preferences['must_visit_ids'])):
@@ -110,9 +110,7 @@ def valid_replacement(previous: dict[str, Any], candidate: dict[str, Any],
                           for item in day['items'] if item.get('meal_kind')}
     if not meals(previous) <= meals(candidate):
         return False
-    warnings = lambda plan: sum('未找到合适真实餐饮便利区，已保留 60 分钟用餐时间。' not in warning
-                                for warning in plan['warnings'])
-    if warnings(candidate) > warnings(previous):
+    if constraint_warning_count(candidate) > constraint_warning_count(previous):
         return False
     if sum(leg['duration_minutes_rounded'] for day in candidate['days'] for leg in day['legs']) > travel_limit:
         return False
@@ -133,7 +131,7 @@ def repair_affected_days(plan: dict[str, Any], request: dict[str, Any], rebuild:
     attractions = {item['id']: item for item in load_attractions()}
     preferences = request['preferences']
     protected = (set(preferences['must_visit_ids']) | set(preferences['interested_ids'])
-                 | {lock['attraction_id'] for lock in request['manual_locks']})
+)
     selected_before = {item['ref_id'] for day in plan['days'] for item in _visits(day)}
     required = selected_before & protected
     locks = {(day['date'], item['ref_id'], item['start_time'])

@@ -43,12 +43,12 @@ async function performApiRequest(path, options, timeoutMs) {
   } catch (error) {
     if (error.name === 'AbortError') {
       throw new Error(
-        externalSignal?.aborted ? '操作已取消。' : '请求超时，请检查后端和网络连接。',
+        externalSignal?.aborted ? '操作已取消。' : '请求超时，请检查网络或稍后重试。',
         { cause: error },
       )
     }
     if (error instanceof TypeError) {
-      throw new Error('无法连接后端服务，请先启动后端后再重试。', { cause: error })
+      throw new Error('暂时无法连接服务，请检查网络或稍后重试。', { cause: error })
     }
     throw error
   } finally {

@@ -142,7 +142,7 @@ function durationLabel(attraction) {
         <input
           type="search"
           :value="searchFilter.keyword"
-          placeholder="搜索 40 个正式景点"
+          placeholder="搜索 40 个收录景点"
           data-testid="attraction-choice-keyword"
           @input="updateKeyword"
         />

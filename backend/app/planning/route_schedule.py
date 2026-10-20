@@ -7,19 +7,23 @@ from typing import Any
 
 from .route_order import visit_orders
 from .schedule import build_plan
+from .notices import notice, traffic_removal_notices
 
 
 def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *,
-                            repaired_days: set[tuple[str, str]], **traffic) -> dict[str, Any]:
+                            repaired_days: set[tuple[str, str]],
+                            repair_records: dict[str, dict[str, Any]] | None = None,
+                            **traffic) -> dict[str, Any]:
     """Keep feasible days' order and repair only conflicting days.
 
     Each day permits at most one accepted local move; later repairs only remove
     visits, so orders cannot oscillate. No new attractions are selected.
-    Optional predecessors yield to must-visits and manual locks.
-    Existing opening, budget, meal, lock and endpoint rules remain in build_plan.
+    Optional predecessors yield to must-visits and fixed response nodes.
+    Existing opening, budget, meal and endpoint rules remain in build_plan.
     """
     result = deepcopy(response)
-    locked_ids = {lock['attraction_id'] for lock in request['manual_locks']}
+    locked_ids = {item['ref_id'] for plan in response['plans'] for day in plan['days']
+                  for item in day['items'] if item.get('locked')}
     mandatory = set(request['preferences']['must_visit_ids']) | locked_ids
     for index, previous in enumerate(response['plans']):
         orders = visit_orders(previous)
@@ -61,10 +65,22 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
 
         removed = [item for day in previous['days'] for item in day['items']
                    if item['type'] == 'attraction' and item['ref_id'] not in kept]
-        warnings = [value for value in previous['warnings'] if value.startswith('核对交通与开放时间后，')]
+        warnings = traffic_removal_notices(previous)
         if removed:
             names = '、'.join(item['name'] for item in removed)
-            warnings.append(f'核对交通与开放时间后，{names}未能安排。')
+            warnings.append(notice('traffic_removed', f'核对交通与开放时间后，{names}未能安排。'))
+            if repair_records is not None:
+                records = repair_records.setdefault(previous['plan_type'], {})
+                for day in previous['days']:
+                    lost = {item['ref_id'] for item in day['items']
+                            if item['type'] == 'attraction' and item['ref_id'] not in kept}
+                    if not lost:
+                        continue
+                    count = sum(item['type'] == 'attraction' for item in day['items'])
+                    record = records.setdefault(day['date'], {'target_count': count, 'removed_ids': set()})
+                    record['target_count'] = max(record['target_count'], count)
+                    record['removed_ids'].update(lost)
+                    record['traffic_removed'] = True
         plan['warnings'] = list(dict.fromkeys([*plan['warnings'], *warnings]))
         result['plans'][index] = plan
     return result

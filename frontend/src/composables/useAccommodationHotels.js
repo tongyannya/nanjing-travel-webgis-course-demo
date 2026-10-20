@@ -54,8 +54,11 @@ export function useAccommodationHotels() {
     const layer = layers[id]
     if (!layer) return Promise.resolve(false)
     if (pending.has(id)) return pending.get(id)
-    if (!force && layer.hotelState.value === 'success') return Promise.resolve(true)
-    const request = layer.queryHotels(null, { replace: true }).finally(() => pending.delete(id))
+    if (!force && layer.hotelState.value === 'success' && layer.hotelQueryComplete.value)
+      return Promise.resolve(true)
+    const request = layer
+      .queryHotels(null, { replace: true, fetchAllPages: true })
+      .finally(() => pending.delete(id))
     pending.set(id, request)
     return request
   }
@@ -64,6 +67,10 @@ export function useAccommodationHotels() {
   }
   function toggleArea(id) {
     if (activeAreaIds.value.includes(id)) {
+      if (!pending.has(id) && !layers[id].hotelQueryComplete.value) {
+        void loadArea(id)
+        return true
+      }
       activeAreaIds.value = activeAreaIds.value.filter((active) => active !== id)
       return false
     }

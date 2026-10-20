@@ -1,5 +1,10 @@
 import { isValidDiningAreaSnapshot } from '../planning/diningAreas'
-import { createMapMarkerContent, MAP_MARKER_COLORS, setMapMarkerSelected } from './mapMarkerIcons'
+import {
+  createMapMarkerContent,
+  createMapSequenceBadge,
+  MAP_MARKER_COLORS,
+  setMapMarkerSelected,
+} from './mapMarkerIcons'
 
 const DENSITY_STYLES = Object.freeze({
   unsuitable: { strokeColor: '#b45309', fillColor: '#f59e0b' },
@@ -33,12 +38,12 @@ export function diningAreaSequencePosition(area) {
   return [area.center.longitude + longitudeOffset, area.center.latitude + latitudeOffset]
 }
 
-function areaSequenceContent(item, sequence) {
-  const content = document.createElement('button')
-  content.type = 'button'
-  content.className = 'dining-area-map-sequence'
-  content.textContent = String(sequence)
-  content.title = `路线序号 ${sequence}：${item.name}`
+function areaSequenceContent(items, sequences) {
+  const content = createMapSequenceBadge(sequences, 'button')
+  content.classList.add('dining-area-map-sequence')
+  content.title = items
+    .map((item, index) => `路线序号 ${sequences[index]}：${item.name}`)
+    .join('；')
   content.setAttribute('aria-label', content.title)
   return content
 }
@@ -76,10 +81,10 @@ export function createDiningMapLayers({
   function applyAreaSelection({ focus = false } = {}) {
     let selectedEntry = null
     areaEntries.forEach((entry) => {
-      const selected = entry.item.item_id === selectedAreaItemId
+      const selected = entry.items.some((item) => item.item_id === selectedAreaItemId)
       entry.overlay.setOptions(
         areaStyle(
-          entry.item.route_meal?.area_kind === 'duck'
+          entry.items.some((item) => item.route_meal?.area_kind === 'duck')
             ? 'rich'
             : entry.item.dining_area.density_level,
           selected,
@@ -134,12 +139,26 @@ export function createDiningMapLayers({
         ['meal_area', 'route_meal'].includes(item?.type) &&
         isValidDiningAreaSnapshot(item.dining_area),
     )
+    const groups = []
+    validItems.forEach((item, index) => {
+      const key = item.dining_area.boundary ? item.dining_area.id : item.item_id
+      let group = groups.find((entry) => entry.key === key)
+      if (!group) {
+        group = { key, items: [], sequences: [] }
+        groups.push(group)
+      }
+      group.items.push(item)
+      group.sequences.push(sequenceByItemId[item.item_id] || index + 1)
+    })
     if (
-      validItems.length === areaEntries.length &&
-      validItems.every(
-        (item, index) =>
-          areaEntries[index].item === item &&
-          areaEntries[index].sequence === (sequenceByItemId[item.item_id] || index + 1),
+      groups.length === areaEntries.length &&
+      groups.every(
+        (group, index) =>
+          group.items.length === areaEntries[index].items.length &&
+          group.items.every((item, itemIndex) => areaEntries[index].items[itemIndex] === item) &&
+          group.sequences.every(
+            (sequence, itemIndex) => areaEntries[index].sequences[itemIndex] === sequence,
+          ),
       )
     ) {
       applyAreaVisibility()
@@ -147,16 +166,16 @@ export function createDiningMapLayers({
       return areaEntries.length
     }
     clearAreas()
-    areaEntries = validItems.map((item, index) => {
+    areaEntries = groups.map(({ items, sequences }) => {
+      const item = items[0]
       const area = item.dining_area
-      const sequence = sequenceByItemId[item.item_id] || index + 1
       const overlay = area.boundary
         ? new AMap.Polygon({
             path: area.boundary.map((point) => [...point]),
             bubble: false,
             ...areaStyle(
-              item.route_meal?.area_kind === 'duck' ? 'rich' : 'normal',
-              item.item_id === selectedAreaItemId,
+              items.some((item) => item.route_meal?.area_kind === 'duck') ? 'rich' : 'normal',
+              items.some((item) => item.item_id === selectedAreaItemId),
             ),
           })
         : new AMap.Circle({
@@ -165,8 +184,9 @@ export function createDiningMapLayers({
             bubble: false,
             ...areaStyle(area.density_level, item.item_id === selectedAreaItemId),
           })
-      const clickHandler = () => onAreaSelect?.(item)
-      const labelContent = areaSequenceContent(item, sequence)
+      const clickHandler = () =>
+        onAreaSelect?.(items.find((item) => item.item_id === selectedAreaItemId) || item)
+      const labelContent = areaSequenceContent(items, sequences)
       const labelOverlay = new AMap.Marker({
         position: diningAreaSequencePosition(area),
         title: labelContent.title,
@@ -175,17 +195,18 @@ export function createDiningMapLayers({
         bubble: false,
         zIndex: 208,
       })
-      const labelClickHandler = () => onAreaSelect?.(item)
+      const labelClickHandler = clickHandler
       overlay.on('click', clickHandler)
       labelOverlay.on('click', labelClickHandler)
       return {
         clickHandler,
         item,
+        items,
         labelClickHandler,
         labelContent,
         labelOverlay,
         overlay,
-        sequence,
+        sequences,
       }
     })
     if (areaEntries.length) {

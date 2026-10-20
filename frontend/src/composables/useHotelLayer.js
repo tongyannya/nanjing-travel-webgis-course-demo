@@ -4,6 +4,7 @@ import { apiRequest } from '../services/api'
 
 export const HOTEL_QUERY_RADIUS_METERS = 1000
 export const HOTEL_QUERY_PAGE_SIZE = 20
+export const HOTEL_QUERY_MAX_PAGES = 2
 
 function errorText(error, fallback) {
   return error instanceof Error && error.message ? error.message : fallback
@@ -15,10 +16,14 @@ export function useHotelLayer({ getQueryCenter }) {
   const hotelMessage = ref('开启后查看当前范围酒店，点击刷新更新。')
   const hotelCount = ref(0)
   const hotelQuery = ref(null)
+  const hotelQueryComplete = ref(false)
   let requestSequence = 0
   let hotelAbortController = null
 
-  async function queryHotels(centerOverride = null, { replace = false } = {}) {
+  async function queryHotels(
+    centerOverride = null,
+    { replace = false, fetchAllPages = false } = {},
+  ) {
     const center =
       centerOverride || (typeof getQueryCenter === 'function' ? getQueryCenter() : null)
     if (!center || center.longitude == null || center.latitude == null) {
@@ -32,6 +37,7 @@ export function useHotelLayer({ getQueryCenter }) {
     const controller = new AbortController()
     hotelAbortController = controller
     hotelState.value = 'loading'
+    hotelQueryComplete.value = false
     hotelMessage.value = `正在查询 ${center.centerLabel || '当前范围'} 周边 ${HOTEL_QUERY_RADIUS_METERS} 米内酒店…`
     if (replace) {
       hotels.value = []
@@ -46,14 +52,31 @@ export function useHotelLayer({ getQueryCenter }) {
         page_num: '1',
         page_size: String(HOTEL_QUERY_PAGE_SIZE),
       })
-      const result = await apiRequest(
-        `/api/hotels/search?${params}`,
-        { signal: controller.signal },
-        25000,
-      )
+      const uniqueHotels = new Map()
+      let result
+      let partial = false
+      for (let page = 1; page <= HOTEL_QUERY_MAX_PAGES; page += 1) {
+        params.set('page_num', String(page))
+        try {
+          result = await apiRequest(
+            `/api/hotels/search?${params}`,
+            { signal: controller.signal },
+            25000,
+          )
+        } catch (error) {
+          if (page === 1 || controller.signal.aborted) throw error
+          partial = true
+          break
+        }
+        if (requestId !== requestSequence || controller.signal.aborted) return false
+        for (const hotel of result.hotels || []) {
+          if (!uniqueHotels.has(hotel.poi_id)) uniqueHotels.set(hotel.poi_id, hotel)
+        }
+        if (!fetchAllPages && !result.has_more) break
+      }
       if (requestId !== requestSequence) return false
-      hotels.value = result.hotels || []
-      hotelCount.value = result.returned_count || 0
+      hotels.value = [...uniqueHotels.values()]
+      hotelCount.value = hotels.value.length
       hotelQuery.value = {
         centerLabel: center.centerLabel || '当前选点',
         radiusMeters: result.radius_meters || HOTEL_QUERY_RADIUS_METERS,
@@ -61,9 +84,14 @@ export function useHotelLayer({ getQueryCenter }) {
         latitude: center.latitude,
       }
       hotelState.value = 'success'
-      hotelMessage.value = result.returned_count
-        ? `以${hotelQuery.value.centerLabel}为中心 ${hotelQuery.value.radiusMeters} 米内找到 ${result.returned_count} 家酒店`
+      hotelQueryComplete.value = !partial
+      hotelMessage.value = hotelCount.value
+        ? `以${hotelQuery.value.centerLabel}为中心 ${hotelQuery.value.radiusMeters} 米内找到 ${hotelCount.value} 家酒店`
         : `${hotelQuery.value.centerLabel} 周边 ${hotelQuery.value.radiusMeters} 米内没有查到酒店。`
+      if (partial)
+        hotelMessage.value += fetchAllPages
+          ? '；第二页暂未取得，已保留第一页结果，再次点击片区圆圈可重新查询。'
+          : '；第二页暂未取得，已保留第一页结果，可点击刷新重试。'
     } catch (error) {
       if (requestId !== requestSequence || controller.signal.aborted) return false
       hotelState.value = 'error'
@@ -99,6 +127,7 @@ export function useHotelLayer({ getQueryCenter }) {
     hotelCount,
     hotelMessage,
     hotelQuery,
+    hotelQueryComplete,
     hotelState,
     queryHotels,
     refreshHotels,

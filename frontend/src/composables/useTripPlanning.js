@@ -148,7 +148,7 @@ export function useTripPlanning(attractions) {
   async function requestPlan(type, { preserveLoaded = false } = {}) {
     if (disposed || planState.value === 'loading') return false
     if (!formReady.value) {
-      planMessage.value = '正式景点尚未加载，请稍候或重试后端连接。'
+      planMessage.value = '景点资料尚未加载，请稍候或重试连接。'
       planState.value = 'error'
       return false
     }
@@ -187,7 +187,7 @@ export function useTripPlanning(attractions) {
       )
       if (!isCurrent()) return false
       const returnedPlan = result?.plans?.find((plan) => plan.plan_type === type)
-      if (!returnedPlan) throw new Error(`后端没有返回${PLAN_FORM_LABELS[type]}。`)
+      if (!returnedPlan) throw new Error(`未能取得${PLAN_FORM_LABELS[type]}，请稍后重试。`)
       const existingPlans = preserveLoaded ? planResponse.value?.plans || [] : []
       const mergedPlans = [
         ...existingPlans.filter((plan) => plan.plan_type !== type),
@@ -214,7 +214,7 @@ export function useTripPlanning(attractions) {
     } catch (error) {
       if (!isCurrent()) return false
       planState.value = planResponse.value ? 'success' : 'error'
-      planMessage.value = errorText(error, '行程生成失败，请检查后端后重试。')
+      planMessage.value = errorText(error, '行程生成失败，请稍后重试。')
       return false
     } finally {
       if (activePlanTask === task) {

@@ -9,7 +9,7 @@ function errorText(error, fallback) {
 export function useBackendStatus() {
   const backendState = ref('checking')
   const backendVersion = ref('')
-  const backendMessage = ref('正在检查后端连接…')
+  const backendMessage = ref('正在检查服务连接…')
   const statusClass = computed(() => `status-badge status-${backendState.value}`)
   let pending = null
   let controller = null
@@ -28,19 +28,19 @@ export function useBackendStatus() {
 
   async function runCheck() {
     backendState.value = 'checking'
-    backendMessage.value = '正在检查后端连接…'
+    backendMessage.value = '正在检查服务连接…'
     backendVersion.value = ''
     try {
       const result = await apiRequest('/api/health', { signal: controller.signal }, 5000)
       if (disposed) return false
       backendState.value = result.status === 'ok' ? 'connected' : 'error'
       backendVersion.value = result.version || ''
-      backendMessage.value = result.status === 'ok' ? '前后端连接正常' : '后端返回异常状态'
+      backendMessage.value = result.status === 'ok' ? '服务连接正常' : '服务暂时不可用'
       return result.status === 'ok'
     } catch (error) {
       if (disposed) return false
       backendState.value = 'error'
-      backendMessage.value = errorText(error, '后端未连接，请先启动后端服务')
+      backendMessage.value = errorText(error, '暂时无法连接服务，请稍后重试。')
       return false
     }
   }

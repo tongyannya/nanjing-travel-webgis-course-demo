@@ -12,6 +12,7 @@ import { useAccommodationHotels, mergeHotelLayers } from './composables/useAccom
 import { ACCOMMODATION_AREA_OPTIONS } from './planning/accommodationOptions'
 import DiningAreaPanel from './components/DiningAreaPanel.vue'
 import { routeMealItems } from './planning/routeMeals'
+import { isNanjingLocation } from './planning/diningAreas'
 import DiningShopPanel from './components/DiningShopPanel.vue'
 import DiningHexPanel from './components/DiningHexPanel.vue'
 import DuckCulturePanel from './components/DuckCulturePanel.vue'
@@ -29,6 +30,7 @@ import { usePlanningNotices } from './composables/usePlanningNotices'
 import {
   attractionChoiceWarnings,
   countAttractionChoices,
+  createDefaultTripForm,
   MAX_ATTRACTION_CHOICES,
   validateTripForm,
 } from './planning/tripForm'
@@ -194,6 +196,8 @@ const {
 const pendingPlanningMode = ref('')
 const wizardRevision = ref(0)
 const wizardFromFullForm = ref(false)
+let fullFormEntrySnapshot = ''
+let fullFormFromWizard = false
 const headerPlanningLabel = computed(() =>
   activePlan.value || pendingPlanningMode.value ? '重新规划' : '开始规划',
 )
@@ -344,7 +348,20 @@ const selectedHexShopId = ref('')
 const hexDuckShops = computed(
   () => snapshotIndex.value?.getDuckShopsForCell(selectedDiningHex.value?.id) || [],
 )
-const selectedMapRestaurant = computed(() => selectedLocalShop.value || selectedRestaurant.value)
+const selectedMapRestaurant = ref(null)
+watch(
+  activeDay,
+  (day, previous) => {
+    if (day === previous) return
+    selectedDiningHex.value = null
+    selectedLocalShop.value = null
+    selectedMapRestaurant.value = null
+    selectedHexShopId.value = ''
+    if (['diningHex', 'diningShop', 'diningArea'].includes(activeDockPanel.value))
+      selectDockPanel(day ? 'day' : 'overview')
+  },
+  { flush: 'sync' },
+)
 const duckCultureNavigation = ref(null)
 function openDuckCulture(duckType = null) {
   duckCultureNavigation.value = { duckType }
@@ -568,6 +585,7 @@ function handleAccommodationAreaSelect(area) {
     layerVisibility.value.hotels = true
     layerVisibility.value.accommodationAreas = true
     if (!areaHotels.activeAreaIds.value.includes(area.id)) areaHotels.toggleArea(area.id)
+    else void areaHotels.loadArea(area.id)
     selectedAccommodationArea.value = area
     selectedHotel.value = null
     clearHotelSelection()
@@ -737,14 +755,11 @@ const {
   },
   getRestaurantFocusArea: (item) => {
     const cell = selectedDiningHex.value
-    if (!cell) return null
-    const belongs =
-      restaurants.value.some((shop) => shop.poi_id === item.poi_id) ||
-      hexDuckShops.value.some((shop) => shop.poi_id === item.poi_id)
-    if (!belongs) return null
-    if (isDuckMode.value && layerVisibility.value.duckDensity) return { cell, kind: 'duck' }
-    if (layerVisibility.value.diningDensity) return { cell, kind: 'ordinary' }
-    return null
+    return cell &&
+      isNanjingLocation(item?.location) &&
+      snapshotIndex.value?.findCell(item.location)?.id === cell.id
+      ? { cell }
+      : null
   },
   onDiningAreaSelect: (item) => handlePlanItemFocus(item),
   onDiningDensityAreaSelect: (item) => handleDiningHexSelect(item, 'ordinary'),
@@ -945,7 +960,12 @@ function handleDuckShopSelect(shop) {
   localShopReturnPanel.value =
     activeDockPanel.value === 'diningShop' ? localShopReturnPanel.value : activeDockPanel.value
   selectedLocalShop.value = enrichLocalShop(shop)
+  selectedMapRestaurant.value = selectedLocalShop.value
   selectedHexShopId.value = shop.poi_id
+  if (selectedDiningHex.value?.id === shop.display_hex_id) {
+    activeHexTab.value = 'duck'
+    localShopReturnPanel.value = 'diningHex'
+  }
   selectDockPanel('diningShop')
 }
 
@@ -960,6 +980,8 @@ function handleRestaurantSelect(restaurant) {
       ? { ...restaurant, local_shop: enrichLocalShop(restaurant.local_shop) }
       : restaurant,
   )
+  selectedMapRestaurant.value = selectedLocalShop.value || selectedRestaurant.value || restaurant
+  selectedHexShopId.value = restaurant.poi_id
   if (
     activeDockPanel.value === 'diningArea' &&
     selectedAreaKind.value === 'overview' &&
@@ -1032,7 +1054,15 @@ async function handleSubmitPlan() {
   if (planState.value === 'success' || planState.value === 'error') selectDockPanel('plans')
 }
 
-async function handleAccommodationChanged({ changed }) {
+async function handleAccommodationChanged({ changed, continuePlanning }) {
+  if (continuePlanning) {
+    wizardFromFullForm.value = false
+    wizardRevision.value += 1
+    pendingPlanningMode.value = ''
+    await nextTick()
+    openWizard()
+    return
+  }
   if (!changed || !activePlan.value || planState.value === 'loading') return
   const type = activePlanType.value
   const regenerate = await showPlanningNotice(
@@ -1064,22 +1094,20 @@ async function handlePlanSelection(type) {
 }
 
 function handleDockBack() {
+  if (activeDockPanel.value === 'diningShop') {
+    selectDockPanel(localShopReturnPanel.value || 'overview')
+    return
+  }
   if (dayRouteContext.value && routeDetailPanels.has(activeDockPanel.value)) {
-    if (activeDockPanel.value === 'diningHex') selectedDiningHex.value = null
-    if (activeDockPanel.value === 'diningShop') selectedLocalShop.value = null
     selectDockPanel('day')
     return
   }
   if (activeDockPanel.value === 'diningHex') {
-    selectedDiningHex.value = null
     selectDockPanel(diningHexReturnPanel.value)
     return
   }
   if (activeDockPanel.value === 'day') selectDockPanel('plans')
-  else if (activeDockPanel.value === 'diningShop') {
-    selectedLocalShop.value = null
-    selectDockPanel(localShopReturnPanel.value || 'overview')
-  } else if (activeDockPanel.value === 'diningArea') {
+  else if (activeDockPanel.value === 'diningArea') {
     if (selectedAreaKind.value === 'overview') selectDockPanel('overview')
     else if (selectedAreaKind.value === 'nearby')
       selectDockPanel(selectedDiningArea.value?.return_panel || 'overview')
@@ -1089,6 +1117,8 @@ function handleDockBack() {
 
 async function openFullPlanner() {
   if (!(await confirmLeavingAccommodationSelection())) return
+  fullFormFromWizard = isWizardOpen.value
+  fullFormEntrySnapshot = JSON.stringify(tripForm.value)
   closeWizard()
   selectDockPanel('planner')
 }
@@ -1156,6 +1186,14 @@ async function canOpenPlanning(event) {
 
 async function openWizardGuarded(event) {
   if (!(await canOpenPlanning(event))) return
+  const previous = tripForm.value
+  tripForm.value = {
+    ...createDefaultTripForm(attractions.value),
+    lodging: JSON.parse(JSON.stringify(previous.lodging)),
+    accommodationConfirmed: previous.accommodationConfirmed,
+    accommodationAreaId: previous.accommodationAreaId,
+  }
+  fullFormFromWizard = false
   wizardFromFullForm.value = false
   wizardRevision.value += 1
   pendingPlanningMode.value = ''
@@ -1164,8 +1202,12 @@ async function openWizardGuarded(event) {
 
 async function openQuestionnaireFromForm(event) {
   if (!(await canOpenPlanning(event))) return
-  wizardFromFullForm.value = true
-  wizardRevision.value += 1
+  const unchanged = fullFormFromWizard && fullFormEntrySnapshot === JSON.stringify(tripForm.value)
+  if (!unchanged) {
+    wizardFromFullForm.value = true
+    wizardRevision.value += 1
+  }
+  fullFormFromWizard = false
   pendingPlanningMode.value = ''
   openWizard()
 }
@@ -1677,6 +1719,7 @@ onMounted(() => {
     </main>
   </div>
   <ExportDialog
+    :attractions="attractions"
     :weather-data="weatherData"
     :active-day-index="activeDayIndex"
     :active-plan-type="activePlanType"

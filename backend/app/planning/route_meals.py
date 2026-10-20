@@ -12,6 +12,7 @@ from typing import Any, Mapping
 from ..data_store import LocalDataError, load_attractions
 from .models import PlanGenerationError
 from .time_rules import minutes, clock, MEAL_WINDOWS
+from .notices import has_notice_code
 
 ROOT = Path(__file__).resolve().parents[3]
 DUCK_MEAL_TARGETS = {1: 1, 2: 1, 3: 2, 4: 3, 5: 3}
@@ -129,8 +130,7 @@ def fold_meal_breaks(response: dict[str, Any]) -> dict[str, Any]:
             day['items'] = [old_items[index] for index in kept]
             day['legs'] = legs
         plan['warnings'] = [value for value in plan['warnings']
-                            if '未找到合适真实餐饮' not in value and '鸭类餐饮目标' not in value
-                            and not value.startswith('交通时间为坐标距离')]
+                            if not has_notice_code(value, 'meal_reserved', 'estimated_traffic')]
     return result
 
 
@@ -181,7 +181,15 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                         duck_slots.append((duck[0][0], day['date'], meal['meal_kind'], meal, duck[0]))
         if plan['plan_type'] == 'duck':
             target = DUCK_MEAL_TARGETS[len(plan['days'])]
-            selected = sorted(duck_slots, key=lambda value: value[:3])[:target]
+            remaining = list(duck_slots)
+            selected = []
+            meals_per_day = {}
+            while remaining and len(selected) < target:
+                slot = min(remaining, key=lambda value: (
+                    meals_per_day.get(value[1], 0), *value[:3]))
+                remaining.remove(slot)
+                selected.append(slot)
+                meals_per_day[slot[1]] = meals_per_day.get(slot[1], 0) + 1
             for _, _, _, meal, candidate in selected:
                 _apply_candidate(meal, candidate, 'duck')
             plan['summary'] = f'按轻松节奏安排景点，途中安排{len(selected)}次南京鸭用餐区域，其余餐次自由选择普通餐饮。'
@@ -195,8 +203,7 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                     if meal['area'] is None:
                         plan['warnings'].append(f"{day['date']}的{'午餐' if meal['meal_kind'] == 'lunch' else '晚餐'}保留1小时自由用餐，未匹配到沿途餐饮区域。")
     result['global_warnings'] = [value for value in result['global_warnings']
-                                 if '未取得合适区域' not in value and not value.startswith('交通时间按坐标距离')]
-    result['global_warnings'].append('已取得的交通方案使用实际路径及预留耗时，用餐区域由沿途蜂巢提供。')
+                                 if not has_notice_code(value, 'estimated_traffic')]
     validate_route_meals(result)
     return result
 

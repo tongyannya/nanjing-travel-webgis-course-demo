@@ -349,7 +349,7 @@ function toggleLayerDetails(layerId) {
                   'layer-switch--unavailable': !layer.available,
                 }"
                 :data-hover-text="
-                  !layer.available ? `${layer.label}图层暂无正式点位；仍可预设开关状态` : undefined
+                  !layer.available ? `${layer.label}图层暂无地点，可稍后重试` : undefined
                 "
                 :aria-checked="isLayerActive(layer.id)"
                 :data-layer-id="layer.id"
@@ -558,7 +558,7 @@ function toggleLayerDetails(layerId) {
                       ><em>6</em>
                     </button>
                     <small
-                      >一次查看一个片区，切换片区自动隐藏上一片区旅馆；再次点击隐藏，图层开关保留缓存。</small
+                      >一次查看一个片区，切换片区自动隐藏上一片区旅馆；查询失败或缺页时再次点击重新查询，两页成功后再次点击隐藏，图层开关保留完整缓存。</small
                     >
                   </div>
                 </div>
@@ -856,7 +856,7 @@ function toggleLayerDetails(layerId) {
           data-testid="rail-planner-tab"
           @click="emit('select-panel', 'planner')"
         >
-          <span>完整表单</span><small>编辑全部规划字段</small>
+          <span>完整表单</span><small>集中填写旅行条件</small>
         </button>
         <button
           type="button"
@@ -876,7 +876,7 @@ function toggleLayerDetails(layerId) {
       </nav>
 
       <section class="layer-sidebar__section layer-sidebar__tools">
-        <h3><span>真实地图查询</span></h3>
+        <h3><span>地图查询</span></h3>
         <slot></slot>
       </section>
     </div>

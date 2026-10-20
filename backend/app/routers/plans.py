@@ -50,7 +50,7 @@ async def create_plans(
         raise ApiError(
             status_code=422,
             code="invalid_trip_request",
-            message="行程条件不符合 TripRequest v1，请检查标出的字段。",
+            message="行程条件不完整或不符合要求，请检查后重试。",
             details=validation_errors,
         )
     planning = asyncio.create_task(

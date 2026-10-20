@@ -15,6 +15,7 @@ from .route_meals import assign_hex_meals
 from .service import _plan_validator
 from .models import PlanGenerationError
 from .route_repair import refill_repaired_days
+from .traffic_gaps import regroup_traffic_gaps
 from .dinner_recovery import recover_return_dinners
 
 MAX_ROUTE_QUERIES = 48
@@ -72,6 +73,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
 
     def rebuild(*, finalize=False):
         return reschedule_fixed_routes(request, response, repaired_days=repaired_days,
+                                       repair_records=repair_records,
                                        **traffic(finalize=finalize))
 
     def pending_keys():
@@ -153,6 +155,8 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                                       items[leg['to_item_id']]['location'], request['transport_preference'],
                                       '', '', **traffic())['duration_minutes_rounded'] for leg in day['legs'])
         travel_limits[plan['plan_type']] = total
+    response = await regroup_traffic_gaps(request, response, repair_records, traffic=traffic,
+                                         verify_routes=verify_routes, travel_limits=travel_limits)
     response = await refill_repaired_days(request, response, repair_records, traffic=traffic,
                                           verify_routes=verify_routes, travel_limits=travel_limits)
 
@@ -167,9 +171,8 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
         response['global_warnings'].append('部分路段因公共交通不可用、超过90分钟、步行超过40分钟或晚餐返程冲突，采用出租车。')
     unresolved = any(not leg.get('path_details') and leg['duration_minutes_rounded'] > 0
                      for plan in response['plans'] for day in plan['days'] for leg in day['legs'])
-    if failed or unresolved:
+    if unresolved:
         response['global_warnings'].append('部分交通路径未能取得，相关路段保留估算与用餐时间。')
-    response['global_warnings'].append('用餐区域沿已确定的路线选择，不改变景点顺序和交通路径。')
     return response
 
 

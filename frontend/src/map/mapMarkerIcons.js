@@ -18,6 +18,14 @@ export const MAP_MARKER_COLORS = Object.freeze({
   selectedSearch: '#d6a231',
 })
 
+export function createMapSequenceBadge(sequence, tagName = 'span') {
+  const badge = document.createElement(tagName)
+  if (tagName === 'button') badge.type = 'button'
+  badge.className = 'map-symbol-marker__sequence'
+  badge.textContent = Array.isArray(sequence) ? sequence.join('·') : String(sequence)
+  return badge
+}
+
 export function createMapMarkerContent({
   attractionId = '',
   caption = '',
@@ -88,10 +96,7 @@ export function createMapMarkerContent({
     content.appendChild(captionElement)
   }
   if (sequence !== null && sequence !== undefined) {
-    const badge = document.createElement('span')
-    badge.className = 'map-symbol-marker__sequence'
-    badge.textContent = String(sequence)
-    content.appendChild(badge)
+    content.appendChild(createMapSequenceBadge(sequence))
   }
   return content
 }

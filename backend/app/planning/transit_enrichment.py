@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import math
 from copy import deepcopy
-from dataclasses import dataclass
 from typing import Any, Mapping, TypeAlias
 
 
@@ -49,16 +48,6 @@ class TransitEnrichmentDataError(ValueError):
     """Raised when plan legs or transit details violate the T2 contract."""
 
 
-@dataclass(frozen=True)
-class TransitLegQuery:
-    """One public-transit leg and the coordinates required for its lookup."""
-
-    plan_index: int
-    day_index: int
-    leg_index: int
-    key: TransitQueryKey
-    origin: tuple[float, float]
-    destination: tuple[float, float]
 
 
 def _coordinate(location: Mapping[str, Any], field: str) -> tuple[float, float]:
@@ -91,51 +80,8 @@ def transit_query_key(
     )
 
 
-def collect_transit_leg_queries(response: Mapping[str, Any]) -> list[TransitLegQuery]:
-    """Collect every final public-transit leg without deduplicating occurrences."""
-
-    queries: list[TransitLegQuery] = []
-    for plan_index, plan in enumerate(response.get("plans", [])):
-        for day_index, day in enumerate(plan.get("days", [])):
-            items = {
-                item.get("item_id"): item
-                for item in day.get("items", [])
-                if isinstance(item, Mapping)
-            }
-            for leg_index, leg in enumerate(day.get("legs", [])):
-                if not isinstance(leg, Mapping) or leg.get("mode") != "public_transit":
-                    continue
-                first = items.get(leg.get("from_item_id"))
-                second = items.get(leg.get("to_item_id"))
-                if first is None or second is None:
-                    raise TransitEnrichmentDataError(
-                        "公共交通路段无法匹配起点或终点节点。"
-                    )
-                origin = _coordinate(first.get("location", {}), "origin")
-                destination = _coordinate(second.get("location", {}), "destination")
-                key = transit_query_key(first["location"], second["location"])
-                queries.append(
-                    TransitLegQuery(
-                        plan_index=plan_index,
-                        day_index=day_index,
-                        leg_index=leg_index,
-                        key=key,
-                        origin=origin,
-                        destination=destination,
-                    )
-                )
-    return queries
 
 
-def unique_transit_leg_queries(
-    queries: list[TransitLegQuery],
-) -> dict[TransitQueryKey, TransitLegQuery]:
-    """Keep the first occurrence of each directional coordinate pair."""
-
-    unique: dict[TransitQueryKey, TransitLegQuery] = {}
-    for query in queries:
-        unique.setdefault(query.key, query)
-    return unique
 
 
 def _require_int(value: Any, field: str, *, minimum: int) -> int:

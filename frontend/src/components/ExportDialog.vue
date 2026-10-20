@@ -22,6 +22,7 @@ const props = defineProps({
   activePlanType: { type: String, default: 'relaxed' },
   activeDayIndex: { type: Number, default: 0 },
   weatherData: { type: Object, default: null },
+  attractions: { type: Array, default: () => [] },
 })
 const emit = defineEmits(['close', 'save'])
 const closeButton = ref(null)
@@ -53,6 +54,7 @@ const fullSheet = computed(() =>
   props.hasPlan
     ? buildFullItinerarySheet(props.planResponse, props.activePlanType, {
         weatherData: props.weatherData,
+        attractions: props.attractions,
       })
     : null,
 )
@@ -63,6 +65,7 @@ const daySheet = computed(() =>
   props.hasPlan
     ? buildDayItinerarySheet(props.planResponse, props.activePlanType, daySelectedIndex.value, {
         weatherData: props.weatherData,
+        attractions: props.attractions,
       })
     : null,
 )

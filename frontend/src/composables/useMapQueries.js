@@ -86,7 +86,7 @@ export function useMapQueries({
       setSearchMarkers(searchResults.value)
       searchState.value = 'error'
       const local = searchResults.value.length
-        ? `已找到 ${searchResults.value.length} 个正式景点；在线地点查询失败：`
+        ? `已找到 ${searchResults.value.length} 个收录景点；在线地点查询失败：`
         : ''
       searchMessage.value = local + errorText(error, '地点搜索失败。')
     }

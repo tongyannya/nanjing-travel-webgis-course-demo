@@ -52,7 +52,7 @@ export function buildPlanningSummaryRows(form, { attractionNames = {} } = {}) {
   rows.push({
     id: 'party',
     label: '成人／学生／儿童',
-    value: `${partyCount(form.party.adult)}／${partyCount(form.party.student)}／${partyCount(form.party.child)}（老人 0）`,
+    value: `${partyCount(form.party.adult)}／${partyCount(form.party.student)}／${partyCount(form.party.child)}`,
     kind: 'plain',
   })
   rows.push({

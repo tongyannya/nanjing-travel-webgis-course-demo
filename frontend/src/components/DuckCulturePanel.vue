@@ -1,7 +1,6 @@
 <script setup>
 import { computed, onMounted, watch } from 'vue'
 
-import { FEATURE_STATES } from '../ui/featureAvailability'
 import { duckContentTypeLabel, duckTypeLabel, useDuckCulture } from '../composables/useDuckCulture'
 
 const props = defineProps({
@@ -265,13 +264,13 @@ function splitCitations(paragraph) {
         class="honest-empty-state"
         data-testid="duck-list-empty"
       >
-        <span>{{ FEATURE_STATES.duckCulture.label }}</span>
-        <h3>后端暂无鸭文化内容</h3>
-        <p>没有可展示的文章。确认后端提供正式内容后，可点击重新读取。</p>
+        <span>南京鸭文化</span>
+        <h3>暂时没有可展示的文章</h3>
+        <p>请稍后重新打开或重试。</p>
       </div>
       <template v-else-if="listState === 'success'">
         <div class="duck-culture-panel__list-head" data-testid="duck-list-head">
-          <b>正式文章</b>
+          <b>文化文章</b>
           <span>共 {{ articleCount }} 篇 · 全部带来源</span>
         </div>
         <ul class="duck-culture-panel__list" data-testid="duck-list">
@@ -293,9 +292,9 @@ function splitCitations(paragraph) {
         </ul>
       </template>
       <div v-else class="honest-empty-state" data-testid="duck-list-idle">
-        <span>{{ FEATURE_STATES.duckCulture.label }}</span>
+        <span>南京鸭文化</span>
         <h3>打开面板后自动读取内容</h3>
-        <p>正在等待面板打开，读取后展示正式文章列表。</p>
+        <p>在这里阅读南京鸭文化故事。</p>
       </div>
 
       <p

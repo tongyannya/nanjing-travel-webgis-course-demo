@@ -82,7 +82,7 @@ const otherPlanTypes = computed(() => planTypes.filter((type) => type !== props.
 const planDescriptions = {
   relaxed: '留出更多停留和缓冲时间',
   compact: '在可用时间内安排更多景点',
-  duck: '轻松节奏内安排真实、顺路且类别不重复的鸭类候选',
+  duck: '沿途安排南京鸭用餐区域，尽量分散到不同日期',
 }
 const attractionCount = (plan) =>
   plan.days.reduce(
@@ -91,12 +91,19 @@ const attractionCount = (plan) =>
   )
 const duckCount = (plan) =>
   plan.days.reduce(
-    (sum, day) => sum + day.items.filter((item) => item.type === 'duck_restaurant').length,
+    (sum, day) =>
+      sum +
+      day.items.filter((item) => item.type === 'duck_restaurant').length +
+      (day.legs || []).reduce(
+        (total, leg) =>
+          total + (leg.meals || []).filter((meal) => meal.area_kind === 'duck').length,
+        0,
+      ),
     0,
   )
 
 function attractionName(id) {
-  return props.attractions.find((item) => item.id === id)?.name || id
+  return props.attractions.find((item) => item.id === id)?.name || '景点名称暂不可用'
 }
 
 function loadedPlan(type) {
@@ -186,7 +193,7 @@ function choosePlan(type) {
                 ><b>¥{{ loadedPlan(type).total_ticket_cost }}</b> 门票</span
               >
               <span v-if="type === 'duck'"
-                ><b>{{ duckCount(loadedPlan(type)) }}</b> 个鸭类节点</span
+                ><b>{{ duckCount(loadedPlan(type)) }}</b> 次南京鸭用餐</span
               >
               <span v-else
                 ><b>{{ loadedPlan(type).unplanned_attractions.length }}</b> 个未安排</span
@@ -244,7 +251,7 @@ function choosePlan(type) {
                 ><b>¥{{ loadedPlan(type).total_ticket_cost }}</b> 门票</span
               >
               <span v-if="type === 'duck'"
-                ><b>{{ duckCount(loadedPlan(type)) }}</b> 个鸭类节点</span
+                ><b>{{ duckCount(loadedPlan(type)) }}</b> 次南京鸭用餐</span
               >
               <span v-else
                 ><b>{{ loadedPlan(type).unplanned_attractions.length }}</b> 个未安排</span

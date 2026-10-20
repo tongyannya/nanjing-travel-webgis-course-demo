@@ -38,7 +38,7 @@ const reservationText = computed(() => {
 const source = computed(() => props.attraction?.sources?.[0] || null)
 
 const image = computed(() => props.attraction?.image || null)
-const imageAlt = computed(() => (image.value ? `${props.attraction.name}的正式照片` : ''))
+const imageAlt = computed(() => (image.value ? `${props.attraction.name}的照片` : ''))
 // 图片加载失败只影响当前景点：切换景点时立即重置，失败状态不得沿用。
 const imageFailed = ref(false)
 watch(
@@ -73,7 +73,7 @@ function display(value) {
         <small>图片信息仍可在下方来源中查看</small>
       </div>
       <div v-else class="attraction-detail__photo-fallback">
-        <span>暂无正式照片</span>
+        <span>暂无照片</span>
       </div>
       <a
         v-if="image"

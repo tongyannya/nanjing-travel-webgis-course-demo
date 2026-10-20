@@ -138,7 +138,7 @@ function buildUnplannedList(plan, attractions) {
       const message = nonEmptyText(unplanned?.message)
       const reasonLabel = UNPLANNED_REASON_LABELS[unplanned?.reason_code] || ''
       return {
-        name: knownName || (id ? `未安排景点（${id}）` : '未安排景点（编号缺失）'),
+        name: knownName || '未安排景点（名称暂不可用）',
         message: message || reasonLabel || '原因待确认',
       }
     },

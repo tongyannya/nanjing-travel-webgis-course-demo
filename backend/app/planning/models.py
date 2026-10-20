@@ -4,21 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import AbstractSet, Any, Literal, Mapping, Sequence, TypeAlias
+from typing import AbstractSet, Any, Literal, Mapping
 
 from .time_rules import minutes
 
 
 PlanType = Literal["relaxed", "compact", "duck"]
 PLAN_TYPES: tuple[PlanType, ...] = ("relaxed", "compact", "duck")
-MealKind = Literal["lunch", "dinner"]
-DiningSlotKey: TypeAlias = tuple[PlanType, str, MealKind]
-DiningAreasBySlot: TypeAlias = Mapping[
-    DiningSlotKey, Sequence[Mapping[str, Any]]
-]
-DuckRestaurantsBySlot: TypeAlias = Mapping[
-    DiningSlotKey, Sequence[Mapping[str, Any]]
-]
 
 
 class PlanGenerationError(RuntimeError):

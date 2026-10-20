@@ -208,7 +208,7 @@ function handleDockHandleClick() {
       </div>
       <div v-if="activeDay" class="route-legend">
         <b>{{ PLAN_LABELS[activePlanType] }} · 第 {{ activeDayIndex + 1 }} 天</b>
-        <span>数字为访问顺序；路线继续使用真实方案数据</span>
+        <span>数字表示行程顺序</span>
       </div>
       <div v-if="mapState === 'error'" class="map-error-card" data-testid="map-error-card">
         <strong>地图暂时不能使用</strong>
@@ -217,8 +217,8 @@ function handleDockHandleClick() {
         <small>
           {{
             backendState === 'connected'
-              ? '只有地图配置失败时，静态景点和路线方案仍可使用。'
-              : '请先启动后端；服务恢复后可在这里重试。'
+              ? '地图暂不可用时，仍可查看景点资料和行程。'
+              : '暂时无法连接服务，请检查网络或稍后重试。'
           }}
         </small>
       </div>

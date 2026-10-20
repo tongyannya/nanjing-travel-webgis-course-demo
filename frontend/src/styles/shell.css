@@ -101,15 +101,6 @@
   color: var(--bone-3);
   font-size: 9px;
 }
-.coming-badge {
-  flex: 0 0 auto;
-  padding: 4px 7px;
-  color: var(--warn);
-  background: var(--warn-wash);
-  border: 1px solid color-mix(in srgb, var(--warn) 42%, transparent);
-  border-radius: var(--radius-sm);
-  font-size: 9px;
-}
 .layer-sidebar {
   min-width: 0;
   overflow-y: auto;
@@ -129,44 +120,6 @@
   border-radius: var(--radius-sm);
   font-size: 9px;
 }
-.layer-status {
-  padding: 7px 5px;
-  display: grid;
-  grid-template-columns: 10px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  border-radius: var(--radius-md);
-}
-.layer-status:hover {
-  background: var(--ink-700);
-}
-.layer-status > i {
-  width: 8px;
-  height: 8px;
-  background: var(--bone-3);
-  border-radius: 50%;
-}
-.layer-status--ready > i {
-  background: var(--teal);
-  box-shadow: 0 0 0 3px var(--teal-wash);
-}
-.layer-status--coming > i {
-  background: var(--warn);
-}
-.layer-status > span {
-  min-width: 0;
-  display: grid;
-}
-.layer-status b {
-  color: var(--bone-2);
-  font-size: 11px;
-}
-.layer-status small,
-.layer-status em {
-  color: var(--bone-3);
-  font-size: 8px;
-  font-style: normal;
-}
 .layer-sidebar__tools {
   padding: 0;
 }
@@ -182,7 +135,6 @@
   .header-plan-button {
     padding: 0 10px;
   }
-  .coming-badge,
   .app-header__status > small,
   .header-button:nth-last-child(-n + 2) {
     display: none;
@@ -839,9 +791,6 @@
 }
 .layer-switch small {
   display: none;
-}
-.layer-switch--coming {
-  opacity: 0.58;
 }
 .filter-placeholder {
   gap: 6px;

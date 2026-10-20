@@ -8,6 +8,7 @@ from typing import Any, Callable
 from .transport import distance_km
 from .nearby_attractions import location_affinity, split_penalty
 from .day_repair import repair_affected_days
+from .notices import constraint_warning_count
 
 
 def visit_orders(plan: dict[str, Any]) -> dict[str, list[str]]:
@@ -37,8 +38,7 @@ def _constraint_warning_count(plan: dict[str, Any]) -> int:
     # Arrival-before-meal and standalone meals emit different informational
     # messages for the same valid reservation. Do not reject a better route
     # because the latter happens to report its preserved meal explicitly.
-    return sum('未找到合适真实餐饮便利区，已保留 60 分钟用餐时间。' not in warning
-               for warning in plan['warnings'])
+    return constraint_warning_count(plan)
 
 
 def optimize_visit_order(plan: dict[str, Any], rebuild: Callable,

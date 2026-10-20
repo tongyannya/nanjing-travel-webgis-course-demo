@@ -53,7 +53,7 @@ onMounted(scrollToSelectedCard)
     <div class="dining-area-panel__boundary">
       <p v-if="area">邻近：{{ area.nearby }}</p>
       <p v-if="area">适合：{{ area.suits }}</p>
-      <small>参考范围半径 1000 米；酒店资料来自高德，查询一页最多 20 家。</small>
+      <small>参考范围半径 1000 米；酒店资料来自高德，最多查询两页，每页 20 家并去重。</small>
     </div>
     <section class="dining-area-panel__restaurants" aria-label="范围内酒店">
       <div class="dining-area-panel__section-heading">

@@ -51,6 +51,7 @@ export function useDiningAreaInteraction({
   const routePreloadControllers = new Set()
   const restaurantCache = new Map()
   const restaurantCacheVersion = ref(0)
+  const expandedRouteContexts = ref(new Set())
 
   const activePlanIdentity = computed(
     () => planResponse.value?.request_id || planResponse.value?.generated_at || 'current-plan',
@@ -92,7 +93,9 @@ export function useDiningAreaInteraction({
     restaurantCacheVersion.value
     const unique = new Map()
     for (const item of validMealAreaItems.value) {
-      const cached = restaurantCache.get(routeContextKey(item))
+      const key = routeContextKey(item)
+      if (!expandedRouteContexts.value.has(key)) continue
+      const cached = restaurantCache.get(key)
       for (const restaurant of cached?.restaurants || []) {
         if (!unique.has(restaurant.poi_id)) unique.set(restaurant.poi_id, restaurant)
       }
@@ -157,6 +160,7 @@ export function useDiningAreaInteraction({
   function selectMealArea(item) {
     if (!item || item.type !== 'meal_area') return false
     const contextKey = routeContextKey(item)
+    if (contextKey) expandedRouteContexts.value.add(contextKey)
     if (contextKey && contextKey === selectedContextKey.value) return true
 
     invalidatePendingRequest()
@@ -368,6 +372,7 @@ export function useDiningAreaInteraction({
           })
         }
         restaurantCacheVersion.value += 1
+        for (const { contextKey } of routeAreas) expandedRouteContexts.value.add(contextKey)
         restaurantState.value = 'success'
         return true
       } catch (error) {
@@ -384,6 +389,7 @@ export function useDiningAreaInteraction({
       ? routeAreas
       : routeAreas.filter(({ contextKey }) => !restaurantCache.has(contextKey))
     if (!pendingAreas.length) {
+      for (const { contextKey } of routeAreas) expandedRouteContexts.value.add(contextKey)
       restaurantState.value = 'success'
       restaurantMessage.value = `当前路线 ${routeAreas.length} 个用餐区域的餐馆已加载。`
       return true
@@ -440,6 +446,9 @@ export function useDiningAreaInteraction({
       }
     }
     if (loadedCount) restaurantCacheVersion.value += 1
+    for (const { contextKey } of routeAreas) {
+      if (restaurantCache.has(contextKey)) expandedRouteContexts.value.add(contextKey)
+    }
 
     const cachedCount = routeAreas.filter(({ contextKey }) =>
       restaurantCache.has(contextKey),
@@ -465,6 +474,7 @@ export function useDiningAreaInteraction({
 
   function resetDiningContext() {
     invalidatePendingRequest()
+    expandedRouteContexts.value.clear()
     selectedMealItem.value = null
     selectedOverviewArea.value = null
     selectedNearbyArea.value = null
@@ -482,8 +492,7 @@ export function useDiningAreaInteraction({
   watch(
     [activePlanType, activeDay],
     () => {
-      if (selectedAreaKind.value === 'route') resetDiningContext()
-      else cancelRoutePreloadForContextChange()
+      resetDiningContext()
     },
     { flush: 'sync' },
   )

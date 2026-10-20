@@ -73,7 +73,7 @@ export const TUTORIAL_STEPS = Object.freeze([
     placement: 'left',
     targets: ['[data-testid=planning-wizard] .planning-wizard'],
     title: '选择问卷或完整表单',
-    text: '问卷逐题填写，顶部进度条可以切换题目。完整表单还可以分别设置每天的时间及学生人数；两种填写方式之间切换会保留已填内容。第一题必须选一种方式才能继续。',
+    text: '问卷逐题填写，顶部进度条可以切换题目。完整表单可以分别设置每天的出发、结束时间；两种填写方式之间切换会保留已填内容。第一题必须选一种方式才能继续。',
   },
   {
     id: 'summary',

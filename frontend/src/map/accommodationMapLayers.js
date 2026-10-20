@@ -147,7 +147,7 @@ export function createAccommodationMapLayers({
         zIndex: 300,
         extData: { accommodationAreaId: area.id },
         bubble: false,
-        cursor: 'pointer',
+        cursor: picking ? 'pointer' : 'default',
       })
       const content = document.createElement('div')
       content.className = 'map-info-window accommodation-map-card'
@@ -214,6 +214,7 @@ export function createAccommodationMapLayers({
         ? entry.area.id === selectedAreaId
         : activeAreaIds.includes(entry.area.id)
       entry.circle.setOptions({
+        cursor: picking ? 'pointer' : 'default',
         strokeColor: selected ? MAP_MARKER_COLORS.accommodationSelected : AREA_COLOR,
         strokeWeight: selected ? 3 : 1,
         strokeOpacity: selected ? 1 : 0.45,
