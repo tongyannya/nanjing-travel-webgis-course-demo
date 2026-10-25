@@ -4,9 +4,11 @@ import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } 
 
 import { TAG_OPTIONS, shiftDate, attractionChoiceWarnings } from '../planning/tripForm'
 import { PLAN_TYPES } from '../planning/planningLabels'
-import { buildPlanningSummaryRows } from '../planning/planningSummary'
+import { buildPlanningSummaryRows, dayRangeText } from '../planning/planningSummary'
 import WizardAttractionPicker from './WizardAttractionPicker.vue'
 import TripWeatherSummary from './TripWeatherSummary.vue'
+import UiDateTime from './UiDateTime.vue'
+import { validateTripForm } from '../planning/tripForm'
 
 const props = defineProps({
   attractions: { type: Array, required: true },
@@ -24,7 +26,17 @@ const dialog = ref(null)
 const step = ref(0)
 const hasReviewedSummary = ref(false)
 const answers = reactive({})
-const partyAdultCount = ref('')
+const dailyTimes = ref(
+  props.seedFromForm
+    ? JSON.parse(JSON.stringify(form.value.days))
+    : [{ start_time: '09:00', end_time: '20:00' }],
+)
+const navigationMode = ref('normal')
+const summarySource = ref('early')
+const adoptedDefaults = reactive(new Set())
+const dateEdited = ref(false)
+const partyEdited = ref(props.seedFromForm)
+const partyAdultCount = ref('1')
 const partyStudentCount = ref('')
 const partySecondCount = ref('')
 const otherBudget = ref('')
@@ -33,6 +45,7 @@ const isDateCalendarOpen = ref(false)
 const calendarView = ref({ year: 2026, month: 0 })
 const dateRowEl = ref(null)
 let returnFocus = null
+answers.date = shiftDate(localTodayText(), 1)
 if (props.seedFromForm) {
   Object.assign(answers, {
     entry: 'wizard',
@@ -48,14 +61,15 @@ if (props.seedFromForm) {
         ? form.value.budgetTotal
         : 'other',
   })
-  if (form.value.hasSelectedStartDate) answers.date = form.value.startDate
+  answers.date = form.value.startDate
+  dateEdited.value = form.value.hasSelectedStartDate
   partyAdultCount.value = String(form.value.party.adult)
   partyStudentCount.value = String(form.value.party.student)
   partySecondCount.value = String(form.value.party.child)
   otherBudget.value = String(form.value.budgetTotal)
 }
 watch(
-  [answers, step, partyAdultCount, partyStudentCount, partySecondCount, otherBudget],
+  [answers, step, partyAdultCount, partyStudentCount, partySecondCount, otherBudget, dailyTimes],
   () => {
     if (props.open) emit('draft-change')
   },
@@ -66,22 +80,22 @@ const questions = computed(() => [
   {
     id: 'entry',
     title: '打算怎么规划行程',
-    hint: '问卷逐题填写更方便；完整表单可以集中设置详细条件。',
+    hint: '问卷和完整表单都能修改全部行程信息；完整表单能更清晰地集中查看可规划的条件。',
     type: 'single',
     options: [
       { value: 'wizard', label: '问卷', detail: '逐题引导填写，更方便地确定出行条件' },
       {
         value: 'full',
         label: '完整表单',
-        detail: '可分别设置每天的出发、结束时间，集中填写详细条件。',
+        detail: '集中查看日期、每日时间、人数和游玩偏好，所有可规划的信息更清晰。',
       },
     ],
   },
   {
     id: 'days',
     title: '这次打算在南京待几天？',
-    hint: '先给个大概就行，生成方案之后还能改。',
-    type: 'single',
+    hint: '选择天数后，设置每天的出发时间和最晚回到住处的时间；默认每天09:00～20:00。末日另设终点时，结束时间为最晚到达该终点的时间。',
+    type: 'days',
     columns: 2,
     options: [1, 2, 3, 4, 5].map((value) => ({
       value,
@@ -92,13 +106,13 @@ const questions = computed(() => [
   {
     id: 'date',
     title: '哪天出发？',
-    hint: '可以不填，默认从填表的次日出发。',
+    hint: '点击下方修改出发日期。不修改默认次日出发',
     type: 'date',
   },
   {
     id: 'who',
     title: '旅行人数',
-    hint: '分别填写成人、学生和儿童人数；空白按 0 计，至少填写 1 人。',
+    hint: '点击下方输入游玩人数，至少包含一个成人或学生，留空项算零人。不填默认一个成人游玩',
     type: 'single',
   },
   {
@@ -169,7 +183,7 @@ const questions = computed(() => [
 
 const isSummary = computed(() => step.value >= questions.value.length)
 const currentQuestion = computed(() => questions.value[step.value] || null)
-const optionalQuestions = new Set(['date', 'interest', 'must'])
+const optionalQuestions = new Set(['date', 'who', 'interest', 'must'])
 const wizardAttractionChoices = computed({
   get: () => answers.must || Object.fromEntries(props.attractions.map((item) => [item.id, 'none'])),
   set: (value) => {
@@ -178,7 +192,8 @@ const wizardAttractionChoices = computed({
 })
 
 function questionAnswered(id) {
-  if (id === 'who') return Boolean(customPartyCount())
+  if (id === 'days') return answers.days !== undefined && !dayTimeIssues().length
+  if (id === 'who') return partyEdited.value && Boolean(customPartyCount())
   if (id === 'budget')
     return (
       answers.budget !== undefined && (answers.budget !== 'other' || customBudgetTotal() !== null)
@@ -187,8 +202,12 @@ function questionAnswered(id) {
     return Object.values(answers.interest || {}).some((state) => state !== 'none')
   if (id === 'must')
     return Object.values(wizardAttractionChoices.value).some((state) => state !== 'none')
-  if (id === 'date') return /^\d{4}-\d{2}-\d{2}$/.test(answers.date || '')
-  return Object.hasOwn(answers, id)
+  if (id === 'date') return dateEdited.value && /^\d{4}-\d{2}-\d{2}$/.test(answers.date || '')
+  return answers[id] !== undefined
+}
+
+function dayTimeIssues() {
+  return validateTripForm(previewAppliedForm()).filter((message) => message.startsWith('第 '))
 }
 
 const missingRequired = computed(() =>
@@ -196,11 +215,24 @@ const missingRequired = computed(() =>
     (question) => !optionalQuestions.has(question.id) && !questionAnswered(question.id),
   ),
 )
+const missingIndices = computed(() =>
+  missingRequired.value.map((question) => questions.value.indexOf(question)),
+)
+const summaryOnly = computed(
+  () =>
+    !isSummary.value &&
+    (navigationMode.value === 'edit' ||
+      (navigationMode.value === 'repair'
+        ? missingIndices.value.every((index) => index === step.value)
+        : currentQuestion.value?.id === 'mode')),
+)
+const canSubmit = computed(() => !missingRequired.value.length && Boolean(customPartyCount()))
 
 // 末页概览：显示最终会发送的有效值（含未询问项的实际默认值）。
 const summaryQuestions = {
   planningMethod: 'entry',
   dayCount: 'days',
+  dayTimes: 'days',
   dates: 'date',
   party: 'who',
   planType: 'pace',
@@ -219,19 +251,26 @@ const summaryRows = computed(() =>
     {
       id: 'dayCount',
       label: '行程天数',
-      value: `${effectiveForm.value.dayCount} 天`,
+      value: `${effectiveForm.value.dayCount}天，${dayRangeText(effectiveForm.value)}`,
       kind: 'plain',
     },
     ...buildPlanningSummaryRows(effectiveForm.value, { attractionNames: attractionNameMap.value }),
   ].map((row) => ({
     ...row,
-    missing: Boolean(summaryQuestions[row.id] && !questionAnswered(summaryQuestions[row.id])),
+    missing: Boolean(
+      summaryQuestions[row.id] &&
+      !['dates', 'party'].includes(row.id) &&
+      !questionAnswered(summaryQuestions[row.id]),
+    ),
     requiredMissing: Boolean(
       summaryQuestions[row.id] &&
       !optionalQuestions.has(summaryQuestions[row.id]) &&
       !questionAnswered(summaryQuestions[row.id]),
     ),
-    defaultHint: row.id === 'dates' && !answers.date ? `默认：${row.value}` : '',
+    defaultHint:
+      ['dates', 'party'].includes(row.id) && !questionAnswered(summaryQuestions[row.id])
+        ? '采用默认值'
+        : '',
   })),
 )
 
@@ -255,18 +294,18 @@ function previewAppliedForm() {
     preview.dayCount = answers.days
     preview.days = Array.from({ length: preview.dayCount }, (_, index) => ({
       date: shiftDate(preview.startDate, index),
-      start_time: form.value.days[index]?.start_time || '09:00',
-      end_time: form.value.days[index]?.end_time || '20:00',
+      start_time: dailyTimes.value[index]?.start_time || '09:00',
+      end_time: dailyTimes.value[index]?.end_time || '20:00',
     }))
   }
   const departureDate =
     answers.date || (props.seedFromForm ? form.value.startDate : shiftDate(todayText.value, 1))
   preview.startDate = departureDate
-  preview.hasSelectedStartDate = Boolean(answers.date)
+  preview.hasSelectedStartDate = dateEdited.value
   preview.days = Array.from({ length: preview.dayCount }, (_, index) => ({
     date: shiftDate(departureDate, index),
-    start_time: form.value.days[index]?.start_time || '09:00',
-    end_time: form.value.days[index]?.end_time || '20:00',
+    start_time: dailyTimes.value[index]?.start_time || '09:00',
+    end_time: dailyTimes.value[index]?.end_time || '20:00',
   }))
   const counts = customPartyCount()
   if (counts)
@@ -323,10 +362,11 @@ const calendarCells = computed(() => {
   return cells
 })
 
-const todayText = computed(() => {
+function localTodayText() {
   const now = new Date()
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
-})
+}
+const todayText = computed(localTodayText)
 
 function optionIdentity(option) {
   return option.optionKey || String(option.value)
@@ -351,6 +391,13 @@ function pickOption(option) {
     return
   }
   answers[id] = option.value
+  if (id === 'days') {
+    dailyTimes.value = Array.from({ length: option.value }, (_, index) => ({
+      start_time: dailyTimes.value[index]?.start_time || '09:00',
+      end_time: dailyTimes.value[index]?.end_time || '20:00',
+    }))
+    return
+  }
   if (id === 'entry' && option.value === 'full') {
     openFullForm()
     return
@@ -359,7 +406,9 @@ function pickOption(option) {
     if (option.value === 'other')
       nextTick(() => dialog.value?.querySelector('[data-testid=wizard-other-budget]')?.focus())
     else otherBudget.value = ''
+    if (option.value === 'other') return
   }
+  if (!optionalQuestions.has(id) && (id !== 'mode' || navigationMode.value !== 'normal')) next()
 }
 
 function customPartyCount() {
@@ -378,8 +427,7 @@ function customPartyCount() {
   const adults = parse(partyAdultCount.value, 0)
   const students = parse(partyStudentCount.value, 0)
   const second = parse(partySecondCount.value, 0)
-  if (adults === null || students === null || second === null || adults + students + second < 1)
-    return null
+  if (adults === null || students === null || second === null || adults + students < 1) return null
   return { adults, students, second }
 }
 
@@ -390,31 +438,88 @@ function customBudgetTotal() {
   return Number.isInteger(value) && value >= 0 ? value : null
 }
 
-function next() {
-  if (!currentQuestion.value) return
-  if (!questionAnswered('entry')) {
+function allowNavigation() {
+  if (currentQuestion.value?.id === 'entry' && !questionAnswered('entry')) {
     validationMessage.value = '请先选择问卷或完整表单。'
-    return
+    return false
+  }
+  if (currentQuestion.value?.id === 'who' && !customPartyCount()) {
+    validationMessage.value = '至少需要一名成人或学生，人数请填写0至50的整数。'
+    return false
+  }
+  if (
+    currentQuestion.value?.id === 'budget' &&
+    answers.budget === 'other' &&
+    customBudgetTotal() === null
+  ) {
+    validationMessage.value = '请填写或选择预算。'
+    return false
   }
   validationMessage.value = ''
-  step.value += 1
+  return true
+}
+
+function leaveQuestion() {
+  const id = currentQuestion.value?.id
+  if (optionalQuestions.has(id) && !questionAnswered(id)) adoptedDefaults.add(id)
+}
+
+function moveTo(index) {
+  leaveQuestion()
+  step.value = index
   focusFirstControl()
+}
+
+function missingNeighbor(offset) {
+  const indices = missingIndices.value
+  if (!indices.length) return questions.value.length
+  return offset > 0
+    ? (indices.find((index) => index > step.value) ?? indices[0])
+    : ([...indices].reverse().find((index) => index < step.value) ?? indices.at(-1))
+}
+
+function next() {
+  if (!currentQuestion.value || !allowNavigation()) return
+  if (currentQuestion.value.id === 'days' && answers.days && dayTimeIssues().length) {
+    validationMessage.value = dayTimeIssues().join(' ')
+    return
+  }
+  if (navigationMode.value === 'repair') {
+    if (!missingIndices.value.length) return showSummary()
+    moveTo(missingNeighbor(1))
+  } else if (navigationMode.value === 'edit') showSummary()
+  else moveTo(step.value + 1)
 }
 
 function previous() {
-  step.value = Math.max(0, step.value - 1)
-  validationMessage.value = ''
-  focusFirstControl()
+  if (!allowNavigation()) return
+  if (navigationMode.value === 'repair') moveTo(missingNeighbor(-1))
+  else {
+    navigationMode.value = 'normal'
+    moveTo(Math.max(0, step.value - 1))
+  }
+}
+
+function showSummary() {
+  if (!allowNavigation()) return
+  if (navigationMode.value === 'normal')
+    summarySource.value = currentQuestion.value?.id === 'mode' ? 'final' : 'early'
+  navigationMode.value = 'normal'
+  moveTo(questions.value.length)
 }
 
 function editQuestion(index) {
-  if (index > 0 && !questionAnswered('entry')) {
-    validationMessage.value = '请先选择问卷或完整表单。'
-    return
+  if (!allowNavigation()) return
+  const target = questions.value[index]
+  if (!(
+    navigationMode.value === 'repair' &&
+    target &&
+    !optionalQuestions.has(target.id) &&
+    !questionAnswered(target.id)
+  )) {
+    navigationMode.value = 'normal'
   }
-  validationMessage.value = ''
-  step.value = index
-  focusFirstControl()
+  moveTo(index)
 }
 
 function applyEffectiveForm() {
@@ -427,7 +532,7 @@ function applyEffectiveForm() {
 }
 
 function applyAnswers() {
-  if (missingRequired.value.length) {
+  if (!canSubmit.value) {
     validationMessage.value = '请先填写所有标有感叹号的必填题。'
     return
   }
@@ -437,19 +542,20 @@ function applyAnswers() {
 
 // 概览页“上一题”回到最后一道题；打开完整表单仍保留当前答案且不发请求。
 function backToEdit() {
+  navigationMode.value = 'normal'
   step.value = Math.max(0, questions.value.length - 1)
   focusFirstControl()
 }
 
 function openFullForm() {
+  if (currentQuestion.value?.id !== 'entry' && !allowNavigation()) return
   // 概览与完整表单使用同一个有效快照，避免只同步日期而丢失其他答案。
   if (
     step.value > 0 ||
     props.seedFromForm ||
-    Object.keys(answers).some((key) => key !== 'entry') ||
-    partyAdultCount.value ||
-    partyStudentCount.value ||
-    partySecondCount.value
+    Object.keys(answers).some((key) => !['entry', 'date'].includes(key)) ||
+    partyEdited.value ||
+    dateEdited.value
   )
     applyEffectiveForm()
   emit('open-full-form')
@@ -478,6 +584,7 @@ function shiftCalendarMonth(offset) {
 function selectCalendarDay(cell) {
   if (!cell.date) return
   answers.date = cell.date
+  dateEdited.value = true
   validationMessage.value = ''
   isDateCalendarOpen.value = false
 }
@@ -497,8 +604,17 @@ function editSummaryRow(row) {
     longVisitMeal: 'longVisitMeal',
   }
   const index = questions.value.findIndex((question) => question.id === ids[row.id])
-  if (index >= 0) editQuestion(index)
-  else openFullForm()
+  if (index >= 0) {
+    if (!allowNavigation()) return
+    const target = questions.value[index]
+    navigationMode.value =
+      summarySource.value !== 'final'
+        ? 'normal'
+        : !optionalQuestions.has(target.id) && !questionAnswered(target.id)
+          ? 'repair'
+          : 'edit'
+    moveTo(index)
+  } else openFullForm()
 }
 
 function close() {
@@ -525,7 +641,6 @@ function handleKeydown(event) {
       isDateCalendarOpen.value = false
       return
     }
-    close()
     return
   }
   const target = event.target
@@ -593,12 +708,7 @@ onBeforeUnmount(() => {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="open"
-      class="planning-wizard-backdrop"
-      data-testid="planning-wizard"
-      @click.self="close"
-    >
+    <div v-if="open" class="planning-wizard-backdrop" data-testid="planning-wizard">
       <section
         ref="dialog"
         class="planning-wizard"
@@ -633,7 +743,18 @@ onBeforeUnmount(() => {
               :data-wizard-progress="question.id"
               :aria-label="`第${index + 1}题：${question.title}`"
               :aria-current="step === index ? 'step' : undefined"
-              :class="{ filled: questionAnswered(question.id), current: step === index }"
+              :class="{
+                filled: questionAnswered(question.id),
+                defaulted: adoptedDefaults.has(question.id) && !questionAnswered(question.id),
+                current: step === index,
+              }"
+              :data-answer-state="
+                questionAnswered(question.id)
+                  ? 'answered'
+                  : adoptedDefaults.has(question.id)
+                    ? 'default'
+                    : 'empty'
+              "
               @click="editQuestion(index)"
             >
               <span></span>
@@ -664,6 +785,7 @@ onBeforeUnmount(() => {
                 class="planning-wizard__date"
                 data-testid="wizard-date"
                 type="date"
+                @input="dateEdited = true"
                 @click="openDateCalendar"
               />
               <button
@@ -788,6 +910,33 @@ onBeforeUnmount(() => {
                 >
               </button>
             </div>
+            <div
+              v-if="currentQuestion.id === 'days' && answers.days"
+              class="wizard-day-times"
+              data-testid="wizard-day-times"
+            >
+              <div class="wizard-day-times__head planning-wizard__hint">
+                <span></span><span>出发时间</span><span>最晚结束时间</span>
+              </div>
+              <div v-for="(day, index) in dailyTimes" :key="index" class="wizard-day-times__row">
+                <strong>第 {{ index + 1 }} 天</strong>
+                <UiDateTime
+                  v-model="day.start_time"
+                  :data-testid="`wizard-day-${index}-start`"
+                  type="time"
+                  min="07:00"
+                  max="15:00"
+                  :label="`第${index + 1}天出发时间`"
+                />
+                <UiDateTime
+                  v-model="day.end_time"
+                  :data-testid="`wizard-day-${index}-end`"
+                  type="time"
+                  min="11:00"
+                  :label="`第${index + 1}天最晚回到住处的时间`"
+                />
+              </div>
+            </div>
             <div v-if="currentQuestion.id === 'who'" class="planning-wizard__fill-row">
               <span>成人</span>
               <input
@@ -797,6 +946,7 @@ onBeforeUnmount(() => {
                 type="text"
                 inputmode="numeric"
                 placeholder="例如：2"
+                @input="partyEdited = true"
               />
               <span>人</span>
             </div>
@@ -809,6 +959,7 @@ onBeforeUnmount(() => {
                 type="text"
                 inputmode="numeric"
                 placeholder="没有填 0"
+                @input="partyEdited = true"
               />
               <span>人</span>
             </div>
@@ -821,6 +972,7 @@ onBeforeUnmount(() => {
                 type="text"
                 inputmode="numeric"
                 placeholder="没有填 0"
+                @input="partyEdited = true"
               />
               <span>人</span>
             </div>
@@ -865,17 +1017,11 @@ onBeforeUnmount(() => {
                   }"
                 >
                   {{ row.missing ? '未填' : row.value || '暂无' }}
-                  <small
-                    v-if="row.missing && row.defaultHint"
-                    class="planning-wizard__default-hint"
-                    >{{ row.defaultHint }}</small
-                  >
+                  <small v-if="row.defaultHint" class="planning-wizard__default-hint">{{
+                    row.defaultHint
+                  }}</small>
                 </b>
                 <button
-                  v-if="
-                    row.missing ||
-                    ((row.kind === 'tags' || row.id === 'longVisitMeal') && row.value)
-                  "
                   type="button"
                   :data-summary-question="row.id"
                   :aria-label="`修改${row.label}`"
@@ -926,17 +1072,18 @@ onBeforeUnmount(() => {
           <button
             v-if="!isSummary"
             type="button"
-            class="wizard-ghost"
+            :class="summaryOnly ? 'wizard-primary' : 'wizard-ghost'"
             data-testid="wizard-review-summary"
-            @click="editQuestion(questions.length)"
+            @click="showSummary"
           >
             查看答案汇总
           </button>
           <button
+            v-if="isSummary || !summaryOnly"
             type="button"
             class="wizard-primary"
             :data-testid="isSummary ? 'wizard-submit' : 'wizard-next'"
-            :disabled="isSummary && missingRequired.length > 0"
+            :disabled="isSummary && !canSubmit"
             @click="isSummary ? applyAnswers() : next()"
           >
             {{ isSummary ? '确认并生成' : '下一题' }}

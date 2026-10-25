@@ -408,7 +408,7 @@ class TransitRouteDetails(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     total_minutes: int = Field(gt=0)
-    conservative_minutes: int = Field(ge=30, multiple_of=30)
+    conservative_minutes: int = Field(ge=10, multiple_of=10)
     walking_distance_m: int | None = Field(ge=0)
     walking_minutes: int | None = Field(ge=0)
     transfer_count: int = Field(ge=0)

@@ -37,9 +37,7 @@
       },
       "anyOf": [
         {"properties": {"adult": {"minimum": 1}}},
-        {"properties": {"student": {"minimum": 1}}},
-        {"properties": {"child": {"minimum": 1}}},
-        {"properties": {"senior": {"minimum": 1}}}
+        {"properties": {"student": {"minimum": 1}}}
       ]
     },
     "ticket_budget": {

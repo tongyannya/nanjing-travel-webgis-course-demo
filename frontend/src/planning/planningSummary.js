@@ -9,7 +9,7 @@ function endpointText(location) {
   return location.name
 }
 
-function dayRangeText(form) {
+export function dayRangeText(form) {
   const first = form.days?.[0]?.date || form.startDate || ''
   const last = form.days?.[form.days.length - 1]?.date || first
   return first === last ? first : `${first} 至 ${last}`
@@ -36,8 +36,8 @@ export function buildPlanningSummaryRows(form, { attractionNames = {} } = {}) {
     },
     {
       id: 'dates',
-      label: '日期和天数',
-      value: `${dayRangeText(form)}，共 ${form.dayCount} 天`,
+      label: '出发日期',
+      value: `${form.startDate} 出发`,
       kind: 'plain',
     },
   ]

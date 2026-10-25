@@ -45,7 +45,7 @@ export function useAccommodationFlow({
     layerVisibility.value = Object.fromEntries(
       Object.keys(layerVisibility.value).map((key) => [
         key,
-        ['attractions', 'accommodationAreas'].includes(key),
+        ['attractions', 'hotels', 'accommodationAreas'].includes(key),
       ]),
     )
     accommodationWizardOpen.value = false

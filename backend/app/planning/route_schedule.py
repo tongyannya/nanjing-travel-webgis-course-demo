@@ -8,6 +8,7 @@ from typing import Any
 from .route_order import visit_orders
 from .schedule import build_plan
 from .notices import notice, traffic_removal_notices
+from .trace import emit, tracing, plan_snapshot
 
 
 def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *,
@@ -26,6 +27,7 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
                   for item in day['items'] if item.get('locked')}
     mandatory = set(request['preferences']['must_visit_ids']) | locked_ids
     for index, previous in enumerate(response['plans']):
+        trace_names = {item['ref_id']: item['name'] for day in previous['days'] for item in day['items'] if item['type'] == 'attraction'} if tracing() else {}
         orders = visit_orders(previous)
         while True:
             plan = build_plan(previous['plan_type'], request, visit_sequences=orders,
@@ -35,6 +37,10 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
                        for attraction_id in ids if attraction_id not in kept]
             if not missing:
                 break
+            if tracing():
+                emit('traffic', '实际交通核对发现景点无法按原顺序放入',
+                     message='、'.join(f'{date}：{trace_names.get(attraction_id, attraction_id)}' for date, attraction_id in missing),
+                     plans=[plan_snapshot(plan)], function='reschedule_fixed_routes')
             # An earlier optional visit must not consume a required visit's slot.
             date, attraction_id = next((entry for entry in missing if entry[1] in mandatory), missing[0])
             repair_key = (previous['plan_type'], date)
@@ -53,6 +59,10 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
                         candidate_orders = {**orders, date: moved}
                         candidate = build_plan(previous['plan_type'], request, visit_sequences=candidate_orders,
                                                preserve_visit_order=True, **traffic)
+                        if tracing():
+                            emit('traffic', f'{date}：尝试局部移动冲突景点', accepted=set(visit_orders(candidate)[date]) == set(original),
+                                 message='同日其余景点保留相对顺序；检查移动后能否保留该日全部景点。',
+                                 plans=[plan_snapshot(candidate)], function='reschedule_fixed_routes')
                         if set(visit_orders(candidate)[date]) == set(original):
                             orders = candidate_orders
                             break
@@ -62,6 +72,8 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
             optional = [value for value in predecessors if value not in mandatory]
             removed = optional[-1] if attraction_id in mandatory and optional else attraction_id
             orders[date].remove(removed)
+            emit('traffic', f'{date}：移出当前无法容纳的景点',
+                 message=f'{trace_names.get(removed, removed)}；保留必去景点优先，继续核对当前日期。', function='reschedule_fixed_routes')
 
         removed = [item for day in previous['days'] for item in day['items']
                    if item['type'] == 'attraction' and item['ref_id'] not in kept]

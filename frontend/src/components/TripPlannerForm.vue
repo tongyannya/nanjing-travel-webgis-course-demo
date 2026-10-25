@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { syncTripDays } from '../planning/tripForm'
 import { PLAN_FORM_LABELS } from '../planning/planningLabels'
@@ -10,8 +10,10 @@ const form = defineModel({ required: true })
 defineProps({
   attractions: { type: Array, required: true },
   planState: { type: String, required: true },
+  hasCurrentPlan: { type: Boolean, default: false },
 })
-const emit = defineEmits(['submit', 'cancel', 'open-questionnaire'])
+const emit = defineEmits(['submit', 'cancel', 'open-questionnaire', 'edited'])
+watch(form, () => emit('edited'), { deep: true, flush: 'sync' })
 
 const activeStep = ref('basic')
 const selectedPlanLabel = computed(
@@ -58,7 +60,10 @@ function showStep(step) {
     />
     <TripPlannerPreferencesStep v-else v-model="form" :attractions="attractions" />
 
-    <section class="form-submit">
+    <section
+      class="form-submit"
+      :class="{ 'form-submit--with-return': hasCurrentPlan && activeStep === 'preferences' }"
+    >
       <p class="form-submit__hint">
         {{
           activeStep === 'basic'

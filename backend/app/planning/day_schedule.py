@@ -40,6 +40,8 @@ def slot_for_attraction(
     exact_start: int | None = None,
     deadline: int | None = None,
     deadline_location: dict[str, Any] | None = None,
+    diagnostics: list | None = None,
+    attempt: str = '直接游览',
 ) -> tuple[dict[str, Any] | None, str]:
     """Find a legal visit slot while preserving future events and day return."""
     temporary_id = "candidate_item"
@@ -56,13 +58,18 @@ def slot_for_attraction(
     )
     arrival = state.current_time + leg["duration_minutes_rounded"]
     start = visit_start(attraction, state.visit_date, arrival, duration, exact_start)
+    def outcome(slot, reason, detail):
+        if diagnostics is not None:
+            diagnostics.append({'attempt': attempt, 'arrival': clock(arrival), 'valid': slot is not None,
+                                'detail': detail})
+        return slot, reason
     if start is None:
         reason = (
             "closed"
             if not opening_intervals(attraction, state.visit_date)
             else "time_conflict"
         )
-        return None, reason
+        return outcome(None, reason, f'预计{clock(arrival)}到达，无法按当天开放及入园规则完成{duration}分钟游览。')
     end = start + duration
     if deadline is not None:
         transfer = 0
@@ -79,7 +86,7 @@ def slot_for_attraction(
                 fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
             )["duration_minutes_rounded"]
         if end + transfer > deadline:
-            return None, "time_conflict"
+            return outcome(None, 'time_conflict', f'游览至{clock(end)}，超过后续事件前的{clock(deadline)}界限。')
     return_leg = estimate_leg(
         attraction["location"],
         state.end_location_ref["location"],
@@ -92,8 +99,9 @@ def slot_for_attraction(
         fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
     )
     if end + return_leg["duration_minutes_rounded"] > state.day_end:
-        return None, "capacity"
-    return {"leg": leg, "start": start, "end": end}, ""
+        return outcome(None, 'capacity', f"游览至{clock(end)}，再预留{return_leg['duration_minutes_rounded']}分钟到终点，超过当天{clock(state.day_end)}结束时间。")
+    return outcome({"leg": leg, "start": start, "end": end}, '',
+                   f'可安排{clock(start)}～{clock(end)}，并留出到达当天终点的时间。')
 
 
 def append_attraction(

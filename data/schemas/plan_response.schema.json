@@ -227,7 +227,7 @@
       "required": ["total_minutes", "conservative_minutes", "walking_distance_m", "walking_minutes", "transfer_count", "ride_segments", "route_segments", "transfers", "summary"],
       "properties": {
         "total_minutes": {"type": "integer", "minimum": 1},
-        "conservative_minutes": {"type": "integer", "minimum": 30, "multipleOf": 30},
+        "conservative_minutes": {"type": "integer", "minimum": 10, "multipleOf": 10},
         "walking_distance_m": {"type": ["integer", "null"], "minimum": 0},
         "walking_minutes": {"type": ["integer", "null"], "minimum": 0},
         "transfer_count": {"type": "integer", "minimum": 0},
@@ -481,7 +481,7 @@
         "to_item_id": {"$ref": "#/$defs/id"},
         "mode": {"enum": ["public_transit", "taxi", "self_drive", "walk"]},
         "duration_minutes_raw": {"type": "integer", "minimum": 0},
-        "duration_minutes_rounded": {"type": "integer", "minimum": 0, "multipleOf": 30},
+        "duration_minutes_rounded": {"type": "integer", "minimum": 0, "multipleOf": 10},
         "route_summary": {"type": "array", "items": {"type": "string"}},
         "is_estimated": {"type": "boolean"},
         "meals": {"type": "array", "maxItems": 2, "items": {"$ref": "#/$defs/route_meal"}},

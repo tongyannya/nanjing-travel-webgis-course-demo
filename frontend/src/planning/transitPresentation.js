@@ -92,6 +92,11 @@ export function presentTransportLeg(leg = {}) {
   )
   const shortLabel = lineNames.length ? lineNames.join(' → ') : '步行接驳'
   const summary = details.summary || leg.route_summary || `${shortLabel}；${durationLabel}。`
+  const walkingInclusion = isKnownNumber(details.walking_minutes)
+    ? `包含约${Number(details.walking_minutes)}分钟步行`
+    : isKnownNumber(details.walking_distance_m)
+      ? `包含约${Number(details.walking_distance_m)}米步行`
+      : ''
 
   return {
     modeLabel,
@@ -99,7 +104,13 @@ export function presentTransportLeg(leg = {}) {
     status: 'details',
     summary,
     shortLabel,
-    accessibleLabel: `${modeLabel}，${durationLabel}，${summary}`,
+    accessibleLabel: [
+      modeLabel,
+      duration === null ? durationLabel : `约${duration}分钟`,
+      walkingInclusion,
+    ]
+      .filter(Boolean)
+      .join('，'),
     walkingLabel,
     transferLabel: transferCount ? `换乘 ${transferCount} 次` : '无需换乘',
     segments,

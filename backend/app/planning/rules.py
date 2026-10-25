@@ -8,6 +8,8 @@ from typing import Any
 from .time_rules import opening_intervals
 from .transport import distance_km
 
+DISTANCE_PENALTY_PER_KM = 6.0
+
 
 def ticket_cost(attraction: dict[str, Any], party: dict[str, int]) -> tuple[float, bool]:
     """Return a conservative group estimate without modelling senior discounts."""
@@ -52,25 +54,25 @@ def score_attraction(
     current_location: dict[str, Any],
     current_time: int,
 ) -> float:
-    score = 0.0
+    return sum(attraction_score_parts(attraction, preferences, current_location, current_time).values())
+
+
+def attraction_score_parts(attraction, preferences, current_location, current_time):
+    """Keep the displayed score contributions identical to the selection rule."""
     attraction_id = attraction["id"]
-    if attraction_id in preferences["must_visit_ids"]:
-        score += 10000
-    if attraction_id in preferences["interested_ids"]:
-        score += 600
     matching_tag_count = min(
         1,
         len(set(attraction.get("tags", [])) & set(preferences["preferred_tags"])),
     )
-    score += matching_tag_count * 120
-    score += {"core": 100, "standard": 50, "supplement": 20, None: 0}.get(
+    recommendation = {"core": 100, "standard": 50, "supplement": 20, None: 0}.get(
         attraction.get("recommendation_level"), 0
     )
-    score += {"5A": 90, "4A": 60, "3A": 20, None: 0}.get(attraction.get("quality_grade"), 0)
-    if current_time >= 17 * 60 and "night_view" in attraction.get("tags", []):
-        score += 80
-    score -= distance_km(current_location, attraction["location"]) * 4
-    return score
+    quality = {"5A": 90, "4A": 60, "3A": 20, None: 0}.get(attraction.get("quality_grade"), 0)
+    return {'must': 10000 if attraction_id in preferences['must_visit_ids'] else 0,
+            'interested': 600 if attraction_id in preferences['interested_ids'] else 0,
+            'tags': matching_tag_count * 120, 'recommendation': recommendation, 'quality': quality,
+            'night': 80 if current_time >= 17 * 60 and 'night_view' in attraction.get('tags', []) else 0,
+            'distance': -distance_km(current_location, attraction['location']) * DISTANCE_PENALTY_PER_KM}
 
 
 def reason_for_unplanned(

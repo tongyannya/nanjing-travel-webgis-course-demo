@@ -6,6 +6,7 @@ import asyncio
 from typing import Any
 
 from ..amap_client import travel_time, AMapConfigError, AMapUpstreamError
+from ..travel_time_rules import reserved_travel_minutes
 from ..amap_transport import check_plan_deadline, gather_amap_queries, planning_request_scope
 from .service import generate_plans
 from .route_schedule import reschedule_fixed_routes
@@ -15,8 +16,8 @@ from .route_meals import assign_hex_meals
 from .service import _plan_validator
 from .models import PlanGenerationError
 from .route_repair import refill_repaired_days
-from .traffic_gaps import regroup_traffic_gaps
 from .dinner_recovery import recover_return_dinners
+from .trace import emit, snapshot, tracing, response_snapshot
 
 MAX_ROUTE_QUERIES = 48
 
@@ -29,11 +30,22 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
     repair_records = {}
     response = generate_plans(request, plan_types=plan_types, repair_records=repair_records)
     initial = response
+    route_names = {}
+    if tracing():
+        for plan in response['plans']:
+            for day in plan['days']:
+                for item in day['items']:
+                    if item['type'] != 'free_time':
+                        route_names[tuple(round(item['location'][k], 6) for k in ('longitude', 'latitude'))] = item['name']
+    def route_label(key):
+        return ' → '.join(route_names.get(tuple(key[index:index + 2]), f'{key[index]}, {key[index + 1]}') for index in (1, 3))
+    snapshot('traffic', '初稿已确定，开始核对高德道路耗时', response)
 
     async def query(key):
         async with semaphore:
             check_plan_deadline()
             mode, lon1, lat1, lon2, lat2 = key
+            emit('traffic', f'查询路线：{route_label(key)}', mode=mode, function='travel_time')
             try:
                 value = await active_lookup(origin=(lon1, lat1), destination=(lon2, lat2), mode=mode)
                 if (not isinstance(value, dict) or
@@ -59,9 +71,17 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                         not details or details['mode'] != mode or
                         details['total_minutes'] != value['raw_minutes'] or
                         not any(segment['mode'] in ride_modes for segment in details['route_segments'])):
+                        emit('traffic', f'公共交通超出适用条件：{route_label(key)}', message='该段将继续尝试出租车衔接。')
                         return key, None
+                emit('traffic', f'取得道路耗时：{route_label(key)}', mode=mode,
+                     raw_minutes=value['raw_minutes'],
+                     reserved_minutes=(value['transit_details']['conservative_minutes']
+                                       if mode == 'public_transit' else
+                                       reserved_travel_minutes(value['raw_minutes'], mode=mode)),
+                     message=value['display'], function='travel_time / estimate_leg')
                 return key, value
             except (AMapConfigError, AMapUpstreamError, ValueError, KeyError, TypeError):
+                emit('traffic', f'路线暂未取得：{route_label(key)}', message='继续按现有估算核对；公共交通失败时尝试出租车。', function='travel_time')
                 return key, None
 
     def traffic(*, finalize=False):
@@ -138,11 +158,14 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
         if not keys:
             break
         await query_routes(keys)
+        before = response_snapshot(response)
         response = rebuild()
+        snapshot('traffic', '按取得的道路耗时重新核对景点、饭点和终点', response, previous_plans=before)
         # Only a local conflict repair can create a new connection. Feasible
         # days keep their order; each conflicting day permits one local move.
     if len(attempted) >= MAX_ROUTE_QUERIES:
         response = rebuild(finalize=True)
+        snapshot('traffic', '达到路线查询上限，完成最后一次时间核对', response)
     # Compare replacements against the original route with the now-known
     # traffic costs. This allows filling removed slots without using the
     # empty day's lower cost as a reason to reject every insertion.
@@ -155,17 +178,19 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                                       items[leg['to_item_id']]['location'], request['transport_preference'],
                                       '', '', **traffic())['duration_minutes_rounded'] for leg in day['legs'])
         travel_limits[plan['plan_type']] = total
-    response = await regroup_traffic_gaps(request, response, repair_records, traffic=traffic,
-                                         verify_routes=verify_routes, travel_limits=travel_limits)
+    before = response_snapshot(response)
     response = await refill_repaired_days(request, response, repair_records, traffic=traffic,
                                           verify_routes=verify_routes, travel_limits=travel_limits)
+    snapshot('repair', '受影响日期的空档补排检查完成', response, previous_plans=before)
 
     async def lookup_dinner_taxi(key):
         if key not in attempted:
             await query_routes([key])
         return actual.get(key)
 
+    before = response_snapshot(response)
     response = await recover_return_dinners(request, response, traffic=traffic, lookup_taxi=lookup_dinner_taxi)
+    snapshot('repair', '晚餐与返回终点的衔接检查完成', response, previous_plans=before)
     check_plan_deadline()
     if any(leg['mode'] == 'taxi' for plan in response['plans'] for day in plan['days'] for leg in day['legs']) and request['transport_preference'] == 'public_transit':
         response['global_warnings'].append('部分路段因公共交通不可用、超过90分钟、步行超过40分钟或晚餐返程冲突，采用出租车。')
@@ -182,4 +207,5 @@ async def generate_route_hex_plans(request: dict[str, Any], *, plan_types=None, 
     errors = list(_plan_validator().iter_errors(response))
     if errors:
         raise PlanGenerationError(f'路线用餐结果无效：{list(errors[0].absolute_path)}')
+    snapshot('complete', '行程生成完成，返回地图与时间轴', response)
     return response

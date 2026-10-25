@@ -19,7 +19,9 @@ from .models import (
 from .plan_contract import validate_plan_response_semantics
 from .schedule import build_plan
 from .route_order import optimize_visit_order
+from .day_distance_review import review_long_distance_days
 from .notices import notice
+from .trace import snapshot, response_snapshot
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
@@ -57,6 +59,7 @@ def generate_plans(
         or any(plan_type not in PLAN_TYPES for plan_type in selected_plan_types)
     ):
         raise ValueError("plan_types 必须是非空、无重复的有效方案类型序列")
+    priority_reservations = {plan_type: {} for plan_type in selected_plan_types}
     result = {
         "request_id": request["request_id"],
         "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -70,6 +73,7 @@ def generate_plans(
                 transit_details_by_key=transit_details_by_key,
                 taxi_fallback_keys=taxi_fallback_keys,
                 fallback_missing_transit_to_taxi=fallback_missing_transit_to_taxi,
+                priority_reservations=priority_reservations[plan_type],
             )
             for plan_type in selected_plan_types
         ],
@@ -82,8 +86,18 @@ def generate_plans(
         kind, request, visit_sequences=orders, travel_details_by_key=travel_details_by_key,
         transit_details_by_key=transit_details_by_key, taxi_fallback_keys=taxi_fallback_keys,
         fallback_missing_transit_to_taxi=fallback_missing_transit_to_taxi,
-    ), request=request, repair_records=(repair_records.setdefault(plan['plan_type'], {})
+    ), request=request, priority_reservations=priority_reservations[plan['plan_type']],
+        repair_records=(repair_records.setdefault(plan['plan_type'], {})
         if repair_records is not None else None)) for plan in result['plans']]
+    before = response_snapshot(result)
+    result = review_long_distance_days(request, result, traffic=dict(
+        travel_details_by_key=travel_details_by_key,
+        transit_details_by_key=transit_details_by_key,
+        taxi_fallback_keys=taxi_fallback_keys,
+        fallback_missing_transit_to_taxi=fallback_missing_transit_to_taxi),
+        repair_records=repair_records)
+    snapshot('repair', '8公里检查及重排当天顺序优化完成，准备查询高德', result,
+             previous_plans=before)
     errors = sorted(
         _plan_validator().iter_errors(result),
         key=lambda item: list(item.absolute_path),

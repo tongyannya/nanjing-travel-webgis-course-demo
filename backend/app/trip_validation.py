@@ -33,6 +33,8 @@ def validate_trip_request(
             message = f"缺少必填字段：{missing}。"
         elif error.validator == "type":
             message = "字段类型不正确。"
+        elif error.validator == "anyOf" and path == "party":
+            message = "游玩人数至少包含一名成人或学生。"
         elif error.validator == "enum":
             message = "字段值不在允许范围内。"
         elif error.validator == "minimum":

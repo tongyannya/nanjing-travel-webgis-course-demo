@@ -1,5 +1,6 @@
 <script setup>
 import UiSelect from './UiSelect.vue'
+import UiNumberStepper from './UiNumberStepper.vue'
 import { TAG_OPTIONS } from '../planning/tripForm'
 import AttractionChoiceBrowser from './AttractionChoiceBrowser.vue'
 
@@ -30,11 +31,12 @@ function cycleTag(tag) {
       <div class="budget-row">
         <label>
           全队全程门票预算
-          <input
+          <UiNumberStepper
             v-model.number="form.budgetTotal"
             data-testid="budget-total"
-            type="number"
-            min="0"
+            label="门票预算"
+            :min="0"
+            :step="100"
             :disabled="form.budgetUnlimited"
           />
         </label>

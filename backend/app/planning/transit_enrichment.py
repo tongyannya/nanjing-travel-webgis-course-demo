@@ -117,11 +117,11 @@ def validate_transit_details(details: Mapping[str, Any]) -> None:
     _exact_fields(details, _TRANSIT_DETAIL_FIELDS, "transit_details")
     _require_int(details["total_minutes"], "total_minutes", minimum=1)
     conservative = _require_int(
-        details["conservative_minutes"], "conservative_minutes", minimum=30
+        details["conservative_minutes"], "conservative_minutes", minimum=10
     )
-    if conservative % 30:
+    if conservative % 10:
         raise TransitEnrichmentDataError(
-            "transit_details.conservative_minutes 必须按 30 分钟取整。"
+            "transit_details.conservative_minutes 必须为 10 分钟的整数倍。"
         )
     _optional_non_negative_int(details["walking_distance_m"], "walking_distance_m")
     _optional_non_negative_int(details["walking_minutes"], "walking_minutes")

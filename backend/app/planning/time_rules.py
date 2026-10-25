@@ -17,7 +17,7 @@ WEEKDAY_NAMES = (
     "sunday",
 )
 MEAL_WINDOWS = {
-    "lunch": (11 * 60 + 30, 13 * 60 + 30),
+    "lunch": (11 * 60 + 30, 14 * 60),
     "dinner": (17 * 60 + 30, 20 * 60),
 }
 

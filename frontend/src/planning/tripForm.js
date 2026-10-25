@@ -1,8 +1,6 @@
 import { PLAN_TYPES, TRANSPORT_PREFERENCE_LABELS } from './planningLabels'
 import { ATTRACTION_TAG_OPTIONS } from '../attractions/attractionFilters'
 
-const DEFAULT_DATE = '2026-10-13'
-
 export const TAG_OPTIONS = ATTRACTION_TAG_OPTIONS.map(({ value, label }) => [value, label])
 export const MAX_ATTRACTION_CHOICES = 20
 
@@ -58,26 +56,26 @@ function locationRef(sourceMethod, name, longitude, latitude) {
 
 export function createDefaultTripForm(attractions = []) {
   const choices = Object.fromEntries(attractions.map((item) => [item.id, 'none']))
-  choices.attr_006 = 'must'
-  choices.attr_007 = 'interested'
-  choices.attr_015 = 'interested'
   const tags = Object.fromEntries(TAG_OPTIONS.map(([value]) => [value, 'none']))
-  tags.history = 'preferred'
-  tags.museum = 'preferred'
+  const now = new Date()
+  const startDate = shiftDate(
+    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`,
+    1,
+  )
   return {
     version: 1,
-    startDate: DEFAULT_DATE,
+    startDate,
     // 默认日期只用于表单占位；只有用户主动确认后，天气才按行程日期显示。
     hasSelectedStartDate: false,
     dayCount: 1,
-    days: [{ date: DEFAULT_DATE, start_time: '09:00', end_time: '20:00' }],
+    days: [{ date: startDate, start_time: '09:00', end_time: '20:00' }],
     // 新表单不再携带静默认住宿； lodging 先占位为空，由住宿流程确认后写入。
     lodging: locationRef('search', '', 118.7838, 32.0419),
     useFirstDayStart: false,
     firstDayStart: null,
     useLastDayEnd: false,
     lastDayEnd: null,
-    party: { adult: 1, student: 1, child: 0, senior: 0 },
+    party: { adult: 1, student: 0, child: 0, senior: 0 },
     budgetUnlimited: false,
     budgetTotal: 300,
     transportPreference: 'public_transit',
@@ -234,11 +232,8 @@ export function validateTripForm(form) {
   if (!PLAN_TYPES.includes(form.preferredPlanType)) issues.push('请选择要先生成的方案。')
   if (!form.accommodationConfirmed) issues.push('请先完成住宿安排，再生成方案。')
   if (!form.lodging.name.trim()) issues.push('住宿地点名称不能为空，请重新完成住宿安排。')
-  if (
-    partyCount(form.party.adult) + partyCount(form.party.student) + partyCount(form.party.child) <
-    1
-  ) {
-    issues.push('游玩人数至少为 1 人。')
+  if (partyCount(form.party.adult) + partyCount(form.party.student) < 1) {
+    issues.push('游玩人数至少包含一名成人或学生。')
   }
   if (!form.budgetUnlimited && (form.budgetTotal === '' || Number(form.budgetTotal) < 0)) {
     issues.push('门票预算必须是 0 或更大的数字。')

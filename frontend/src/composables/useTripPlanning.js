@@ -1,5 +1,5 @@
 import { PLAN_FORM_LABELS, PLAN_TYPES } from '../planning/planningLabels'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, watch, toValue } from 'vue'
 
 import {
   buildTripRequest,
@@ -15,6 +15,7 @@ import {
   renameSavedPlan as renameStoredPlan,
 } from '../planning/savedPlansStorage'
 import { apiRequest } from '../services/api'
+import { requestPlanTrace } from '../services/planTrace'
 import { parseItineraryFile, PLAN_FILE_MAX_BYTES } from '../planning/itineraryFileImport'
 
 const FORM_STORAGE_KEY = 'nanjing-webgis-trip-form-v1'
@@ -45,7 +46,7 @@ function storageRead(key) {
   }
 }
 
-export function useTripPlanning(attractions) {
+export function useTripPlanning(attractions, { trace = false } = {}) {
   const tripForm = ref(createDefaultTripForm())
   const formReady = ref(false)
   const planState = ref('idle')
@@ -59,6 +60,7 @@ export function useTripPlanning(attractions) {
   const saveMessage = ref('')
   const activeTripRequest = ref(null)
   const activeTripRequestSource = ref('unavailable')
+  const planningTrace = ref(null)
   let activePlanTask = null
   let disposed = false
   let historySequence = 0
@@ -79,12 +81,22 @@ export function useTripPlanning(attractions) {
   const activeDay = computed(() => activePlan.value?.days?.[activeDayIndex.value] || null)
   const hasSavedPlan = computed(() => savedPlans.value.length > 0)
 
-  function rememberDisplayedPlan({ forceNew = false } = {}) {
+  function rememberDisplayedPlan({ refresh = false } = {}) {
     if (!activePlan.value) return
-    const key = historyKey({ plan: activePlan.value, request: activeTripRequest.value })
-    if (!forceNew && historyPlans.value.some((record) => record.key === key)) return
+    const request = { ...activeTripRequest.value }
+    delete request.request_id
+    request.allow_skip_meal_for_long_visit ??= false
+    if (request.preferences)
+      request.preferences = Object.fromEntries(
+        Object.entries(request.preferences).map(([field, values]) => [field, [...values].sort()]),
+      )
+    const key = historyKey({ planType: activePlanType.value, request })
+    const index = historyPlans.value.findIndex((record) => record.key === key)
+    const existing = historyPlans.value[index]
+    if (existing && !refresh) return
+    if (existing) historyPlans.value.splice(index, 1)
     historyPlans.value.unshift({
-      id: `history-${++historySequence}`,
+      id: existing?.id || `history-${++historySequence}`,
       key,
       name: PLAN_FORM_LABELS[activePlanType.value].replace('方案', '路线'),
       createdAt: new Date().toISOString(),
@@ -107,6 +119,7 @@ export function useTripPlanning(attractions) {
       return false
     }
     invalidatePlanTask()
+    planningTrace.value = null
     tripForm.value = restoreTripForm(record.snapshot.tripForm, attractions.value)
     activeFormSnapshot = JSON.parse(JSON.stringify(record.snapshot.tripForm))
     activeTripRequest.value = record.snapshot.request || buildTripRequest(tripForm.value)
@@ -167,6 +180,7 @@ export function useTripPlanning(attractions) {
       activeTripRequestSource.value = 'submitted'
       activeFormSnapshot = JSON.parse(JSON.stringify(tripForm.value))
     }
+    const traceThisRequest = Boolean(toValue(trace))
     const task = { controller: new AbortController(), type }
     activePlanTask = task
     const isCurrent = () => !disposed && activePlanTask === task && !task.controller.signal.aborted
@@ -175,16 +189,32 @@ export function useTripPlanning(attractions) {
     planMessage.value = `正在生成${PLAN_FORM_LABELS[type]}，检查闭馆、预算、交通和用餐时段…`
     if (!preserveLoaded) planResponse.value = null
     saveMessage.value = ''
+    if (traceThisRequest)
+      planningTrace.value = {
+        status: 'running',
+        startedAt: new Date().toISOString(),
+        planType: type,
+        request: JSON.parse(JSON.stringify(requestPayload)),
+        events: [],
+      }
     try {
-      const result = await apiRequest(
-        `/api/plans?plan_type=${encodeURIComponent(type)}`,
-        {
-          method: 'POST',
-          body: JSON.stringify(requestPayload),
-          signal: task.controller.signal,
-        },
-        PLAN_REQUEST_TIMEOUT_MS,
-      )
+      const result = traceThisRequest
+        ? await requestPlanTrace(requestPayload, type, {
+            signal: task.controller.signal,
+            onEvent: (event) => {
+              if (isCurrent()) planningTrace.value.events.push(event)
+            },
+            timeoutMs: PLAN_REQUEST_TIMEOUT_MS,
+          })
+        : await apiRequest(
+            `/api/plans?plan_type=${encodeURIComponent(type)}`,
+            {
+              method: 'POST',
+              body: JSON.stringify(requestPayload),
+              signal: task.controller.signal,
+            },
+            PLAN_REQUEST_TIMEOUT_MS,
+          )
       if (!isCurrent()) return false
       const returnedPlan = result?.plans?.find((plan) => plan.plan_type === type)
       if (!returnedPlan) throw new Error(`未能取得${PLAN_FORM_LABELS[type]}，请稍后重试。`)
@@ -209,12 +239,17 @@ export function useTripPlanning(attractions) {
       activeDayIndex.value = 0
       planState.value = 'success'
       planMessage.value = `${PLAN_FORM_LABELS[type]}已生成。其他方案会在你选择查看时按需生成。`
-      rememberDisplayedPlan({ forceNew: true })
+      if (traceThisRequest) planningTrace.value.status = 'complete'
+      rememberDisplayedPlan({ refresh: true })
       return true
     } catch (error) {
       if (!isCurrent()) return false
       planState.value = planResponse.value ? 'success' : 'error'
       planMessage.value = errorText(error, '行程生成失败，请稍后重试。')
+      if (traceThisRequest) {
+        planningTrace.value.status = 'error'
+        planningTrace.value.message = planMessage.value
+      }
       return false
     } finally {
       if (activePlanTask === task) {
@@ -232,6 +267,7 @@ export function useTripPlanning(attractions) {
   function cancelPlan() {
     const task = invalidatePlanTask()
     if (!task) return
+    if (planningTrace.value?.status === 'running') planningTrace.value.status = 'cancelled'
     planState.value = planResponse.value ? 'success' : 'idle'
     planMessage.value = planResponse.value
       ? `已取消生成${PLAN_FORM_LABELS[task.type]}，已有方案仍可查看。`
@@ -251,6 +287,13 @@ export function useTripPlanning(attractions) {
 
   function selectDay(index) {
     activeDayIndex.value = index
+  }
+
+  function restoreActivePlanForm() {
+    if (!activePlan.value || !activeFormSnapshot) return false
+    tripForm.value = restoreTripForm(activeFormSnapshot, attractions.value)
+    tripForm.value.preferredPlanType = activePlanType.value
+    return true
   }
 
   function savePlan(name, { includeNotices = true } = {}) {
@@ -351,6 +394,7 @@ export function useTripPlanning(attractions) {
   function clearPlan() {
     invalidatePlanTask()
     planResponse.value = null
+    planningTrace.value = null
     activeTripRequest.value = null
     activeTripRequestSource.value = 'unavailable'
     activeFormSnapshot = null
@@ -387,10 +431,12 @@ export function useTripPlanning(attractions) {
     planMessage,
     planResponse,
     planState,
+    planningTrace,
     saveMessage,
     savePlan,
     savedPlans,
     renameSavedPlan,
+    restoreActivePlanForm,
     selectDay,
     selectPlan,
     submitPlan,

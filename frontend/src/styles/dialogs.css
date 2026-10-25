@@ -366,6 +366,9 @@
 .planning-wizard__progress button.filled > span {
   background: var(--red);
 }
+.planning-wizard__progress button.defaulted > span {
+  background: repeating-linear-gradient(135deg, var(--red) 0 2px, transparent 2px 5px);
+}
 .planning-wizard__progress button.current > span {
   border-color: #fff;
 }
@@ -628,6 +631,21 @@
   align-items: center;
   gap: 8px;
   margin-top: 10px;
+}
+.wizard-day-times {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+.wizard-day-times__row,
+.wizard-day-times__head {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.wizard-day-times .wizard-day-times__head {
+  margin: 0;
 }
 .planning-wizard__fill-row .planning-wizard__other {
   flex: 1;
@@ -1025,6 +1043,7 @@
 }
 .planning-wizard__date,
 .planning-wizard__other,
+.wizard-day-times .ui-date-time__trigger,
 .planning-wizard__date-toggle {
   height: 38px;
   color: var(--bone);

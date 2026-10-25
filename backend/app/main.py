@@ -15,6 +15,7 @@ from .routers.duck_culture import router as duck_culture_router
 from .routers.duck_restaurants import router as duck_restaurants_router
 from .routers.map_services import router as map_services_router
 from .routers.plans import router as plans_router
+from .routers.plan_trace import router as plan_trace_router
 from .routers.system import router as system_router
 from .settings import APP_VERSION, frontend_origins
 from .amap_transport import AMapTransportMiddleware, amap_session
@@ -52,5 +53,6 @@ app.include_router(system_router)
 app.include_router(map_services_router)
 app.include_router(attractions_router)
 app.include_router(plans_router)
+app.include_router(plan_trace_router)
 app.include_router(duck_culture_router)
 app.include_router(duck_restaurants_router)

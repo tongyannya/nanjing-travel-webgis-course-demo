@@ -13,6 +13,7 @@ from ..data_store import LocalDataError, load_attractions
 from .models import PlanGenerationError
 from .time_rules import minutes, clock, MEAL_WINDOWS
 from .notices import has_notice_code
+from .trace import emit, tracing, snapshot
 
 ROOT = Path(__file__).resolve().parents[3]
 DUCK_MEAL_TARGETS = {1: 1, 2: 1, 3: 2, 4: 3, 5: 3}
@@ -165,6 +166,7 @@ def _feasible_candidates(meal, leg, previous, following, candidates, duck=False)
 def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
     from .hex_matching import route_hex_candidates
     result = fold_meal_breaks(response)
+    snapshot('dining', '将预留饭点连接到相邻地点间的交通段', result)
     for plan in result['plans']:
         duck_slots = []
         for day in plan['days']:
@@ -177,6 +179,21 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                     duck = _feasible_candidates(meal, leg, previous, following, candidates, duck=True)
                     if ordinary:
                         _apply_candidate(meal, ordinary[0], 'ordinary')
+                    if tracing():
+                        def options(values):
+                            found = {}
+                            for _, candidate, elapsed, start in values:
+                                area = candidate['area']
+                                key = (area['id'], candidate['source'])
+                                if key not in found:
+                                    found[key] = {'name': area['name'], 'ordinary_count': area['ordinary_count'],
+                                                  'duck_count': area['duck_meal_count'], 'source': candidate['source'],
+                                                  'start_time': clock(start), 'end_time': clock(start + 60), 'elapsed': elapsed}
+                            return list(found.values())
+                        emit('dining', f"{day['date']}{'午餐' if meal['meal_kind'] == 'lunch' else '晚餐'}：筛选沿途餐饮区",
+                             date=day['date'], message=f"{previous['name']} → {following['name']}；交通预留{leg['duration_minutes_rounded']}分钟，用餐保留60分钟。",
+                             ordinary_candidates=options(ordinary), duck_candidates=options(duck),
+                             function='route_hex_candidates / _feasible_candidates')
                     if plan['plan_type'] == 'duck' and duck:
                         duck_slots.append((duck[0][0], day['date'], meal['meal_kind'], meal, duck[0]))
         if plan['plan_type'] == 'duck':
@@ -190,6 +207,14 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                 remaining.remove(slot)
                 selected.append(slot)
                 meals_per_day[slot[1]] = meals_per_day.get(slot[1], 0) + 1
+                if tracing():
+                    emit('dining', f"第{len(selected)}次鸭餐：{slot[1]}{'午餐' if slot[2] == 'lunch' else '晚餐'}",
+                         message='先比较该日期已安排的鸭餐数量，再比较鸭类正餐候选数、是否位于路线端点等。',
+                         duck_slots=[{'date': value[1], 'meal_kind': value[2], 'selected': value is slot,
+                                      'already_selected_on_date': meals_per_day.get(value[1], 0) - (1 if value[1] == slot[1] else 0),
+                                      'area_name': value[4][1]['area']['name'], 'duck_count': value[4][1]['area']['duck_meal_count'],
+                                      'source': value[4][1]['source']} for value in [slot, *remaining]],
+                         function='assign_hex_meals')
             for _, _, _, meal, candidate in selected:
                 _apply_candidate(meal, candidate, 'duck')
             plan['summary'] = f'按轻松节奏安排景点，途中安排{len(selected)}次南京鸭用餐区域，其余餐次自由选择普通餐饮。'
@@ -205,6 +230,7 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
     result['global_warnings'] = [value for value in result['global_warnings']
                                  if not has_notice_code(value, 'estimated_traffic')]
     validate_route_meals(result)
+    snapshot('dining', '餐饮片区与鸭餐分配完成', result)
     return result
 
 

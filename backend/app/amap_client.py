@@ -10,8 +10,8 @@ from .amap_transport import AMapConfigError, AMapUpstreamError, current_amap_tra
 
 from .settings import amap_web_service_key
 from .driving_routes import DrivingRouteDataError, normalize_driving_route
+from .travel_time_rules import TRAVEL_BUFFER_MINUTES
 from .transit_routes import (
-    TRANSIT_BUFFER_MINUTES,
     TransitRouteDataError,
     normalize_transit_route,
 )
@@ -579,8 +579,8 @@ async def travel_time(
             raise AMapUpstreamError(str(exc)) from exc
         route = payload.get("route") or {}
         distance_m = _seconds(route.get("distance"))
-        buffer_minutes = TRANSIT_BUFFER_MINUTES
-        note = "在高德公交方案时间上增加 10 分钟等候和换乘余量。"
+        buffer_minutes = TRAVEL_BUFFER_MINUTES
+        note = "高德公交方案时间四舍五入到 10 分钟，再增加 10 分钟等候和换乘余量。"
         raw_minutes = transit_details["total_minutes"]
         estimated_minutes = transit_details["conservative_minutes"]
     else:

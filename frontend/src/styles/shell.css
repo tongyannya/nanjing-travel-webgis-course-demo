@@ -851,6 +851,29 @@
   bottom: 14px;
   padding: 10px 12px;
 }
+.map-mode-cards {
+  position: absolute;
+  left: var(--overlay-left);
+  bottom: 14px;
+  z-index: 10;
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+.map-mode-cards .route-legend {
+  position: static;
+}
+.planning-debug-badge {
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 9px;
+  color: #283b35;
+  background: rgba(250, 247, 238, 0.9);
+  box-shadow: 0 6px 18px rgba(24, 44, 36, 0.12);
+  backdrop-filter: blur(18px);
+  font-size: 12px;
+  font-weight: 600;
+}
 body.duck-mode .app-header {
   background:
     radial-gradient(130% 180% at 3% -60%, rgba(255, 255, 255, 0.18), transparent 44%),

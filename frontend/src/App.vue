@@ -57,6 +57,7 @@ import { useMapQueries } from './composables/useMapQueries'
 import { useMetroLayer } from './composables/useMetroLayer'
 import { useTravelMap } from './composables/useTravelMap'
 import { useTripPlanning } from './composables/useTripPlanning'
+import { usePlanningDebug } from './composables/usePlanningDebug'
 import { useUiShell } from './composables/useUiShell'
 import { useProjectIntroduction } from './composables/useProjectIntroduction'
 import ProjectIntroductionDialog from './components/ProjectIntroductionDialog.vue'
@@ -68,6 +69,14 @@ import { createTutorialScenes } from './tutorial/tutorialScenes'
 
 const attractions = ref([])
 const tutorialDemo = isTutorialDemoWindow()
+const { enabled: planningDebug } = usePlanningDebug({ disabled: tutorialDemo })
+const traceWindowOpen = ref(planningDebug.value)
+watch(planningDebug, (enabled) => {
+  traceWindowOpen.value = enabled
+})
+const PlanningTraceWindow = defineAsyncComponent(
+  () => import('./components/PlanningTraceWindow.vue'),
+)
 const HelpTutorial = defineAsyncComponent(() => import('./components/HelpTutorial.vue'))
 const isTutorialOpen = ref(false)
 const hasOpenedTutorial = ref(false)
@@ -183,20 +192,23 @@ const {
   planMessage,
   planResponse,
   planState,
+  planningTrace,
   saveMessage,
   savePlan,
   savedPlans,
   renameSavedPlan,
+  restoreActivePlanForm,
   selectDay,
   selectPlan,
   submitPlan,
   tripForm,
-} = useTripPlanning(attractions)
+} = useTripPlanning(attractions, { trace: planningDebug })
 
 const pendingPlanningMode = ref('')
 const wizardRevision = ref(0)
+const plannerRevision = ref(0)
 const wizardFromFullForm = ref(false)
-let fullFormEntrySnapshot = ''
+let fullFormEdited = false
 let fullFormFromWizard = false
 const headerPlanningLabel = computed(() =>
   activePlan.value || pendingPlanningMode.value ? '重新规划' : '开始规划',
@@ -535,6 +547,14 @@ watch(nearbyHotelsVisible, (visible) => {
 })
 watch(normalAccommodationAreasVisible, (visible) => {
   if (visible) void areaHotels.preload()
+  else {
+    areaHotels.activeAreaIds.value = []
+    selectedAccommodationArea.value = null
+    if (selectedHotel.value?.markerSource === 'area') {
+      selectedHotel.value = null
+      clearHotelSelection()
+    }
+  }
 })
 watch(hotelQuery, () => {
   nearbyHotelRangeSelected.value = false
@@ -1118,7 +1138,17 @@ function handleDockBack() {
 async function openFullPlanner() {
   if (!(await confirmLeavingAccommodationSelection())) return
   fullFormFromWizard = isWizardOpen.value
-  fullFormEntrySnapshot = JSON.stringify(tripForm.value)
+  fullFormEdited = false
+  closeWizard()
+  selectDockPanel('planner')
+}
+
+async function openCurrentPlanEditor() {
+  if (!(await confirmLeavingAccommodationSelection())) return
+  restoreActivePlanForm()
+  plannerRevision.value += 1
+  fullFormFromWizard = false
+  fullFormEdited = false
   closeWizard()
   selectDockPanel('planner')
 }
@@ -1196,13 +1226,14 @@ async function openWizardGuarded(event) {
   fullFormFromWizard = false
   wizardFromFullForm.value = false
   wizardRevision.value += 1
+  plannerRevision.value += 1
   pendingPlanningMode.value = ''
   openWizard()
 }
 
 async function openQuestionnaireFromForm(event) {
   if (!(await canOpenPlanning(event))) return
-  const unchanged = fullFormFromWizard && fullFormEntrySnapshot === JSON.stringify(tripForm.value)
+  const unchanged = fullFormFromWizard && !fullFormEdited
   if (!unchanged) {
     wizardFromFullForm.value = true
     wizardRevision.value += 1
@@ -1324,6 +1355,13 @@ onMounted(() => {
 <template>
   <HoverTooltip v-if="!isTutorialOpen && !tutorialDemo" />
   <PlanningNoticeDialog :notice="planningNotice" @close="closePlanningNotice" />
+  <PlanningTraceWindow
+    v-if="planningDebug"
+    v-model:open="traceWindowOpen"
+    :record="planningTrace"
+    :attractions="attractions"
+    @cancel="cancelPlan"
+  />
   <SplashScreen :visible="isSplashVisible" @finish="finishSplash" />
   <div class="app-shell" :class="shellClasses">
     <AppHeader
@@ -1453,6 +1491,9 @@ onMounted(() => {
         :active-day-index="activeDayIndex"
         :active-plan-type="activePlanType"
         :backend-state="backendState"
+        :planning-debug="planningDebug"
+        :timeline-height="showPlanTimeline ? timelineHeight : 0"
+        @open-planning-debug="traceWindowOpen = true"
         :dock-open="isDockOpen && !isMapFull"
         :duck-flavor-count="duckFlavorCount"
         :duck-restaurant-count="totalDuckRestaurantCount"
@@ -1583,9 +1624,12 @@ onMounted(() => {
         </template>
         <template #planner>
           <TripPlannerForm
+            :key="plannerRevision"
             v-model="tripForm"
             :attractions="attractions"
             :plan-state="planState"
+            :has-current-plan="Boolean(activePlan)"
+            @edited="fullFormEdited = true"
             @submit="handleSubmitPlan"
             @cancel="cancelPlan"
             @open-questionnaire="openQuestionnaireFromForm"
@@ -1608,7 +1652,7 @@ onMounted(() => {
             @open-history="handleOpenHistoryPlan"
             @delete-history="deleteHistoryPlan"
             @back-to-plans="selectDockPanel('plans')"
-            @edit-plan="openFullPlanner"
+            @edit-plan="openCurrentPlanEditor"
             @cancel="cancelPlan"
             @select-plan="handlePlanSelection"
             @select-day="handleDaySelection"

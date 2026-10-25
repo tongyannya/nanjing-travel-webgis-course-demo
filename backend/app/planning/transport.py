@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from typing import AbstractSet, Any, Mapping
 
+from ..travel_time_rules import reserved_travel_minutes
 from .transit_enrichment import (
     TransitQueryKey,
     enriched_transit_leg,
@@ -35,12 +36,6 @@ def distance_km(first: dict[str, Any], second: dict[str, Any]) -> float:
     delta_lon = math.radians(second["longitude"] - first["longitude"])
     value = math.sin(delta_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon / 2) ** 2
     return 6371.0 * 2 * math.atan2(math.sqrt(value), math.sqrt(1 - value))
-
-
-def _rounded_half_hour(raw_minutes: int) -> int:
-    if raw_minutes <= 0:
-        return 0
-    return int(math.ceil(raw_minutes / 30) * 30)
 
 
 def estimate_leg(
@@ -92,7 +87,7 @@ def estimate_leg(
     else:
         mode = "self_drive"
         raw = max(5, math.ceil(distance / 26 * 60))
-    rounded = _rounded_half_hour(raw)
+    rounded = reserved_travel_minutes(raw, mode=mode)
     labels = {
         "walk": "短距离步行保守估算",
         "public_transit": "公共交通优先保守估算",
@@ -119,9 +114,9 @@ def estimate_leg(
         if mode == 'public_transit' and actual.get('transit_details') is not None:
             leg = enriched_transit_leg(leg, actual['transit_details'])
         else:
-            raw = int(actual['estimated_minutes'])
-            rounded = 0 if mode == 'walk' and int(actual['raw_minutes']) < 5 else _rounded_half_hour(raw)
-            leg.update(duration_minutes_raw=int(actual['raw_minutes']),
+            raw = int(actual['raw_minutes'])
+            rounded = reserved_travel_minutes(raw, mode=mode)
+            leg.update(duration_minutes_raw=raw,
                        duration_minutes_rounded=rounded, is_estimated=False,
                        route_summary=[actual['display']])
         leg['path_details'] = actual.get('path_details')

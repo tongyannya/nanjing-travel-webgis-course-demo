@@ -6,8 +6,8 @@ import math
 import re
 from typing import Any
 
+from .travel_time_rules import reserved_travel_minutes
 
-TRANSIT_BUFFER_MINUTES = 10
 PUBLIC_TRANSIT_MODES = {"bus", "metro", "railway"}
 _TERMINUS_SUFFIX = re.compile(r"^(?P<name>.+?)[（(](?P<termini>[^（）()]*)[）)]$")
 _SUBWAY_EXIT_SUFFIX = re.compile(
@@ -104,10 +104,7 @@ def _duration_seconds(value: dict[str, Any]) -> int | None:
 
 
 def _conservative_minutes(total_minutes: int) -> int:
-    return max(
-        30,
-        math.ceil((total_minutes + TRANSIT_BUFFER_MINUTES) / 30) * 30,
-    )
+    return reserved_travel_minutes(total_minutes, mode="public_transit")
 
 
 def _display_minutes(minutes: int) -> str:

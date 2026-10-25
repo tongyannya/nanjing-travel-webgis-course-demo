@@ -7,6 +7,7 @@ from .day_schedule import slot_for_attraction
 from .models import DayState
 from .meals import meal_start_time
 from .transport import estimate_leg, location_payload
+from .time_rules import clock
 
 
 def visit_after_meal(
@@ -18,6 +19,7 @@ def visit_after_meal(
     deadline: int | None,
     deadline_location: dict[str, Any] | None,
     exact_start: int | None = None,
+    diagnostics: list | None = None,
 ) -> dict[str, Any] | None:
     """Probe travel, an hour near the attraction, then a legal uninterrupted visit."""
     leg = estimate_leg(
@@ -30,6 +32,9 @@ def visit_after_meal(
     )
     start = meal_start_time(state, meal[1], leg)
     if start > meal[2]:
+        if diagnostics is not None:
+            diagnostics.append({'attempt': '先用餐再游览', 'valid': False,
+                                'detail': f'到达后最早{clock(start)}开始用餐，超过该餐最晚开始时间{clock(meal[2])}。'})
         return None
     probe = copy(state)
     probe.current_location = location_payload(attraction['location'])
@@ -37,6 +42,7 @@ def visit_after_meal(
     slot, _ = slot_for_attraction(
         probe, attraction, duration, exact_start=exact_start,
         deadline=deadline, deadline_location=deadline_location,
+        diagnostics=diagnostics, attempt='先用餐再游览',
     )
     if slot:
         slot['meal_before_visit'] = {'destination': attraction['location'], 'start': start}
@@ -52,6 +58,7 @@ def visit_skipping_meal(
     deadline: int | None,
     deadline_location: dict[str, Any] | None,
     exact_start: int | None = None,
+    diagnostics: list | None = None,
 ) -> dict[str, Any] | None:
     """Omit only a meal whose available window is consumed by a long visit."""
     if attraction['duration']['suggested_minutes'] < 240:
@@ -59,6 +66,7 @@ def visit_skipping_meal(
     slot, _ = slot_for_attraction(
         state, attraction, duration, exact_start=exact_start,
         deadline=deadline, deadline_location=deadline_location,
+        diagnostics=diagnostics, attempt='允许长时游览跳餐的尝试',
     )
     if slot and slot['start'] < meal[2] + 60 and slot['end'] > meal[1]:
         slot['skipped_meal'] = meal[0]

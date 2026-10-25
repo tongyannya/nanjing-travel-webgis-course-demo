@@ -387,7 +387,7 @@ function choosePlan(type) {
           </button>
         </div>
         <button type="button" class="save-button" data-testid="save-plan" @click="emit('save')">
-          保存当前方案到本地
+          保存当前方案
         </button>
         <span>{{ saveMessage || '只保存在这台电脑的浏览器中' }}</span>
       </div>

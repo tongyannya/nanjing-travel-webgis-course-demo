@@ -20,6 +20,8 @@ defineProps({
   railOpen: { type: Boolean, required: true },
   selectedCoordinateText: { type: String, required: true },
   selectedLocationLabel: { type: String, required: true },
+  planningDebug: { type: Boolean, default: false },
+  timelineHeight: { type: Number, default: 0 },
 })
 
 const emit = defineEmits([
@@ -30,6 +32,7 @@ const emit = defineEmits([
   'toggle-landmarks',
   'toggle-panels',
   'toggle-rail',
+  'open-planning-debug',
 ])
 
 const DOCK_DRAG_THRESHOLD = 48
@@ -206,9 +209,24 @@ function handleDockHandleClick() {
         <b data-testid="selected-location-label">{{ selectedLocationLabel }}</b>
         <code>{{ selectedCoordinateText }}</code>
       </div>
-      <div v-if="activeDay" class="route-legend">
-        <b>{{ PLAN_LABELS[activePlanType] }} · 第 {{ activeDayIndex + 1 }} 天</b>
-        <span>数字表示行程顺序</span>
+      <div
+        v-if="activeDay || planningDebug"
+        class="map-mode-cards"
+        :style="{ bottom: `${timelineHeight ? timelineHeight + 22 : 14}px` }"
+      >
+        <button
+          v-if="planningDebug"
+          type="button"
+          class="planning-debug-badge"
+          data-testid="trace-open"
+          @click="emit('open-planning-debug')"
+        >
+          排程调试模式
+        </button>
+        <div v-if="activeDay" class="route-legend">
+          <b>{{ PLAN_LABELS[activePlanType] }} · 第 {{ activeDayIndex + 1 }} 天</b>
+          <span>数字表示行程顺序</span>
+        </div>
       </div>
       <div v-if="mapState === 'error'" class="map-error-card" data-testid="map-error-card">
         <strong>地图暂时不能使用</strong>
