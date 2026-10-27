@@ -1,6 +1,6 @@
 <script setup>
 import { PLAN_LABELS } from '../planning/planningLabels'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import PlanDayTimeline from './PlanDayTimeline.vue'
 import HistoryPlanList from './HistoryPlanList.vue'
@@ -9,6 +9,7 @@ const props = defineProps({
   response: { type: Object, default: null },
   planState: { type: String, required: true },
   planMessage: { type: String, required: true },
+  planProgress: { type: String, default: '' },
   activePlanType: { type: String, required: true },
   activeDayIndex: { type: Number, required: true },
   attractions: { type: Array, required: true },
@@ -34,6 +35,7 @@ const emit = defineEmits([
   'select-plan',
   'open-history',
   'delete-history',
+  'open-planning-debug',
 ])
 
 const activePlan = computed(
@@ -42,34 +44,6 @@ const activePlan = computed(
 const activeDay = computed(() => activePlan.value?.days?.[props.activeDayIndex] || null)
 const otherPlansOpen = ref(false)
 const historyOpen = ref(false)
-const loadingHints = [
-  '正在规划景点…',
-  '正在检查开放时间与游玩安排…',
-  '正在获取交通路线…',
-  '正在匹配沿途用餐区域…',
-]
-const loadingHintIndex = ref(0)
-let loadingHintTimer = null
-
-function stopLoadingHints() {
-  clearInterval(loadingHintTimer)
-  loadingHintTimer = null
-}
-
-watch(
-  () => [props.planState, props.loadingPlanType, Boolean(props.response)],
-  () => {
-    stopLoadingHints()
-    loadingHintIndex.value = 0
-    if (props.planState !== 'loading' || props.response) return
-    loadingHintTimer = setInterval(() => {
-      loadingHintIndex.value = (loadingHintIndex.value + 1) % loadingHints.length
-    }, 3000)
-  },
-  { immediate: true },
-)
-onBeforeUnmount(stopLoadingHints)
-
 watch(
   () => props.response,
   (response) => {
@@ -135,9 +109,11 @@ function choosePlan(type) {
         class="planning-skeleton"
         role="status"
         aria-live="polite"
+        aria-label="生成进度，双击展开排程调试面板"
+        @dblclick="emit('open-planning-debug')"
       >
         <span class="planning-skeleton__hint" data-testid="planning-loading-hint">{{
-          loadingHints[loadingHintIndex]
+          planProgress || '正在连接规划服务…'
         }}</span>
       </div>
       <button
@@ -163,6 +139,15 @@ function choosePlan(type) {
     <template v-else>
       <p class="result-feedback" :class="`result-${planState}`" data-testid="plan-message">
         {{ planMessage }}
+      </p>
+      <p
+        v-if="planState === 'loading'"
+        role="status"
+        aria-live="polite"
+        data-testid="planning-loading-hint"
+        @dblclick="emit('open-planning-debug')"
+      >
+        {{ planProgress || '正在连接规划服务…' }}
       </p>
       <div v-show="view === 'plans'">
         <p class="plan-tabs__intro">当前只展示已选择的方案；其他方案需要时再生成。</p>

@@ -171,14 +171,13 @@ async function importFile(event) {
 }
 watch(
   () => props.record,
-  (record) => {
+  () => {
     stop()
     imported.value = null
     importMessage.value = ''
     selected.value = 0
     follow.value = true
     filter.value = 'all'
-    if (record) open.value = true
   },
 )
 watch(

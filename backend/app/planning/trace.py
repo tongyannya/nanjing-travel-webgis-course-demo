@@ -11,8 +11,9 @@ _recorder: ContextVar[Any] = ContextVar('planning_trace', default=None)
 
 
 class TraceRecorder:
-    def __init__(self, publish: Callable):
+    def __init__(self, publish: Callable, *, detailed=True):
         self.publish = publish
+        self.detailed = detailed
         self.started = monotonic()
         self.sequence = 0
 
@@ -25,8 +26,8 @@ class TraceRecorder:
 
 
 @contextmanager
-def capture_trace(publish):
-    token = _recorder.set(TraceRecorder(publish))
+def capture_trace(publish, *, detailed=True):
+    token = _recorder.set(TraceRecorder(publish, detailed=detailed))
     try:
         yield
     finally:
@@ -34,13 +35,21 @@ def capture_trace(publish):
 
 
 def tracing():
-    return _recorder.get() is not None
+    recorder = _recorder.get()
+    return recorder is not None and recorder.detailed
 
 
 def emit(phase, title, **data):
     recorder = _recorder.get()
-    if recorder is not None:
+    if recorder is not None and recorder.detailed:
         recorder.emit(phase, title, **data)
+
+
+def progress(phase, title):
+    """Publish an actual milestone without collecting detailed score snapshots."""
+    recorder = _recorder.get()
+    if recorder is not None:
+        recorder.emit(phase, title, progress=True)
 
 
 def plan_snapshot(plan):

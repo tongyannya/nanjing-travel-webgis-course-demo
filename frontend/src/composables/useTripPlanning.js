@@ -1,5 +1,5 @@
 import { PLAN_FORM_LABELS, PLAN_TYPES } from '../planning/planningLabels'
-import { computed, onBeforeUnmount, ref, watch, toValue } from 'vue'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 import {
   buildTripRequest,
@@ -14,7 +14,6 @@ import {
   loadSavedPlans,
   renameSavedPlan as renameStoredPlan,
 } from '../planning/savedPlansStorage'
-import { apiRequest } from '../services/api'
 import { requestPlanTrace } from '../services/planTrace'
 import { parseItineraryFile, PLAN_FILE_MAX_BYTES } from '../planning/itineraryFileImport'
 
@@ -46,7 +45,7 @@ function storageRead(key) {
   }
 }
 
-export function useTripPlanning(attractions, { trace = false } = {}) {
+export function useTripPlanning(attractions) {
   const tripForm = ref(createDefaultTripForm())
   const formReady = ref(false)
   const planState = ref('idle')
@@ -55,6 +54,7 @@ export function useTripPlanning(attractions, { trace = false } = {}) {
   const activePlanType = ref('relaxed')
   const activeDayIndex = ref(0)
   const loadingPlanType = ref('')
+  const planProgress = ref('')
   const savedPlans = ref([])
   const historyPlans = ref([])
   const saveMessage = ref('')
@@ -71,6 +71,7 @@ export function useTripPlanning(attractions, { trace = false } = {}) {
     activePlanTask = null
     task?.controller.abort()
     loadingPlanType.value = ''
+    planProgress.value = ''
     return task
   }
 
@@ -180,41 +181,33 @@ export function useTripPlanning(attractions, { trace = false } = {}) {
       activeTripRequestSource.value = 'submitted'
       activeFormSnapshot = JSON.parse(JSON.stringify(tripForm.value))
     }
-    const traceThisRequest = Boolean(toValue(trace))
     const task = { controller: new AbortController(), type }
     activePlanTask = task
     const isCurrent = () => !disposed && activePlanTask === task && !task.controller.signal.aborted
     loadingPlanType.value = type
     planState.value = 'loading'
+    planProgress.value = '正在连接规划服务…'
     planMessage.value = `正在生成${PLAN_FORM_LABELS[type]}，检查闭馆、预算、交通和用餐时段…`
     if (!preserveLoaded) planResponse.value = null
     saveMessage.value = ''
-    if (traceThisRequest)
-      planningTrace.value = {
-        status: 'running',
-        startedAt: new Date().toISOString(),
-        planType: type,
-        request: JSON.parse(JSON.stringify(requestPayload)),
-        events: [],
-      }
+    planningTrace.value = {
+      status: 'running',
+      startedAt: new Date().toISOString(),
+      planType: type,
+      request: JSON.parse(JSON.stringify(requestPayload)),
+      events: [],
+    }
     try {
-      const result = traceThisRequest
-        ? await requestPlanTrace(requestPayload, type, {
-            signal: task.controller.signal,
-            onEvent: (event) => {
-              if (isCurrent()) planningTrace.value.events.push(event)
-            },
-            timeoutMs: PLAN_REQUEST_TIMEOUT_MS,
-          })
-        : await apiRequest(
-            `/api/plans?plan_type=${encodeURIComponent(type)}`,
-            {
-              method: 'POST',
-              body: JSON.stringify(requestPayload),
-              signal: task.controller.signal,
-            },
-            PLAN_REQUEST_TIMEOUT_MS,
-          )
+      const result = await requestPlanTrace(requestPayload, type, {
+        signal: task.controller.signal,
+        detail: 'full',
+        onEvent: (event) => {
+          if (!isCurrent()) return
+          if (event.progress && typeof event.title === 'string') planProgress.value = event.title
+          planningTrace.value.events.push(event)
+        },
+        timeoutMs: PLAN_REQUEST_TIMEOUT_MS,
+      })
       if (!isCurrent()) return false
       const returnedPlan = result?.plans?.find((plan) => plan.plan_type === type)
       if (!returnedPlan) throw new Error(`未能取得${PLAN_FORM_LABELS[type]}，请稍后重试。`)
@@ -239,22 +232,21 @@ export function useTripPlanning(attractions, { trace = false } = {}) {
       activeDayIndex.value = 0
       planState.value = 'success'
       planMessage.value = `${PLAN_FORM_LABELS[type]}已生成。其他方案会在你选择查看时按需生成。`
-      if (traceThisRequest) planningTrace.value.status = 'complete'
+      planningTrace.value.status = 'complete'
       rememberDisplayedPlan({ refresh: true })
       return true
     } catch (error) {
       if (!isCurrent()) return false
       planState.value = planResponse.value ? 'success' : 'error'
       planMessage.value = errorText(error, '行程生成失败，请稍后重试。')
-      if (traceThisRequest) {
-        planningTrace.value.status = 'error'
-        planningTrace.value.message = planMessage.value
-      }
+      planningTrace.value.status = 'error'
+      planningTrace.value.message = planMessage.value
       return false
     } finally {
       if (activePlanTask === task) {
         activePlanTask = null
         loadingPlanType.value = ''
+        planProgress.value = ''
       }
     }
   }
@@ -429,6 +421,7 @@ export function useTripPlanning(attractions, { trace = false } = {}) {
     openSavedPlan,
     openHistoryPlan,
     planMessage,
+    planProgress,
     planResponse,
     planState,
     planningTrace,

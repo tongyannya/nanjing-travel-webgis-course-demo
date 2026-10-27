@@ -32,12 +32,14 @@ class LastVisitRound:
     skipped_meal_used: bool
     warnings: list
     round_number: int
+    score_parts: dict | None = None
 
     @classmethod
     def capture(cls, state, candidates, pending_meals, used_ids, total_cost,
-                skipped_meal_used, warnings, round_number):
+                skipped_meal_used, warnings, round_number, *, score_parts=None):
         return cls(_copy_state(state), deepcopy(candidates), list(pending_meals),
-                   set(used_ids), total_cost, skipped_meal_used, list(warnings), round_number)
+                   set(used_ids), total_cost, skipped_meal_used, list(warnings), round_number,
+                   deepcopy(score_parts))
 
 
 def _complete_candidate(checkpoint, candidate):
@@ -113,11 +115,12 @@ def reconsider_last_visit(checkpoint, state, used_ids, total_cost, skipped_meal_
                    'start_time': clock(slot['start']), 'end_time': clock(slot['end']),
                    'meal_before_visit': 'meal_before_visit' in slot}
             if valid:
+                parts = (checkpoint.score_parts[attraction['id']] if checkpoint.score_parts is not None else
+                         attraction_score_parts(attraction, preferences,
+                             checkpoint.state.current_location, checkpoint.state.current_time) |
+                         {'nearby': same_day_bonus(attraction['location'], checkpoint.state.items)})
                 row.update(score=score + return_score,
-                           parts=attraction_score_parts(attraction, preferences,
-                               checkpoint.state.current_location, checkpoint.state.current_time) |
-                               {'nearby': same_day_bonus(attraction['location'], checkpoint.state.items),
-                                'return_distance': return_score})
+                           parts=parts | {'return_distance': return_score})
             rows.append(row)
     _, selected, result = max(options, key=lambda option: (option[0], option[1]['id'] == original_id))
     changed = selected['id'] != original_id

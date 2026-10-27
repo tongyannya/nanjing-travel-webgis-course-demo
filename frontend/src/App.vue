@@ -69,11 +69,11 @@ import { createTutorialScenes } from './tutorial/tutorialScenes'
 
 const attractions = ref([])
 const tutorialDemo = isTutorialDemoWindow()
-const { enabled: planningDebug } = usePlanningDebug({ disabled: tutorialDemo })
-const traceWindowOpen = ref(planningDebug.value)
-watch(planningDebug, (enabled) => {
-  traceWindowOpen.value = enabled
-})
+const {
+  enabled: planningDebug,
+  open: traceWindowOpen,
+  reveal: revealPlanningDebug,
+} = usePlanningDebug({ disabled: tutorialDemo })
 const PlanningTraceWindow = defineAsyncComponent(
   () => import('./components/PlanningTraceWindow.vue'),
 )
@@ -190,6 +190,7 @@ const {
   openSavedPlan,
   openHistoryPlan,
   planMessage,
+  planProgress,
   planResponse,
   planState,
   planningTrace,
@@ -202,7 +203,7 @@ const {
   selectPlan,
   submitPlan,
   tripForm,
-} = useTripPlanning(attractions, { trace: planningDebug })
+} = useTripPlanning(attractions)
 
 const pendingPlanningMode = ref('')
 const wizardRevision = ref(0)
@@ -1069,6 +1070,7 @@ function retryConnection() {
 async function handleSubmitPlan() {
   if (!(await confirmLeavingAccommodationSelection())) return
   if (!(await confirmGeneration())) return
+  selectDockPanel('plans')
   await submitPlan(tripForm.value.preferredPlanType)
   if (planState.value === 'success') pendingPlanningMode.value = ''
   if (planState.value === 'success' || planState.value === 'error') selectDockPanel('plans')
@@ -1356,7 +1358,7 @@ onMounted(() => {
   <HoverTooltip v-if="!isTutorialOpen && !tutorialDemo" />
   <PlanningNoticeDialog :notice="planningNotice" @close="closePlanningNotice" />
   <PlanningTraceWindow
-    v-if="planningDebug"
+    v-if="!tutorialDemo"
     v-model:open="traceWindowOpen"
     :record="planningTrace"
     :attractions="attractions"
@@ -1493,7 +1495,7 @@ onMounted(() => {
         :backend-state="backendState"
         :planning-debug="planningDebug"
         :timeline-height="showPlanTimeline ? timelineHeight : 0"
-        @open-planning-debug="traceWindowOpen = true"
+        @open-planning-debug="revealPlanningDebug"
         :dock-open="isDockOpen && !isMapFull"
         :duck-flavor-count="duckFlavorCount"
         :duck-restaurant-count="totalDuckRestaurantCount"
@@ -1640,6 +1642,7 @@ onMounted(() => {
             :response="planResponse"
             :plan-state="planState"
             :plan-message="planMessage"
+            :plan-progress="planProgress"
             :active-plan-type="activePlanType"
             :active-day-index="activeDayIndex"
             :attractions="attractions"
@@ -1660,6 +1663,7 @@ onMounted(() => {
             @focus-leg="handlePlanLegFocus"
             @focus-meal="handlePlanMealFocus"
             @retry="handleSubmitPlan"
+            @open-planning-debug="revealPlanningDebug"
             @save="isExportOpen = true"
             @clear="clearPlan"
           />

@@ -17,7 +17,7 @@ from .service import _plan_validator
 from .models import PlanGenerationError
 from .route_repair import refill_repaired_days
 from .dinner_recovery import recover_return_dinners
-from .trace import emit, snapshot, tracing, response_snapshot
+from .trace import emit, snapshot, tracing, response_snapshot, progress
 
 MAX_ROUTE_QUERIES = 48
 
@@ -31,6 +31,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
     response = generate_plans(request, plan_types=plan_types, repair_records=repair_records)
     initial = response
     route_names = {}
+    completed_queries = 0
     if tracing():
         for plan in response['plans']:
             for day in plan['days']:
@@ -42,6 +43,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
     snapshot('traffic', '初稿已确定，开始核对高德道路耗时', response)
 
     async def query(key):
+        nonlocal completed_queries
         async with semaphore:
             check_plan_deadline()
             mode, lon1, lat1, lon2, lat2 = key
@@ -83,6 +85,9 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
             except (AMapConfigError, AMapUpstreamError, ValueError, KeyError, TypeError):
                 emit('traffic', f'路线暂未取得：{route_label(key)}', message='继续按现有估算核对；公共交通失败时尝试出租车。', function='travel_time')
                 return key, None
+            finally:
+                completed_queries += 1
+                progress('traffic', f'正在核对交通路线，已完成{completed_queries}段查询…')
 
     def traffic(*, finalize=False):
         fallback = {tuple(key[1:]) for key in failed if key[0] == 'public_transit'}
@@ -111,6 +116,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
         return list(pending)[:max(0, MAX_ROUTE_QUERIES - len(attempted))]
 
     async def query_batch(keys):
+        progress('traffic', f'正在核对交通路线，已完成{completed_queries}段查询…')
         outcomes = await gather_amap_queries(*(query(key) for key in keys))
         for key, value in outcomes:
             attempted.add(key)
@@ -159,6 +165,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
             break
         await query_routes(keys)
         before = response_snapshot(response)
+        progress('traffic', '正在根据实际交通核对游览、用餐和返程时间…')
         response = rebuild()
         snapshot('traffic', '按取得的道路耗时重新核对景点、饭点和终点', response, previous_plans=before)
         # Only a local conflict repair can create a new connection. Feasible
@@ -179,6 +186,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                                       '', '', **traffic())['duration_minutes_rounded'] for leg in day['legs'])
         travel_limits[plan['plan_type']] = total
     before = response_snapshot(response)
+    progress('repair', '正在检查交通调整后能否补充顺路景点…')
     response = await refill_repaired_days(request, response, repair_records, traffic=traffic,
                                           verify_routes=verify_routes, travel_limits=travel_limits)
     snapshot('repair', '受影响日期的空档补排检查完成', response, previous_plans=before)
@@ -189,6 +197,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
         return actual.get(key)
 
     before = response_snapshot(response)
+    progress('repair', '正在检查晚餐与返回终点的衔接…')
     response = await recover_return_dinners(request, response, traffic=traffic, lookup_taxi=lookup_dinner_taxi)
     snapshot('repair', '晚餐与返回终点的衔接检查完成', response, previous_plans=before)
     check_plan_deadline()
@@ -203,7 +212,10 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
 
 @planning_request_scope()
 async def generate_route_hex_plans(request: dict[str, Any], *, plan_types=None, lookup=None):
-    response = assign_hex_meals(await enrich_route_paths(request, plan_types=plan_types, lookup=lookup))
+    response = await enrich_route_paths(request, plan_types=plan_types, lookup=lookup)
+    progress('dining', '正在匹配沿途用餐区域…')
+    response = assign_hex_meals(response)
+    progress('complete', '正在完成行程检查，准备显示地图与时间轴…')
     errors = list(_plan_validator().iter_errors(response))
     if errors:
         raise PlanGenerationError(f'路线用餐结果无效：{list(errors[0].absolute_path)}')

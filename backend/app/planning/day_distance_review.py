@@ -9,6 +9,7 @@ from .schedule import build_plan
 from .route_order import optimize_visit_order
 from .trace import emit
 from .transport import distance_km
+from .priority_scoring import priority_ids_for_request, daily_priority_target
 
 MAX_DAY_DISTANCE_KM = 8.0
 
@@ -40,10 +41,15 @@ def _day_request(request, plan, index):
                        day_index_offset=index)
 
 
-def review_long_distance_days(request, response, *, traffic=None, repair_records=None):
+def review_long_distance_days(request, response, *, traffic=None, repair_records=None, priority_day_targets=None):
     result = deepcopy(response)
     catalog = {item['id']: item for item in load_attractions()}
     for plan in result['plans']:
+        targets = dict((priority_day_targets or {}).get(plan['plan_type'], {}))
+        remaining = priority_ids_for_request(request, list(catalog.values()))
+        for index, day in enumerate(plan['days']):
+            targets.setdefault(day['date'], daily_priority_target(len(remaining), len(plan['days']) - index))
+            remaining.difference_update(item['ref_id'] for item in day['items'] if item['type'] == 'attraction')
         changed_plan = False
         for index in range(len(plan['days'])):
             check_plan_deadline()
@@ -59,6 +65,7 @@ def review_long_distance_days(request, response, *, traffic=None, repair_records
             local, options = _day_request(request, plan, index)
             reservations = {}
             candidate = build_plan(plan['plan_type'], local, priority_reservations=reservations,
+                                   priority_day_targets=targets, priority_trip_request=request,
                                    **options, **(traffic or {}))
             checked = optimize_visit_order(candidate, lambda orders: build_plan(
                 plan['plan_type'], local, visit_sequences=orders, preserve_visit_order=True,

@@ -4,7 +4,22 @@ const DOUBLE_PRESS_MS = 500
 
 export function usePlanningDebug({ disabled = false } = {}) {
   const enabled = ref(false)
+  const open = ref(false)
   let previousPress = null
+
+  function reveal() {
+    if (disabled) return
+    enabled.value = true
+    open.value = true
+  }
+
+  function toggle() {
+    if (disabled) return
+    if (open.value) {
+      open.value = false
+      enabled.value = false
+    } else reveal()
+  }
 
   function reset() {
     previousPress = null
@@ -39,7 +54,7 @@ export function usePlanningDebug({ disabled = false } = {}) {
     const now = performance.now()
     if (previousPress !== null && now - previousPress <= DOUBLE_PRESS_MS) {
       event.preventDefault()
-      enabled.value = !enabled.value
+      toggle()
       reset()
     } else previousPress = now
   }
@@ -52,5 +67,5 @@ export function usePlanningDebug({ disabled = false } = {}) {
     window.removeEventListener('keydown', handleKeydown)
     window.removeEventListener('blur', reset)
   })
-  return { enabled }
+  return { enabled, open, reveal }
 }

@@ -221,7 +221,7 @@ function handleDockHandleClick() {
           data-testid="trace-open"
           @click="emit('open-planning-debug')"
         >
-          排程调试模式
+          展开排程调试面板
         </button>
         <div v-if="activeDay" class="route-legend">
           <b>{{ PLAN_LABELS[activePlanType] }} · 第 {{ activeDayIndex + 1 }} 天</b>

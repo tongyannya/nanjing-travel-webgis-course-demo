@@ -53,11 +53,14 @@ def score_attraction(
     preferences: dict[str, Any],
     current_location: dict[str, Any],
     current_time: int,
+    *,
+    priority_bonus: float | None = None,
 ) -> float:
-    return sum(attraction_score_parts(attraction, preferences, current_location, current_time).values())
+    return sum(attraction_score_parts(attraction, preferences, current_location, current_time,
+                                     priority_bonus=priority_bonus).values())
 
 
-def attraction_score_parts(attraction, preferences, current_location, current_time):
+def attraction_score_parts(attraction, preferences, current_location, current_time, *, priority_bonus=None):
     """Keep the displayed score contributions identical to the selection rule."""
     attraction_id = attraction["id"]
     matching_tag_count = min(
@@ -68,8 +71,10 @@ def attraction_score_parts(attraction, preferences, current_location, current_ti
         attraction.get("recommendation_level"), 0
     )
     quality = {"5A": 90, "4A": 60, "3A": 20, None: 0}.get(attraction.get("quality_grade"), 0)
-    return {'must': 10000 if attraction_id in preferences['must_visit_ids'] else 0,
-            'interested': 600 if attraction_id in preferences['interested_ids'] else 0,
+    must = attraction_id in preferences['must_visit_ids']
+    interested = attraction_id in preferences['interested_ids']
+    return {'must': (10000 if priority_bonus is None else priority_bonus) if must else 0,
+            'interested': (600 if priority_bonus is None else (0 if must else priority_bonus)) if interested else 0,
             'tags': matching_tag_count * 120, 'recommendation': recommendation, 'quality': quality,
             'night': 80 if current_time >= 17 * 60 and 'night_view' in attraction.get('tags', []) else 0,
             'distance': -distance_km(current_location, attraction['location']) * DISTANCE_PENALTY_PER_KM}

@@ -95,6 +95,14 @@ def priority_fits(state, pending, reservation, candidate=None):
     return all(reserve_meal(probe, meal) for meal in meals)
 
 
+def visit_preserves_meals(state, pending, candidate):
+    """A new visit must leave room for every remaining meal and the return."""
+    probe, meals = copy_day_state(state), list(pending)
+    if apply_visit(probe, meals, [], candidate) is None:
+        return False
+    return all(reserve_meal(probe, meal) for meal in meals)
+
+
 def reserve_first_priority(state, candidate, pending, preferences):
     """Prefer a feasible late afternoon slot when a distant first visit would wait."""
     _, attraction, duration, _cost, slot = candidate

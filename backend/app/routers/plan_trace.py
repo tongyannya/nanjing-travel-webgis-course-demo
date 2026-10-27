@@ -12,7 +12,7 @@ from ..amap_transport import PlanningTimeoutError
 from ..data_store import load_attractions
 from ..errors import ApiError
 from ..planning.route_orchestration import generate_route_hex_plans
-from ..planning.trace import capture_trace, emit
+from ..planning.trace import capture_trace, emit, progress
 from ..trip_validation import validate_trip_request
 
 
@@ -21,7 +21,8 @@ router = APIRouter()
 
 @router.post('/api/plans/trace', tags=['plans'])
 async def create_plan_trace(payload: dict[str, Any], request: Request,
-                            plan_type: Literal['relaxed', 'compact', 'duck'] = Query(default='relaxed')):
+                            plan_type: Literal['relaxed', 'compact', 'duck'] = Query(default='relaxed'),
+                            detail: Literal['full', 'progress'] = 'full'):
     errors = validate_trip_request(payload, valid_attraction_ids={item['id'] for item in load_attractions()})
     if errors:
         raise ApiError(status_code=422, code='invalid_trip_request',
@@ -31,7 +32,8 @@ async def create_plan_trace(payload: dict[str, Any], request: Request,
         queue = asyncio.Queue()
         async def run():
             try:
-                with capture_trace(queue.put_nowait):
+                with capture_trace(queue.put_nowait, detailed=detail == 'full'):
+                    progress('request', '已收到旅行条件，正在安排景点…')
                     emit('request', '接收旅行条件，开始生成行程', request=payload, plan_type=plan_type,
                          message='候选得分、顺序比较、交通核对和餐饮选择将按发生顺序记录。', function='validate_trip_request')
                     result = await generate_route_hex_plans(payload, plan_types=(plan_type,))

@@ -21,7 +21,6 @@ from .models import DayState, PlanType, PlanGenerationError
 from .rules import (
     is_excluded_by_preferences,
     reason_for_unplanned,
-    score_attraction,
     ticket_cost,
     attraction_score_parts,
 )
@@ -31,7 +30,10 @@ from .nearby_attractions import same_day_bonus
 from .notices import notice
 from .trace import tracing, emit, plan_snapshot
 from .last_stop import LastVisitRound, reconsider_last_visit
-from .priority_visit import apply_visit, reserve_first_priority, priority_fits, place_priority
+from .priority_visit import (apply_visit, reserve_first_priority, priority_fits,
+                             place_priority, visit_preserves_meals)
+from .priority_scoring import (priority_ids_for_request, daily_priority_target,
+                               priority_bonus, last_feasible_must_dates)
 
 def build_plan(
     plan_type: PlanType,
@@ -51,6 +53,8 @@ def build_plan(
     skipped_meal_already_used: bool = False,
     day_index_offset: int = 0,
     priority_reservations: dict[str, set[str]] | None = None,
+    priority_day_targets: dict[str, int] | None = None,
+    priority_trip_request: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     attractions = list(load_attractions())
     attraction_by_id = {item["id"]: item for item in attractions}
@@ -73,7 +77,17 @@ def build_plan(
     days_output = []
     max_per_day = 4 if plan_type == "compact" else None
     observing = tracing() and visit_sequences is None
+    priority_ids = priority_ids_for_request(request, attractions)
+    pending_must_ids = (must_ids & priority_ids) - used_ids
+    last_must_dates = (last_feasible_must_dates(plan_type, priority_trip_request or request,
+                       pending_must_ids) if visit_sequences is None and pending_must_ids else {})
     for day_index, day in enumerate(request["trip_days"]):
+        priority_target = daily_priority_target(len(priority_ids - used_ids), len(request['trip_days']) - day_index)
+        if priority_day_targets is not None and visit_sequences is None:
+            priority_target = priority_day_targets.setdefault(day['date'], priority_target)
+        urgent_ids = {key for key, last_date in last_must_dates.items() if last_date <= day['date']}
+        if day['date'] == (priority_trip_request or request)['trip_days'][-1]['date']:
+            urgent_ids.update(must_ids)
         start_ref = (
             request["first_day_start"]
             if day_index == 0 and request["first_day_start"]
@@ -112,6 +126,11 @@ def build_plan(
             candidate_deadline_location = None
 
             normal_candidates = []
+            round_parts = {}
+            scheduled_priority_ids = {item['ref_id'] for item in state.items
+                                      if item['type'] == 'attraction' and item['ref_id'] in priority_ids}
+            if priority is not None:
+                scheduled_priority_ids.add(priority.attraction['id'])
             trace_rows = [] if observing else None
             sequence = (visit_sequences or {}).get(day['date'], [])
             last_visited = max((index for index, attraction_id in enumerate(sequence)
@@ -194,15 +213,23 @@ def build_plan(
                         if diagnostics is not None:
                             diagnostics.append({'attempt': '较晚优先景点衔接', 'valid': False,
                                                 'detail': '无法同时保留已预留景点、完整用餐及返程。'})
+                    if slot and priority is None and not visit_preserves_meals(
+                        state, pending_meals, (0, attraction, duration, cost, slot)):
+                        slot = None
+                        _reason = 'time_conflict'
+                        if diagnostics is not None:
+                            diagnostics.append({'attempt': '完整餐次与返程检查', 'valid': False,
+                                                'detail': '加入后无法同时保留后续完整用餐及当天返程。'})
                     if slot:
+                        bonus = priority_bonus(attraction_id, preferences, priority_target,
+                                               len(scheduled_priority_ids), urgent_ids)
+                        parts = attraction_score_parts(attraction, preferences,
+                            state.current_location, state.current_time, priority_bonus=bonus) | {
+                            'nearby': same_day_bonus(attraction['location'], state.items)}
+                        round_parts[attraction_id] = parts
                         normal_candidates.append(
                             (
-                                score_attraction(
-                                    attraction,
-                                    preferences,
-                                    state.current_location,
-                                    state.current_time,
-                                ) + same_day_bonus(attraction['location'], state.items)
+                                sum(parts.values())
                                 if visit_sequences is None else -visit_sequences[day['date']].index(attraction_id),
                                 attraction,
                                 duration,
@@ -216,8 +243,7 @@ def build_plan(
                         row['ticket_cost'] = cost
                         if slot:
                             row.update(reason='可行候选', score=normal_candidates[-1][0],
-                                       parts=attraction_score_parts(attraction, preferences, state.current_location, state.current_time) |
-                                             {'nearby': same_day_bonus(attraction['location'], state.items)},
+                                       parts=parts,
                                        matching_tags=sorted(set(attraction.get('tags', [])) & set(preferences['preferred_tags'])),
                                        start_time=clock(slot['start']), end_time=clock(slot['end']),
                                        meal_before_visit='meal_before_visit' in slot)
@@ -232,8 +258,11 @@ def build_plan(
                      current_time=clock(state.current_time), current_location=state.items[-1]['name'],
                      selected_id=selected[1]['id'] if selected else None, candidate_count=len(normal_candidates),
                      ticket_cost_so_far=total_cost, candidates=sorted(trace_rows, key=lambda value: -value.get('score', -1e9)),
+                     priority_target=priority_target, priority_scheduled=len(scheduled_priority_ids),
+                     urgent_must_ids=sorted(urgent_ids - used_ids),
+                     message=f'当天优先景点加分目标{priority_target}个，已安排或预留{len(scheduled_priority_ids)}个；首个使用原加分，后续200分，达到目标后偏好加分归零。最后可行日期的必去保留10000分。',
                      meal_deadline=clock(candidate_deadline) if candidate_deadline is not None else None,
-                     function='build_plan / slot_for_attraction / score_attraction / same_day_bonus')
+                     function='build_plan / slot_for_attraction / attraction_score_parts / same_day_bonus')
             if normal_candidates and priority is None and not priority_checked and visit_sequences is None:
                 priority_checked = True
                 priority = reserve_first_priority(state, max(normal_candidates, key=lambda value: value[0]),
@@ -251,7 +280,7 @@ def build_plan(
                 if visit_sequences is None:
                     last_round = LastVisitRound.capture(
                         state, normal_candidates, pending_meals, used_ids, total_cost,
-                        skipped_meal_used, warnings, _ + 1)
+                        skipped_meal_used, warnings, _ + 1, score_parts=round_parts)
                 _, attraction, duration, cost, slot = max(
                     normal_candidates, key=lambda value: value[0]
                 )
@@ -278,7 +307,7 @@ def build_plan(
 
             if event_kind == "meal" and next_meal:
                 pending_meals.pop(0)
-                meal_kind, target, latest = next_meal
+                meal_kind, meal_target, latest = next_meal
                 unused_open_candidates = any(
                     attraction["id"] not in used_ids
                     and not is_excluded_by_preferences(
@@ -294,14 +323,14 @@ def build_plan(
                 reserved = schedule_meal_break(
                     state,
                     meal_kind,
-                    target,
+                    meal_target,
                     latest,
                     deadline=deadline,
                     deadline_location=deadline_location,
                 )
                 if not reserved and meal_kind == 'dinner':
                     reserved = schedule_meal_break(
-                        state, meal_kind, target, latest,
+                        state, meal_kind, meal_target, latest,
                         deadline=None, deadline_location=None,
                         destination=state.end_location_ref['location'],
                     )
