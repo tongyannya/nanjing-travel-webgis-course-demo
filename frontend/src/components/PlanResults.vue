@@ -1,12 +1,15 @@
 <script setup>
 import { PLAN_LABELS } from '../planning/planningLabels'
 import { computed, ref, watch } from 'vue'
+import { splitUnplannedAttractions } from '../planning/unplannedAttractions'
+import { buildSpecialOpeningRows } from '../planning/specialOpening'
 
 import PlanDayTimeline from './PlanDayTimeline.vue'
 import HistoryPlanList from './HistoryPlanList.vue'
 
 const props = defineProps({
   response: { type: Object, default: null },
+  tripRequest: { type: Object, default: null },
   planState: { type: String, required: true },
   planMessage: { type: String, required: true },
   planProgress: { type: String, default: '' },
@@ -42,6 +45,10 @@ const activePlan = computed(
   () => props.response?.plans?.find((plan) => plan.plan_type === props.activePlanType) || null,
 )
 const activeDay = computed(() => activePlan.value?.days?.[props.activeDayIndex] || null)
+const activeUnplanned = computed(() => splitUnplannedAttractions(activePlan.value))
+const specialOpeningRows = computed(() =>
+  buildSpecialOpeningRows(activePlan.value, props.tripRequest, props.attractions),
+)
 const otherPlansOpen = ref(false)
 const historyOpen = ref(false)
 watch(
@@ -181,7 +188,8 @@ function choosePlan(type) {
                 ><b>{{ duckCount(loadedPlan(type)) }}</b> 次南京鸭用餐</span
               >
               <span v-else
-                ><b>{{ loadedPlan(type).unplanned_attractions.length }}</b> 个未安排</span
+                ><b>{{ splitUnplannedAttractions(loadedPlan(type)).unplanned.length }}</b>
+                个未安排</span
               >
             </span>
             <span v-else class="plan-tab__stats"><span>尚未生成</span></span>
@@ -239,7 +247,8 @@ function choosePlan(type) {
                 ><b>{{ duckCount(loadedPlan(type)) }}</b> 次南京鸭用餐</span
               >
               <span v-else
-                ><b>{{ loadedPlan(type).unplanned_attractions.length }}</b> 个未安排</span
+                ><b>{{ splitUnplannedAttractions(loadedPlan(type)).unplanned.length }}</b>
+                个未安排</span
               >
             </span>
             <span v-else class="plan-tab__stats"><span>尚未生成</span></span>
@@ -302,7 +311,7 @@ function choosePlan(type) {
             ><b>¥{{ activePlan.total_ticket_cost }}</b> 门票</span
           >
           <span
-            ><b>{{ activePlan.unplanned_attractions.length }}</b> 未安排</span
+            ><b>{{ activeUnplanned.unplanned.length }}</b> 未安排</span
           >
         </div>
         <div v-if="activePlan.budget_exceeded" class="warning-box">
@@ -325,14 +334,42 @@ function choosePlan(type) {
         />
       </div>
 
-      <details v-if="activePlan?.unplanned_attractions.length" class="result-details" open>
-        <summary>未安排的明确关注景点（{{ activePlan.unplanned_attractions.length }}）</summary>
+      <details v-if="activeUnplanned.unplanned.length" class="result-details" open>
+        <summary>未安排的明确关注景点（{{ activeUnplanned.unplanned.length }}）</summary>
         <ul>
-          <li v-for="item in activePlan.unplanned_attractions" :key="item.attraction_id">
+          <li v-for="item in activeUnplanned.unplanned" :key="item.attraction_id">
             <b>{{ attractionName(item.attraction_id) }}</b
             ><span>{{ item.message }}</span>
           </li>
         </ul>
+      </details>
+      <details v-if="activeUnplanned.excluded.length" class="result-details" open>
+        <summary>已排除的景点（{{ activeUnplanned.excluded.length }}）</summary>
+        <ul>
+          <li v-for="item in activeUnplanned.excluded" :key="item.attraction_id">
+            <b>{{ attractionName(item.attraction_id) }}</b
+            ><span>{{ item.message }}</span>
+          </li>
+        </ul>
+      </details>
+
+      <details
+        v-if="activePlan"
+        class="result-details result-special-opening"
+        data-testid="result-special-opening"
+        open
+      >
+        <summary>特殊开放情况（{{ specialOpeningRows.length }}）</summary>
+        <p>按本方案游玩日期及景点常规开放规则核对必去、感兴趣景点。</p>
+        <ul v-if="specialOpeningRows.length">
+          <li v-for="item in specialOpeningRows" :key="item.attractionId">
+            <b>{{ item.name }}</b>
+            <span>
+              {{ item.preference }}；{{ item.closedDates.map((day) => day.label).join('、') }}闭馆。
+            </span>
+          </li>
+        </ul>
+        <p v-else>本次未发现必去或感兴趣景点在行程日期内的闭馆情况。</p>
       </details>
 
       <details

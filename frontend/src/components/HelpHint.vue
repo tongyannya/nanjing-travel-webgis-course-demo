@@ -169,7 +169,7 @@ onBeforeUnmount(() => {
   box-sizing: border-box;
   padding: 12px 14px;
   color: var(--bone);
-  background: rgba(25, 38, 36, 0.97);
+  background: var(--context-help-background, rgba(25, 38, 36, 0.97));
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 12px;
   box-shadow: 0 12px 28px rgba(5, 12, 11, 0.28);

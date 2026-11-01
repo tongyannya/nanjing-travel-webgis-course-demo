@@ -2,6 +2,7 @@ import { PLAN_LABELS, ITEM_TYPE_LABELS } from './planningLabels'
 import { mealKindLabel, planItemTypeLabel } from './duckDiningPresentation'
 import { presentTransportLeg } from './transitPresentation'
 import { buildWeatherRows, WEATHER_SOURCE_TEXT } from '../ui/weatherPresentation'
+import { splitUnplannedAttractions } from './unplannedAttractions'
 
 // Image itinerary export (task X1). This module is pure data work: it turns the
 // currently selected plan snapshot into stable view models for the export sheet
@@ -124,25 +125,23 @@ function mergeWarnings(response, plan) {
   }, [])
 }
 
-function buildUnplannedList(plan, attractions) {
+function buildUnplannedList(items, attractions) {
   const nameById = new Map(
     (Array.isArray(attractions) ? attractions : []).map((attraction) => [
       attraction?.id,
       nonEmptyText(attraction?.name),
     ]),
   )
-  return (Array.isArray(plan.unplanned_attractions) ? plan.unplanned_attractions : []).map(
-    (unplanned) => {
-      const id = nonEmptyText(unplanned?.attraction_id)
-      const knownName = nameById.get(id)
-      const message = nonEmptyText(unplanned?.message)
-      const reasonLabel = UNPLANNED_REASON_LABELS[unplanned?.reason_code] || ''
-      return {
-        name: knownName || '未安排景点（名称暂不可用）',
-        message: message || reasonLabel || '原因待确认',
-      }
-    },
-  )
+  return items.map((unplanned) => {
+    const id = nonEmptyText(unplanned?.attraction_id)
+    const knownName = nameById.get(id)
+    const message = nonEmptyText(unplanned?.message)
+    const reasonLabel = UNPLANNED_REASON_LABELS[unplanned?.reason_code] || ''
+    return {
+      name: knownName || '未安排景点（名称暂不可用）',
+      message: message || reasonLabel || '原因待确认',
+    }
+  })
 }
 
 function buildItemView(item) {
@@ -279,7 +278,8 @@ export function buildFullItinerarySheet(response, planType, options = {}) {
     periodLabel: `${rangeLabel} · 共 ${days.length} 天`,
     ticketLabel: `全队全程预计门票（参考估算）：${formatAmount(plan.total_ticket_cost)}`,
     budgetWarning: plan.budget_exceeded ? BUDGET_EXCEEDED_TEXT : '',
-    unplanned: buildUnplannedList(plan, options.attractions),
+    unplanned: buildUnplannedList(splitUnplannedAttractions(plan).unplanned, options.attractions),
+    excluded: buildUnplannedList(splitUnplannedAttractions(plan).excluded, options.attractions),
     days: dayViews,
   }
   return {
@@ -328,6 +328,7 @@ export function buildDayItinerarySheet(response, planType, dayIndex, options = {
     ticketLabel: dayView.dayTicketLabel,
     budgetWarning: plan.budget_exceeded ? BUDGET_EXCEEDED_TEXT : '',
     unplanned: [],
+    excluded: [],
     days: [dayView],
   }
   return {

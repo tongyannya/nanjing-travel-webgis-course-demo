@@ -36,7 +36,8 @@ def _meal_probe(plan_type, index, day, allowed, traffic):
     for destination in (day['items'][-2]['location'], day['end_location']['location']):
         state = _state(plan_type, index, day, allowed, traffic)
         if schedule_meal_break(state, 'dinner', earliest, latest,
-                               deadline=None, deadline_location=None, destination=destination):
+                               deadline=None, deadline_location=None, destination=destination,
+                               prefer_endpoints=False):
             finish_day(state)
             return {**deepcopy(day), 'items': state.items, 'legs': state.legs}
     return None

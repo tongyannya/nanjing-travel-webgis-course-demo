@@ -10,6 +10,7 @@ export function useAccommodationFlow({
   selectedLocationLabel,
   selectedLocationSource,
   onCommitted,
+  onClosed,
   areaPicking = ref(false),
   onAreaPickingStarted,
   onAreaPickingEnded,
@@ -24,6 +25,7 @@ export function useAccommodationFlow({
   let pausedPickingSession = null
   let pausedAreaPicking = false
   let continuePlanningAfterAccommodation = false
+  let plannerReturnTarget = null
   const hasPendingAccommodation = computed(() => Boolean(accommodation.accommodationDraft.value))
   const isMapAccommodationSelection = computed(
     () =>
@@ -73,8 +75,9 @@ export function useAccommodationFlow({
     if (session) layerVisibility.value.search = true
   })
 
-  function openAccommodationWizard(event) {
+  function openAccommodationWizard(event, { returnTo = null } = {}) {
     continuePlanningAfterAccommodation = false
+    plannerReturnTarget = returnTo
     finishAreaPicking()
     accommodationReturnFocus = event instanceof HTMLElement ? event : document.activeElement
     // Reopening starts a new draft; an earlier picking session must not intercept its commit.
@@ -82,7 +85,8 @@ export function useAccommodationFlow({
     accommodationResume = null
     pausedPickingSession = null
     pausedAreaPicking = false
-    if (tripForm.value.accommodationConfirmed) accommodation.startEditDraft()
+    if (tripForm.value.accommodationConfirmed)
+      accommodation.startEditDraft({ preserveEndpoints: ['wizard', 'form'].includes(returnTo) })
     else accommodation.startDraft()
     accommodationWizardOpen.value = true
   }
@@ -95,6 +99,9 @@ export function useAccommodationFlow({
     accommodation.cancelPickingSession()
     accommodationWizardOpen.value = false
     restoreAccommodationFocus()
+    const returnTo = plannerReturnTarget
+    plannerReturnTarget = null
+    if (returnTo) onClosed?.({ returnTo })
   }
 
   function continueAccommodationWizard(event) {
@@ -119,6 +126,9 @@ export function useAccommodationFlow({
     pausedAreaPicking = false
     accommodation.backToStep('stay-choice')
     accommodationWizardOpen.value = false
+    const returnTo = plannerReturnTarget
+    plannerReturnTarget = null
+    if (returnTo) onClosed?.({ returnTo })
   }
 
   function restoreAccommodationFocus() {
@@ -188,10 +198,13 @@ export function useAccommodationFlow({
     accommodationWizardOpen.value = false
     const continuePlanning = continuePlanningAfterAccommodation
     continuePlanningAfterAccommodation = false
+    const returnTo = plannerReturnTarget
+    plannerReturnTarget = null
     if (!continuePlanning) restoreAccommodationFocus()
     onCommitted?.({
       changed: previous !== accommodationPlanSignature(tripForm.value),
       continuePlanning,
+      ...(returnTo ? { returnTo } : {}),
     })
   }
 

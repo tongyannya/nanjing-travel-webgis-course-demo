@@ -54,6 +54,8 @@ def slot_for_attraction(
         travel_details_by_key=state.travel_details_by_key,
         transit_details_by_key=state.transit_details_by_key,
         taxi_fallback_keys=state.taxi_fallback_keys,
+        departure_date=state.day['date'],
+        departure_time=clock(state.current_time),
         fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
     )
     arrival = state.current_time + leg["duration_minutes_rounded"]
@@ -83,6 +85,8 @@ def slot_for_attraction(
                 travel_details_by_key=state.travel_details_by_key,
                 transit_details_by_key=state.transit_details_by_key,
                 taxi_fallback_keys=state.taxi_fallback_keys,
+                departure_date=state.day['date'],
+                departure_time=clock(end),
                 fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
             )["duration_minutes_rounded"]
         if end + transfer > deadline:
@@ -96,6 +100,8 @@ def slot_for_attraction(
         travel_details_by_key=state.travel_details_by_key,
         transit_details_by_key=state.transit_details_by_key,
         taxi_fallback_keys=state.taxi_fallback_keys,
+        departure_date=state.day['date'],
+        departure_time=clock(end),
         fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
     )
     if end + return_leg["duration_minutes_rounded"] > state.day_end:
@@ -161,6 +167,8 @@ def finish_day(state: DayState) -> None:
         travel_details_by_key=state.travel_details_by_key,
         transit_details_by_key=state.transit_details_by_key,
         taxi_fallback_keys=state.taxi_fallback_keys,
+        departure_date=state.day['date'],
+        departure_time=clock(state.current_time),
         fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
     )
     arrival = state.current_time + leg["duration_minutes_rounded"]

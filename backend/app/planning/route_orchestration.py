@@ -9,6 +9,8 @@ from ..amap_client import travel_time, AMapConfigError, AMapUpstreamError
 from ..travel_time_rules import reserved_travel_minutes
 from ..amap_transport import check_plan_deadline, gather_amap_queries, planning_request_scope
 from .service import generate_plans
+from .schedule import build_plan
+from .route_order import visit_orders
 from .route_schedule import reschedule_fixed_routes
 from .transport import distance_km, estimate_leg, transit_requires_taxi
 from .transit_enrichment import transit_query_key, validate_transit_details
@@ -18,18 +20,21 @@ from .models import PlanGenerationError
 from .route_repair import refill_repaired_days
 from .dinner_recovery import recover_return_dinners
 from .trace import emit, snapshot, tracing, response_snapshot, progress
+from .meal_endpoints import meal_endpoint_scope, prepare_meal_endpoints
 
 MAX_ROUTE_QUERIES = 48
 
 
+@meal_endpoint_scope()
 async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup=None):
     active_lookup = lookup or travel_time
     actual, failed, attempted = {}, set(), set()
     repaired_days = set()
     semaphore = asyncio.Semaphore(4)
     repair_records = {}
-    response = generate_plans(request, plan_types=plan_types, repair_records=repair_records)
-    initial = response
+    selection_orders = {}
+    response = generate_plans(request, plan_types=plan_types, repair_records=repair_records,
+                              selection_orders=selection_orders)
     route_names = {}
     completed_queries = 0
     if tracing():
@@ -40,16 +45,17 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                         route_names[tuple(round(item['location'][k], 6) for k in ('longitude', 'latitude'))] = item['name']
     def route_label(key):
         return ' → '.join(route_names.get(tuple(key[index:index + 2]), f'{key[index]}, {key[index + 1]}') for index in (1, 3))
-    snapshot('traffic', '初稿已确定，开始核对高德道路耗时', response)
 
     async def query(key):
         nonlocal completed_queries
         async with semaphore:
             check_plan_deadline()
-            mode, lon1, lat1, lon2, lat2 = key
-            emit('traffic', f'查询路线：{route_label(key)}', mode=mode, function='travel_time')
+            mode, lon1, lat1, lon2, lat2 = key[:5]
+            departure = ({'departure_date': key[5], 'departure_time': key[6]}
+                         if mode == 'public_transit' else {})
+            emit('traffic', f'查询路线：{route_label(key)}', mode=mode, **departure, function='travel_time')
             try:
-                value = await active_lookup(origin=(lon1, lat1), destination=(lon2, lat2), mode=mode)
+                value = await active_lookup(origin=(lon1, lat1), destination=(lon2, lat2), mode=mode, **departure)
                 if (not isinstance(value, dict) or
                     type(value.get('raw_minutes')) is not int or value['raw_minutes'] <= 0 or
                     type(value.get('estimated_minutes')) is not int or value['estimated_minutes'] <= 0 or
@@ -76,6 +82,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                         emit('traffic', f'公共交通超出适用条件：{route_label(key)}', message='该段将继续尝试出租车衔接。')
                         return key, None
                 emit('traffic', f'取得道路耗时：{route_label(key)}', mode=mode,
+                     **departure,
                      raw_minutes=value['raw_minutes'],
                      reserved_minutes=(value['transit_details']['conservative_minutes']
                                        if mode == 'public_transit' else
@@ -99,7 +106,23 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
     def rebuild(*, finalize=False):
         return reschedule_fixed_routes(request, response, repaired_days=repaired_days,
                                        repair_records=repair_records,
+                                       selection_orders=selection_orders,
                                        **traffic(finalize=finalize))
+
+    def prepare_routes():
+        nonlocal response
+        while prepare_meal_endpoints(request, response):
+            check_plan_deadline()
+            response = rebuild()
+
+    prepare_routes()
+    initial = response
+    snapshot('traffic', '本地餐区比较及初稿已确定，开始核对高德道路耗时', response)
+
+    def leg_key(mode, origin, destination, day, previous):
+        departure = ({'departure_date': day['date'], 'departure_time': previous['end_time']}
+                     if mode == 'public_transit' else {})
+        return (mode, *transit_query_key(origin, destination, **departure))
 
     def pending_keys():
         pending = {}
@@ -110,9 +133,11 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
                     origin, destination = items[leg['from_item_id']]['location'], items[leg['to_item_id']]['location']
                     if distance_km(origin, destination) < .05:
                         continue
-                    key = (leg['mode'], *transit_query_key(origin, destination))
+                    key = leg_key(leg['mode'], origin, destination, day, items[leg['from_item_id']])
                     if key not in attempted:
                         pending[key] = None
+                        # Resolve the prefix before querying later departure times.
+                        break
         return list(pending)[:max(0, MAX_ROUTE_QUERIES - len(attempted))]
 
     async def query_batch(keys):
@@ -130,9 +155,10 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
         if len(keys) > MAX_ROUTE_QUERIES - len(attempted):
             return None
         await query_batch(keys)
-        taxi_keys = [('taxi', *key[1:]) for key in keys
+        taxi_keys = [('taxi', *key[1:5]) for key in keys
                      if key[0] == 'public_transit' and key in failed
-                     and ('taxi', *key[1:]) not in attempted]
+                     and ('taxi', *key[1:5]) not in attempted]
+        taxi_keys = list(dict.fromkeys(taxi_keys))
         if len(taxi_keys) > MAX_ROUTE_QUERIES - len(attempted):
             return None
         if taxi_keys:
@@ -142,24 +168,41 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
     def route_keys(plan, date):
         day = next(day for day in plan['days'] if day['date'] == date)
         items = {item['item_id']: item for item in day['items']}
-        keys = set()
+        keys = []
         for leg in day['legs']:
             first, second = items[leg['from_item_id']]['location'], items[leg['to_item_id']]['location']
             if distance_km(first, second) >= .05:
-                updated = estimate_leg(first, second, request['transport_preference'], '', '', **traffic())
-                keys.add((updated['mode'], *transit_query_key(first, second)))
+                previous = items[leg['from_item_id']]
+                updated = estimate_leg(first, second, request['transport_preference'], '', '',
+                                       departure_date=day['date'], departure_time=previous['end_time'], **traffic())
+                keys.append(leg_key(updated['mode'], first, second, day, previous))
         return keys
 
     async def verify_routes(plan, date):
-        keys = route_keys(plan, date)
-        if await query_routes(sorted(keys - attempted)) is None:
-            return None
-        # A failed transit query may change the effective mode to taxi.
-        return all(key in actual and actual[key].get('path_details')
-                   for key in route_keys(plan, date))
+        orders = visit_orders(plan)
+        candidate = plan
+        while True:
+            if prepare_meal_endpoints(request, {'plans': [candidate]}):
+                candidate = build_plan(plan['plan_type'], request, visit_sequences=orders,
+                                       preserve_visit_order=True, **traffic())
+                if visit_orders(candidate)[date] != orders[date]:
+                    return False
+            keys = route_keys(candidate, date)
+            if all(key in actual and actual[key].get('path_details') for key in keys):
+                return True
+            pending = [key for key in keys if key not in attempted]
+            if not pending:
+                return False
+            if await query_routes(pending[:1]) is None:
+                return None
+            candidate = build_plan(plan['plan_type'], request, visit_sequences=orders,
+                                   preserve_visit_order=True, **traffic())
+            if visit_orders(candidate)[date] != orders[date]:
+                return False
 
     while len(attempted) < MAX_ROUTE_QUERIES:
         check_plan_deadline()
+        prepare_routes()
         keys = pending_keys()
         if not keys:
             break
@@ -183,7 +226,9 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
             items = {item['item_id']: item for item in day['items']}
             total += sum(estimate_leg(items[leg['from_item_id']]['location'],
                                       items[leg['to_item_id']]['location'], request['transport_preference'],
-                                      '', '', **traffic())['duration_minutes_rounded'] for leg in day['legs'])
+                                      '', '', departure_date=day['date'],
+                                      departure_time=items[leg['from_item_id']]['end_time'],
+                                      **traffic())['duration_minutes_rounded'] for leg in day['legs'])
         travel_limits[plan['plan_type']] = total
     before = response_snapshot(response)
     progress('repair', '正在检查交通调整后能否补充顺路景点…')
@@ -214,7 +259,7 @@ async def enrich_route_paths(request: dict[str, Any], *, plan_types=None, lookup
 async def generate_route_hex_plans(request: dict[str, Any], *, plan_types=None, lookup=None):
     response = await enrich_route_paths(request, plan_types=plan_types, lookup=lookup)
     progress('dining', '正在匹配沿途用餐区域…')
-    response = assign_hex_meals(response)
+    response = assign_hex_meals(response, preserve_transit_departures=True)
     progress('complete', '正在完成行程检查，准备显示地图与时间轴…')
     errors = list(_plan_validator().iter_errors(response))
     if errors:

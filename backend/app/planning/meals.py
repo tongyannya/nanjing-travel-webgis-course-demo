@@ -7,6 +7,7 @@ from typing import Any
 from .models import DayState
 from .time_rules import clock
 from .transport import estimate_leg, location_payload
+from .meal_endpoints import endpoint_choice
 
 
 ZERO_WALK_MEAL_ADVANCE_MINUTES = 30
@@ -35,11 +36,24 @@ def schedule_meal_break(
     deadline_location: dict[str, Any] | None,
     destination: dict[str, Any] | None = None,
     fixed_start: int | None = None,
+    prefer_endpoints: bool = True,
 ) -> bool:
     """Reserve an honest meal break when no real suitable dining area is available."""
 
     item_id = state.item_id("meal_break_probe")
     state.serial -= 1
+    if prefer_endpoints:
+        next_location = (destination if destination is not None else
+                         deadline_location if deadline_location is not None else state.end_location_ref['location'])
+        selected = endpoint_choice(state, meal_kind, next_location)
+        if selected:
+            if schedule_meal_break(state, meal_kind, target, latest_start,
+                                   deadline=deadline, deadline_location=deadline_location,
+                                   destination=selected['location'], fixed_start=fixed_start,
+                                   prefer_endpoints=False):
+                return True
+            # A later actual duration can invalidate the local estimate. Try the
+            # original endpoint locally, without issuing another route query here.
     destination = destination if destination is not None else state.current_location
     leg = estimate_leg(
         state.current_location,
@@ -50,6 +64,8 @@ def schedule_meal_break(
         travel_details_by_key=state.travel_details_by_key,
         transit_details_by_key=state.transit_details_by_key,
         taxi_fallback_keys=state.taxi_fallback_keys,
+        departure_date=state.day['date'],
+        departure_time=clock(state.current_time),
         fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
     )
     start = meal_start_time(state, target, leg) if fixed_start is None else fixed_start
@@ -70,6 +86,8 @@ def schedule_meal_break(
                 travel_details_by_key=state.travel_details_by_key,
                 transit_details_by_key=state.transit_details_by_key,
                 taxi_fallback_keys=state.taxi_fallback_keys,
+                departure_date=state.day['date'],
+                departure_time=clock(end),
                 fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
             )["duration_minutes_rounded"]
         if end + transfer > deadline:
@@ -83,6 +101,8 @@ def schedule_meal_break(
         travel_details_by_key=state.travel_details_by_key,
         transit_details_by_key=state.transit_details_by_key,
         taxi_fallback_keys=state.taxi_fallback_keys,
+        departure_date=state.day['date'],
+        departure_time=clock(end),
         fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi,
     )
     if end + return_leg["duration_minutes_rounded"] > state.day_end:

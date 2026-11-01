@@ -58,6 +58,7 @@
 }
 
 body.duck-mode {
+  --context-help-background: rgba(59, 48, 40, 0.97);
   --control-surface: #403a33;
   --control-hover: #4c443a;
   --bone-2: #dbc7af;

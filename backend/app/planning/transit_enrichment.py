@@ -13,7 +13,7 @@ from typing import Any, Mapping, TypeAlias
 
 
 COORDINATE_PRECISION = 6
-TransitQueryKey: TypeAlias = tuple[float, float, float, float]
+TransitQueryKey: TypeAlias = tuple[float, float, float, float] | tuple[float, float, float, float, str, str]
 
 _TRANSIT_DETAIL_FIELDS = {
     "total_minutes",
@@ -68,16 +68,18 @@ def _coordinate(location: Mapping[str, Any], field: str) -> tuple[float, float]:
 
 
 def transit_query_key(
-    origin: Mapping[str, Any], destination: Mapping[str, Any]
+    origin: Mapping[str, Any], destination: Mapping[str, Any],
+    *, departure_date: str | None = None, departure_time: str | None = None,
 ) -> TransitQueryKey:
     """Build a directional, stable key for one GCJ-02 coordinate pair."""
 
     origin_coord = _coordinate(origin, "origin")
     destination_coord = _coordinate(destination, "destination")
-    return tuple(
+    coordinates = tuple(
         round(value, COORDINATE_PRECISION)
         for value in (*origin_coord, *destination_coord)
     )
+    return (*coordinates, departure_date, departure_time) if departure_date and departure_time else coordinates
 
 
 

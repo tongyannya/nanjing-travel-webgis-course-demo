@@ -55,6 +55,7 @@ def build_plan(
     priority_reservations: dict[str, set[str]] | None = None,
     priority_day_targets: dict[str, int] | None = None,
     priority_trip_request: dict[str, Any] | None = None,
+    selection_order: list[str] | None = None,
 ) -> dict[str, Any]:
     attractions = list(load_attractions())
     attraction_by_id = {item["id"]: item for item in attractions}
@@ -268,6 +269,8 @@ def build_plan(
                 priority = reserve_first_priority(state, max(normal_candidates, key=lambda value: value[0]),
                                                    pending_meals, preferences)
                 if priority is not None:
+                    if selection_order is not None:
+                        selection_order.append(priority.attraction['id'])
                     if priority_reservations is not None:
                         priority_reservations.setdefault(day['date'], set()).add(priority.attraction['id'])
                     if observing:
@@ -289,6 +292,8 @@ def build_plan(
                     raise RuntimeError('A validated arrival meal could not be applied')
                 skipped_meal_used = skipped_meal_used or skipped
                 used_ids.add(attraction["id"])
+                if selection_order is not None and visit_sequences is None:
+                    selection_order.append(attraction['id'])
                 total_cost += cost
                 continue
 
@@ -333,6 +338,7 @@ def build_plan(
                         state, meal_kind, meal_target, latest,
                         deadline=None, deadline_location=None,
                         destination=state.end_location_ref['location'],
+                        prefer_endpoints=False,
                     )
                 meal_label = "午餐" if meal_kind == "lunch" else "晚餐"
                 if observing:
@@ -352,6 +358,12 @@ def build_plan(
         if last_round is not None:
             state, used_ids, total_cost, skipped_meal_used, warnings = reconsider_last_visit(
                 last_round, state, used_ids, total_cost, skipped_meal_used, warnings, preferences)
+        if selection_order is not None and visit_sequences is None:
+            # A return review can replace the last admission. Keep the actual
+            # selection history, including priorities reserved before filling gaps.
+            selection_order[:] = [key for key in selection_order if key in used_ids]
+            selection_order.extend(item['ref_id'] for item in state.items
+                                   if item['type'] == 'attraction' and item['ref_id'] not in selection_order)
         finish_day(state)
         days_output.append(
             {

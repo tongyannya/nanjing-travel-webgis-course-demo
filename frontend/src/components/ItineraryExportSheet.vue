@@ -90,6 +90,16 @@ defineProps({
       </ul>
     </section>
 
+    <section v-if="sheet.excluded?.length" class="itinerary-sheet__block">
+      <h3>已排除的景点（{{ sheet.excluded.length }}）</h3>
+      <ul>
+        <li v-for="(item, index) in sheet.excluded" :key="index">
+          <b>{{ item.name }}</b
+          ><span>：{{ item.message }}</span>
+        </li>
+      </ul>
+    </section>
+
     <section v-if="sheet.warnings.length" class="itinerary-sheet__block">
       <h3>{{ sheet.warningsTitle }}</h3>
       <p v-if="sheet.warningsNote" class="itinerary-sheet__block-note">

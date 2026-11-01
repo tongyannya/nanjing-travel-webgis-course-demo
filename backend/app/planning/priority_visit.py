@@ -8,7 +8,7 @@ from .day_schedule import append_attraction, slot_for_attraction
 from .meals import schedule_meal_break
 from .notices import notice
 from .rules import DISTANCE_PENALTY_PER_KM
-from .time_rules import opening_intervals
+from .time_rules import clock, opening_intervals
 from .transport import distance_km, estimate_leg
 
 
@@ -28,7 +28,7 @@ def apply_visit(state, pending, warnings, candidate):
         prefix = slot['meal_before_visit']
         if not schedule_meal_break(state, kind, target, latest, deadline=None,
                                    deadline_location=None, destination=prefix['destination'],
-                                   fixed_start=prefix['start']):
+                                   fixed_start=prefix['start'], prefer_endpoints=False):
             return None
         pending.pop(0)
         slot['leg']['from_item_id'] = state.items[-1]['item_id']
@@ -48,7 +48,8 @@ def reserve_meal(state, meal, *, deadline=None, destination=None):
     if not reserved and kind == 'dinner':
         reserved = schedule_meal_break(state, kind, target, latest, deadline=deadline,
                                        deadline_location=destination,
-                                       destination=state.end_location_ref['location'])
+                                       destination=state.end_location_ref['location'],
+                                       prefer_endpoints=False)
     return reserved
 
 
@@ -114,6 +115,8 @@ def reserve_first_priority(state, candidate, pending, preferences):
                              travel_details_by_key=state.travel_details_by_key,
                              transit_details_by_key=state.transit_details_by_key,
                              taxi_fallback_keys=state.taxi_fallback_keys,
+                             departure_date=state.day['date'],
+                             departure_time=clock(state.current_time),
                              fallback_missing_transit_to_taxi=state.fallback_missing_transit_to_taxi)
     distance_penalty = distance_km(state.current_location, attraction['location']) * DISTANCE_PENALTY_PER_KM
     earliest = state.current_time + incoming['duration_minutes_rounded'] + (60 if 'meal_before_visit' in slot else 0)

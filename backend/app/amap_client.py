@@ -534,8 +534,11 @@ def _seconds(value: Any) -> int:
 
 
 async def travel_time(
-    *, origin: tuple[float, float], destination: tuple[float, float], mode: str
+    *, origin: tuple[float, float], destination: tuple[float, float], mode: str,
+    departure_date: str | None = None, departure_time: str | None = None,
 ) -> dict[str, Any]:
+    if bool(departure_date) != bool(departure_time):
+        raise ValueError('出发日期和时间必须同时提供。')
     origin_text = f"{origin[0]:.6f},{origin[1]:.6f}"
     destination_text = f"{destination[0]:.6f},{destination[1]:.6f}"
     transit_details = None
@@ -571,6 +574,8 @@ async def travel_time(
                 "ad2": NANJING_ADCODE,
                 "AlternativeRoute": 1,
                 "show_fields": "cost,polyline",
+                **({'date': departure_date, 'time': departure_time.replace(':', '-')}
+                   if departure_date and departure_time else {}),
             },
         )
         try:

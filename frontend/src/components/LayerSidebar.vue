@@ -818,8 +818,8 @@ function toggleLayerDetails(layerId) {
           <div><i class="legend-metro-station"></i><span>地铁站点（黑点）</span></div>
           <div data-testid="map-click-legend">
             <i
-              class="legend-marker map-symbol-marker metro-map-marker--dot map-click-point"
-              :style="{ '--map-marker-color': MAP_MARKER_COLORS.selectedSearch }"
+              class="legend-click-region"
+              :style="{ '--legend-color': MAP_MARKER_COLORS.selectedSearch }"
             ></i
             ><span>当前点击区域</span>
           </div>

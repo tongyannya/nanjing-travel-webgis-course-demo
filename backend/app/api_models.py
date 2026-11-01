@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -97,9 +97,15 @@ class TravelTimeRequest(BaseModel):
     origin: Coordinate
     destination: Coordinate
     mode: TravelMode
+    departure_date: str | None = Field(default=None, pattern=r'^\d{4}-\d{2}-\d{2}$')
+    departure_time: str | None = Field(default=None, pattern=r'^(?:[01]\d|2[0-3]):[0-5]\d$')
 
     @model_validator(mode="after")
     def locations_must_differ(self) -> "TravelTimeRequest":
+        if (self.departure_date is None) != (self.departure_time is None):
+            raise ValueError('出发日期和时间必须同时提供。')
+        if self.departure_date is not None:
+            date.fromisoformat(self.departure_date)
         if self.origin.longitude == self.destination.longitude and self.origin.latitude == self.destination.latitude:
             raise ValueError("起点和终点不能相同")
         return self

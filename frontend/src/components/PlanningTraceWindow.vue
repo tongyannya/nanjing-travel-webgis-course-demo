@@ -16,7 +16,11 @@ const follow = ref(true)
 const playing = ref(false)
 const importMessage = ref('')
 const fileInput = ref(null)
+const traceWindow = ref(null)
 const eventList = ref(null)
+let savedScroll = []
+let lastListScrollTop = 0
+let lastDetailScrollTop = 0
 let timer
 const phases = {
   request: '旅行条件',
@@ -74,10 +78,55 @@ function stop() {
   window.clearInterval(timer)
   playing.value = false
 }
-function choose(index) {
-  selected.value = index
+function pauseFollowing() {
   follow.value = false
   stop()
+}
+function scrollAreas() {
+  return [
+    ...(traceWindow.value?.querySelectorAll('.trace-events, .trace-detail, .trace-table-scroll') ||
+      []),
+  ]
+}
+function resetScroll() {
+  savedScroll = []
+  for (const area of scrollAreas()) {
+    area.scrollTop = 0
+    area.scrollLeft = 0
+  }
+  lastListScrollTop = lastDetailScrollTop = 0
+}
+function revealSelected() {
+  const list = eventList.value
+  const button = list?.querySelector('[aria-current="step"]')
+  if (!button) return
+  const bounds = list.getBoundingClientRect()
+  const item = button.getBoundingClientRect()
+  if (item.top < bounds.top) list.scrollTop += item.top - bounds.top
+  else if (item.bottom > bounds.bottom) list.scrollTop += item.bottom - bounds.bottom
+  lastListScrollTop = list.scrollTop
+}
+function onWheel(event) {
+  if (event.deltaY) pauseFollowing()
+}
+function onScrollKey(event) {
+  if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return
+  if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(event.key))
+    pauseFollowing()
+}
+function onListScroll(event) {
+  const top = event.currentTarget.scrollTop
+  if (top < lastListScrollTop) pauseFollowing()
+  lastListScrollTop = top
+}
+function onDetailScroll(event) {
+  const top = event.currentTarget.scrollTop
+  if (top !== lastDetailScrollTop) pauseFollowing()
+  lastDetailScrollTop = top
+}
+function choose(index) {
+  selected.value = index
+  pauseFollowing()
 }
 function step(offset) {
   const position = visibleEvents.value.findIndex((item) => item.index === selected.value)
@@ -100,11 +149,13 @@ function replay() {
     else stop()
   }, 1500)
 }
-function latest() {
+async function latest() {
   stop()
   filter.value = 'all'
   follow.value = true
   selected.value = Math.max(0, events.value.length - 1)
+  await nextTick()
+  if (open.value && follow.value) revealSelected()
 }
 function number(value) {
   return typeof value === 'number' ? value.toFixed(2) : '—'
@@ -161,6 +212,7 @@ async function importFile(event) {
       throw new Error('请选择导出的排程过程JSON文件。')
     stop()
     imported.value = record
+    resetScroll()
     selected.value = 0
     follow.value = false
     filter.value = 'all'
@@ -174,6 +226,7 @@ watch(
   () => {
     stop()
     imported.value = null
+    resetScroll()
     importMessage.value = ''
     selected.value = 0
     follow.value = true
@@ -186,26 +239,45 @@ watch(
     if (!follow.value) return
     selected.value = Math.max(0, length - 1)
     await nextTick()
-    eventList.value?.querySelector('[aria-current="step"]')?.scrollIntoView({ block: 'nearest' })
+    if (open.value && follow.value) revealSelected()
   },
 )
 watch(filter, () => {
   if (!visibleEvents.value.some((item) => item.index === selected.value))
     selected.value = visibleEvents.value[0]?.index || 0
 })
-watch(open, (value) => {
-  if (!value) stop()
+watch(open, async (value) => {
+  if (!value) {
+    savedScroll = scrollAreas().map((area) => [area, area.scrollTop, area.scrollLeft])
+    pauseFollowing()
+    return
+  }
+  await nextTick()
+  if (!open.value) return
+  if (follow.value) revealSelected()
+  else {
+    for (const [area, top, left] of savedScroll) {
+      area.scrollTop = top
+      area.scrollLeft = left
+    }
+    lastListScrollTop = eventList.value?.scrollTop || 0
+    lastDetailScrollTop = traceWindow.value?.querySelector('.trace-detail')?.scrollTop || 0
+  }
 })
 onBeforeUnmount(stop)
 </script>
 
 <template>
   <section
-    v-if="open"
+    v-show="open"
+    ref="traceWindow"
     class="trace-window"
     aria-label="排程过程调试窗口"
     data-testid="planning-trace"
     :data-trace-status="activeRecord?.status || 'idle'"
+    @wheel.passive="onWheel"
+    @touchmove.passive="pauseFollowing"
+    @keydown.capture="onScrollKey"
   >
     <header class="trace-header">
       <div>
@@ -256,7 +328,7 @@ onBeforeUnmount(stop)
       填写旅行条件并点击生成，这里会显示本次计算的选景、排序、交通和餐饮记录。已有方案可以打开“修改方案”后重新生成并记录。
     </p>
     <div v-else class="trace-body">
-      <nav ref="eventList" class="trace-events" aria-label="排程步骤">
+      <nav ref="eventList" class="trace-events" aria-label="排程步骤" @scroll="onListScroll">
         <button
           v-for="{ event, index } in visibleEvents"
           :key="index"
@@ -270,7 +342,12 @@ onBeforeUnmount(stop)
           <span>{{ event.title }}</span>
         </button>
       </nav>
-      <article v-if="current" class="trace-detail" data-testid="trace-detail">
+      <article
+        v-if="current"
+        class="trace-detail"
+        data-testid="trace-detail"
+        @scroll="onDetailScroll"
+      >
         <h2>{{ current.title }}</h2>
         <p v-if="current.message">{{ current.message }}</p>
         <template v-if="current.request">
@@ -443,6 +520,7 @@ onBeforeUnmount(stop)
                 <th>餐次</th>
                 <th>该日已选鸭餐</th>
                 <th>正餐候选</th>
+                <th>原普通方案餐饮</th>
                 <th>位置</th>
                 <th>本轮选择</th>
               </tr>
@@ -459,6 +537,9 @@ onBeforeUnmount(stop)
                 </th>
                 <td>{{ slot.already_selected_on_date }}</td>
                 <td>{{ slot.duck_count }}</td>
+                <td>
+                  {{ slot.ordinary_count ?? '—' }}<small>{{ slot.ordinary_area_name }}</small>
+                </td>
                 <td>{{ sourceNames[slot.source] || slot.source }}</td>
                 <td>{{ slot.selected ? '✓' : '' }}</td>
               </tr>

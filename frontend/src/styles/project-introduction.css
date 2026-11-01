@@ -146,6 +146,38 @@ body.duck-mode .map-info-window.accommodation-map-card {
   color: var(--bone-2);
   font-size: 12px;
 }
+.project-introduction__preferences {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.project-introduction__updates-link {
+  min-height: 0;
+  padding: 0;
+  color: var(--layer-accent);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  font-size: 12px;
+  text-underline-offset: 4px;
+}
+.project-introduction__updates-link:hover {
+  text-decoration: underline;
+}
+.project-introduction__publication {
+  display: block;
+  margin: 8px 0 16px;
+  color: var(--intro-heading);
+  font-size: 12px;
+}
+.project-introduction__body a {
+  color: var(--intro-heading);
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .project-introduction__dismiss input:focus-visible + span {
   outline: 2px solid var(--layer-accent);
   outline-offset: 3px;
@@ -219,6 +251,11 @@ body.duck-mode .map-info-window.accommodation-map-card {
 .project-introduction__letters small {
   color: var(--bone-2);
   font-size: 11px;
+}
+.project-introduction__letters [data-release-note] b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
   .project-introduction {

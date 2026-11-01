@@ -1148,6 +1148,15 @@ body.duck-mode .map-status {
   background: #171717;
   border-radius: 50%;
 }
+.legend-click-region {
+  box-sizing: border-box;
+  width: 8px;
+  height: 8px;
+  margin-left: 5px;
+  background: var(--legend-color);
+  border: 1px solid var(--bone);
+  transform: rotate(45deg);
+}
 .legend-overview-route {
   width: 24px;
   border-top: 3px dashed;

@@ -3,7 +3,7 @@ import HelpHint from './HelpHint.vue'
 // 住宿问卷：视觉与交互完全复用规划问卷（planning-wizard）的样式类。
 // Two branches: select an existing place or choose a recommended area.
 // Selecting a place hides the wizard for the picking session managed by useAccommodationFlow.
-// 选点确认后回到首末日题。每次打开问卷都要求重新确认首末日。
+// Picking returns to endpoints; planner edits seed the draft from confirmed answers.
 import { computed, nextTick, ref, watch } from 'vue'
 
 import { TRIP_ENDPOINT_OPTIONS } from '../planning/accommodationOptions'
@@ -82,6 +82,7 @@ const reviewStayText = computed(() => {
   }
   return props.draft?.poiLocation?.name || ''
 })
+const canContinueStay = computed(() => Boolean(reviewStayText.value))
 
 const reviewRows = computed(() => [
   { label: '住处', value: reviewStayText.value },
@@ -151,7 +152,6 @@ function handleKeydown(event) {
   if (!props.open) return
   if (event.key === 'Escape') {
     event.preventDefault()
-    close()
   }
 }
 
@@ -175,12 +175,7 @@ function endpointOptions() {
 
 <template>
   <Teleport to="body">
-    <div
-      v-if="open"
-      class="planning-wizard-backdrop"
-      data-testid="accommodation-wizard"
-      @click.self="close"
-    >
+    <div v-if="open" class="planning-wizard-backdrop" data-testid="accommodation-wizard">
       <section
         ref="dialog"
         class="planning-wizard"
@@ -215,12 +210,15 @@ function endpointOptions() {
           <template v-if="step === 'stay-choice'">
             <h2 id="accommodation-wizard-title">打算住在什么地方？</h2>
             <p v-if="confirmedName" class="planning-wizard__hint">
-              当前住宿：{{ confirmedName }}；修改后需要重新确认首日出发点和最后一天返回点。
+              当前住宿：{{
+                confirmedName
+              }}；可沿用当前住宿，或重新选择。首末日设置可在下一步查看和修改。
             </p>
             <div class="planning-wizard__options">
               <button
                 type="button"
                 class="wizard-option"
+                :class="{ active: draft?.stayMode === 'poi' }"
                 data-testid="stay-mode-search"
                 @click="emit('pick-mode', { mode: 'search_poi' })"
               >
@@ -230,6 +228,7 @@ function endpointOptions() {
               <button
                 type="button"
                 class="wizard-option"
+                :class="{ active: draft?.stayMode === 'recommend' }"
                 data-testid="stay-mode-recommend"
                 @click="emit('pick-mode', { mode: 'recommend' })"
               >
@@ -336,6 +335,15 @@ function endpointOptions() {
             上一题
           </button>
           <span></span>
+          <button
+            v-if="step === 'stay-choice' && canContinueStay"
+            type="button"
+            class="wizard-primary"
+            data-testid="accommodation-next"
+            @click="emit('back-to-step', 'endpoints')"
+          >
+            下一题
+          </button>
           <button
             v-if="step === 'endpoints' && !isReview"
             type="button"

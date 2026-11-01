@@ -20,7 +20,14 @@ const props = defineProps({
   weatherMessage: { type: String, default: '' },
 })
 const form = defineModel({ required: true })
-const emit = defineEmits(['close', 'open-full-form', 'submit', 'draft-change', 'retry-weather'])
+const emit = defineEmits([
+  'close',
+  'open-full-form',
+  'edit-accommodation',
+  'submit',
+  'draft-change',
+  'retry-weather',
+])
 
 const dialog = ref(null)
 const step = ref(0)
@@ -593,7 +600,11 @@ function handleDateCalendarOutside(event) {
   if (!dateRowEl.value?.contains(event.target)) isDateCalendarOpen.value = false
 }
 
-function editSummaryRow(row) {
+function editSummaryRow(row, trigger) {
+  if (['lodging', 'firstDayStart', 'lastDayEnd'].includes(row.id)) {
+    emit('edit-accommodation', trigger)
+    return
+  }
   const ids = {
     ...summaryQuestions,
     mustVisit: 'must',
@@ -1025,7 +1036,7 @@ onBeforeUnmount(() => {
                   type="button"
                   :data-summary-question="row.id"
                   :aria-label="`修改${row.label}`"
-                  @click="editSummaryRow(row)"
+                  @click="editSummaryRow(row, $event.currentTarget)"
                 >
                   修改
                 </button>
