@@ -1,5 +1,13 @@
 <script setup>
-import { computed, defineAsyncComponent, nextTick, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  defineAsyncComponent,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch,
+} from 'vue'
 
 import AppHeader from './components/AppHeader.vue'
 import DataSourcesDialog from './components/DataSourcesDialog.vue'
@@ -69,6 +77,8 @@ import { createTutorialScenes } from './tutorial/tutorialScenes'
 
 const attractions = ref([])
 const tutorialDemo = isTutorialDemoWindow()
+const tutorialBackground =
+  tutorialDemo && new URLSearchParams(window.location.search).get('tutorial-background') === '1'
 const {
   enabled: planningDebug,
   open: traceWindowOpen,
@@ -80,6 +90,7 @@ const PlanningTraceWindow = defineAsyncComponent(
 const HelpTutorial = defineAsyncComponent(() => import('./components/HelpTutorial.vue'))
 const isTutorialOpen = ref(false)
 const hasOpenedTutorial = ref(false)
+const backgroundTutorial = ref(false)
 watch(isTutorialOpen, (open) => {
   if (open) hasOpenedTutorial.value = true
 })
@@ -1407,6 +1418,15 @@ const prepareTutorialScene = tutorialDemo
     })
   : undefined
 
+let tutorialBackgroundTimer
+watch([mapState, isSplashVisible], ([state, splash]) => {
+  clearTimeout(tutorialBackgroundTimer)
+  if (tutorialDemo || state !== 'ready' || splash || backgroundTutorial.value) return
+  // Give the main map its first render before preparing the isolated demonstration.
+  tutorialBackgroundTimer = setTimeout(() => (backgroundTutorial.value = true), 1500)
+})
+onBeforeUnmount(() => clearTimeout(tutorialBackgroundTimer))
+
 onMounted(() => {
   // Independent tasks start together; the map reuses the shared catalog request.
   void Promise.allSettled([
@@ -1849,9 +1869,10 @@ onMounted(() => {
     @save="handleSavePlan"
   />
   <HelpTutorial
-    v-if="hasOpenedTutorial || tutorialDemo"
+    v-if="hasOpenedTutorial || backgroundTutorial || tutorialDemo"
     :open="isTutorialOpen || tutorialDemo"
     :demo="tutorialDemo"
+    :background="tutorialDemo ? tutorialBackground : true"
     :prepare-scene="prepareTutorialScene"
     :preload="prepareTutorialScene?.preload"
     :get-area-rects="getAccommodationGuideRects"
