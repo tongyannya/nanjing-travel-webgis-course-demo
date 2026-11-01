@@ -211,6 +211,7 @@ const plannerRevision = ref(0)
 const wizardFromFullForm = ref(false)
 let fullFormEdited = false
 let fullFormFromWizard = false
+let plannerAccommodationReturn = null
 const headerPlanningLabel = computed(() =>
   activePlan.value || pendingPlanningMode.value ? '重新规划' : '开始规划',
 )
@@ -865,6 +866,7 @@ const {
   onAreaPickingStarted: beginAccommodationAreaPicking,
   onAreaPickingEnded: endAccommodationAreaPicking,
   onCommitted: handleAccommodationChanged,
+  onClosed: handleAccommodationClosed,
   layerVisibility,
   searchCategory,
   selectSearchResult,
@@ -929,7 +931,7 @@ function resetLayers() {
   resetMapLayers()
 }
 
-async function handleDiningHexSelect(area, tab = 'ordinary') {
+async function handleDiningHexSelect(area, tab = 'ordinary', { focus = true } = {}) {
   diningHexReturnPanel.value = 'overview'
   const cell = snapshotIndex.value?.getCell(area.id)
   if (!cell || (tab === 'duck' && !isDuckMode.value)) return
@@ -937,10 +939,14 @@ async function handleDiningHexSelect(area, tab = 'ordinary') {
   selectedLocalShop.value = null
   selectedHexShopId.value = ''
   activeHexTab.value = tab
-  if (isDuckMode.value) layerVisibility.value.duck = true
-  if (tab === 'duck') onlyCurrentDining.value = true
-  if (tab === 'duck') focusDuckDensityArea(cell)
-  else focusDiningDensityArea(area)
+  if (isDuckMode.value) {
+    onlyCurrentDining.value = true
+    layerVisibility.value.duck = true
+  }
+  if (focus) {
+    if (tab === 'duck') focusDuckDensityArea(cell)
+    else focusDiningDensityArea(area)
+  }
   selectDockPanel('diningHex')
   if (tab === 'ordinary') await handleHexTabSelect('ordinary')
 }
@@ -948,16 +954,34 @@ async function handleDiningHexSelect(area, tab = 'ordinary') {
 async function handlePlanMealFocus(meal) {
   const item = routeMealItems(activeDay.value).find((value) => value.route_meal === meal)
   if (!item) return
-  if (!snapshotIndex.value) await loadDiningDensityAreas()
-  if (!snapshotIndex.value) return
-  if (meal.area_kind === 'duck') {
-    setDuckMode(true)
-    includeDuckTakeaway.value = false
+  mapFocusInProgress.value = true
+  try {
+    if (!snapshotIndex.value) await loadDiningDensityAreas()
+    if (
+      !snapshotIndex.value ||
+      !routeMealItems(activeDay.value).some((value) => value.route_meal === meal)
+    )
+      return
+    if (meal.area_kind === 'duck') {
+      setDuckMode(true)
+      includeDuckTakeaway.value = false
+    }
+    layerVisibility.value.mealAreas = true
+    await handleDiningHexSelect(meal.area, meal.area_kind === 'duck' ? 'duck' : 'ordinary', {
+      focus: false,
+    })
+    if (meal.area_kind === 'duck') await loadSelectedHexRestaurants()
+    if (
+      selectedDiningHex.value?.id !== meal.area.id ||
+      !routeMealItems(activeDay.value).some((value) => value.route_meal === meal)
+    )
+      return
+    diningHexReturnPanel.value = 'day'
+    await nextTick()
+    focusDiningArea(item)
+  } finally {
+    mapFocusInProgress.value = false
   }
-  layerVisibility.value.mealAreas = true
-  focusDiningArea(item)
-  await handleDiningHexSelect(meal.area, meal.area_kind === 'duck' ? 'duck' : 'ordinary')
-  diningHexReturnPanel.value = 'day'
 }
 
 function handlePlanItemFocus(item) {
@@ -970,6 +994,11 @@ async function handleHexTabSelect(tab) {
   activeHexTab.value = tab
   if (tab === 'duck') return
   selectedLocalShop.value = null
+  await loadSelectedHexRestaurants()
+}
+
+async function loadSelectedHexRestaurants() {
+  if (!selectedDiningHex.value) return
   selectDiningSnapshotCell(selectedDiningHex.value)
   layerVisibility.value.dining = true
   layerVisibility.value.nearbyDining = true
@@ -1016,24 +1045,35 @@ function handleRestaurantSelect(restaurant) {
   }
 }
 
-watch(isDuckMode, (enabled) => {
-  if (enabled) {
-    if (selectedDiningHex.value && hexDuckShops.value.length) {
-      layerVisibility.value.duck = true
-      onlyCurrentDining.value = true
-      activeHexTab.value = 'duck'
+watch(
+  isDuckMode,
+  (enabled) => {
+    if (enabled) {
+      if (
+        layerVisibility.value.diningDensity &&
+        selectedDiningHex.value &&
+        hexDuckShops.value.length
+      ) {
+        layerVisibility.value.duck = true
+        onlyCurrentDining.value = true
+        activeHexTab.value = 'duck'
+      } else {
+        layerVisibility.value.duck = false
+        resetDuckFilters()
+      }
+      return
     }
-    return
-  }
-  const duckDetail = selectedLocalShop.value?.collection === 'duck'
-  if (duckDetail) selectedLocalShop.value = null
-  selectedHexShopId.value = ''
-  if (activeHexTab.value === 'duck') {
-    selectedDiningHex.value = null
-    activeHexTab.value = 'ordinary'
-    if (activeDockPanel.value === 'diningHex' || duckDetail) selectDockPanel('overview')
-  } else if (duckDetail) selectDockPanel('overview')
-})
+    const duckDetail = selectedLocalShop.value?.collection === 'duck'
+    if (duckDetail) selectedLocalShop.value = null
+    selectedHexShopId.value = ''
+    if (activeHexTab.value === 'duck') {
+      selectedDiningHex.value = null
+      activeHexTab.value = 'ordinary'
+      if (activeDockPanel.value === 'diningHex' || duckDetail) selectDockPanel('overview')
+    } else if (duckDetail) selectDockPanel('overview')
+  },
+  { flush: 'sync' },
+)
 
 async function handleSearch() {
   layerVisibility.value.search = true
@@ -1076,7 +1116,32 @@ async function handleSubmitPlan() {
   if (planState.value === 'success' || planState.value === 'error') selectDockPanel('plans')
 }
 
-async function handleAccommodationChanged({ changed, continuePlanning }) {
+async function openPlannerAccommodation(returnTo, trigger) {
+  plannerAccommodationReturn = { returnTo, panel: activeDockPanel.value, trigger }
+  if (returnTo === 'wizard') closeWizard()
+  openAccommodationWizard(trigger, { returnTo })
+}
+
+async function restorePlannerAccommodation(returnTo) {
+  const previous = plannerAccommodationReturn
+  plannerAccommodationReturn = null
+  if (!previous || previous.returnTo !== returnTo) return
+  selectDockPanel(returnTo === 'form' ? 'planner' : previous.panel)
+  if (returnTo === 'wizard') openWizard()
+  await nextTick()
+  const target = previous.trigger
+  if (target instanceof HTMLElement && target.isConnected) target.focus()
+}
+
+function handleAccommodationClosed({ returnTo }) {
+  void restorePlannerAccommodation(returnTo)
+}
+
+async function handleAccommodationChanged({ changed, continuePlanning, returnTo }) {
+  if (returnTo) {
+    await restorePlannerAccommodation(returnTo)
+    return
+  }
   if (continuePlanning) {
     wizardFromFullForm.value = false
     wizardRevision.value += 1
@@ -1635,11 +1700,13 @@ onMounted(() => {
             @submit="handleSubmitPlan"
             @cancel="cancelPlan"
             @open-questionnaire="openQuestionnaireFromForm"
+            @edit-accommodation="openPlannerAccommodation('form', $event)"
           />
         </template>
         <template #results>
           <PlanResults
             :response="planResponse"
+            :trip-request="activeTripRequest"
             :plan-state="planState"
             :plan-message="planMessage"
             :plan-progress="planProgress"
@@ -1823,6 +1890,7 @@ onMounted(() => {
     @retry-weather="retryWeather"
     @close="closeWizard"
     @open-full-form="openFullPlanner"
+    @edit-accommodation="openPlannerAccommodation('wizard', $event)"
     @submit="handleWizardSubmit"
     @draft-change="pendingPlanningMode = 'wizard'"
   />

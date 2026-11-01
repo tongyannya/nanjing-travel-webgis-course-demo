@@ -45,6 +45,8 @@ def estimate_leg(
     from_item_id: str,
     to_item_id: str,
     *,
+    departure_date: str | None = None,
+    departure_time: str | None = None,
     travel_details_by_key: Mapping[tuple, Mapping[str, Any]] | None = None,
     transit_details_by_key: Mapping[
         TransitQueryKey, Mapping[str, Any]
@@ -53,18 +55,19 @@ def estimate_leg(
     fallback_missing_transit_to_taxi: bool = False,
 ) -> dict[str, Any]:
     distance = distance_km(first, second)
+    coordinates = transit_query_key(first, second)
     transit_key = (
-        transit_query_key(first, second)
+        transit_query_key(first, second, departure_date=departure_date, departure_time=departure_time)
         if transport_preference == "public_transit"
         else None
     )
     transit_details = (
-        transit_details_by_key.get(transit_key)
+        transit_details_by_key.get(transit_key, transit_details_by_key.get(coordinates))
         if transit_key is not None and transit_details_by_key
         else None
     )
     use_taxi_fallback = transit_key is not None and (
-        transit_key in (taxi_fallback_keys or ())
+        transit_key in (taxi_fallback_keys or ()) or coordinates in (taxi_fallback_keys or ())
         or (transit_details is not None and transit_requires_taxi(transit_details))
         or (fallback_missing_transit_to_taxi and transit_details is None)
     )
@@ -108,8 +111,11 @@ def estimate_leg(
     }
     if mode == "public_transit" and transit_details is not None:
         leg = enriched_transit_leg(leg, transit_details)
-    key = (mode, *transit_query_key(first, second))
+    key = (mode, *(transit_key if mode == 'public_transit' else coordinates))
     actual = (travel_details_by_key or {}).get(key)
+    # Retain compatibility with explicitly supplied coordinate-only offline fixtures.
+    if actual is None and mode == 'public_transit':
+        actual = (travel_details_by_key or {}).get((mode, *coordinates))
     if actual is not None:
         if mode == 'public_transit' and actual.get('transit_details') is not None:
             leg = enriched_transit_leg(leg, actual['transit_details'])

@@ -249,6 +249,8 @@ async def post_travel_time(payload: TravelTimeRequest) -> dict[str, Any]:
         origin=(payload.origin.longitude, payload.origin.latitude),
         destination=(payload.destination.longitude, payload.destination.latitude),
         mode=payload.mode,
+        **({'departure_date': payload.departure_date, 'departure_time': payload.departure_time}
+           if payload.departure_date is not None else {}),
     )
 
 

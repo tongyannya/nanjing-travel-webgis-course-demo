@@ -12,7 +12,7 @@ defineProps({
   planState: { type: String, required: true },
   hasCurrentPlan: { type: Boolean, default: false },
 })
-const emit = defineEmits(['submit', 'cancel', 'open-questionnaire', 'edited'])
+const emit = defineEmits(['submit', 'cancel', 'open-questionnaire', 'edit-accommodation', 'edited'])
 watch(form, () => emit('edited'), { deep: true, flush: 'sync' })
 
 const activeStep = ref('basic')
@@ -57,6 +57,7 @@ function showStep(step) {
       v-if="activeStep === 'basic'"
       v-model="form"
       @change-calendar="changeCalendar"
+      @edit-accommodation="emit('edit-accommodation', $event)"
     />
     <TripPlannerPreferencesStep v-else v-model="form" :attractions="attractions" />
 
@@ -67,7 +68,7 @@ function showStep(step) {
       <p class="form-submit__hint">
         {{
           activeStep === 'basic'
-            ? '确认日期和同行人员后，再设置偏好；住宿在右侧总览的“住宿安排”中设置。'
+            ? '确认住宿、日期和同行人员后，再设置偏好。'
             : `先生成${selectedPlanLabel}；其他方案可在结果页按需生成。`
         }}
       </p>

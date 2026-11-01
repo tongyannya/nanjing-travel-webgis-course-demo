@@ -74,8 +74,10 @@ export function createPlanMapLayer({
   focusedPlanLegSegmentCount,
   expandedPlanLegIds,
   fitPadding,
+  getVisibilityPadding = fitPadding,
   focusPlanItem,
   onDiningAreaSelect,
+  getPlanAreaOverlays = () => [],
 }) {
   let planMarkers = []
   let planPolyline = null
@@ -84,6 +86,13 @@ export function createPlanMapLayer({
   const viewedLegLayers = new Map()
   const roadRouteCache = new Map()
   const endpointSnapshots = new WeakMap()
+  const routeClickHandlers = new Map()
+
+  function unbindRouteClick(overlay) {
+    const handler = routeClickHandlers.get(overlay)
+    if (handler) overlay.off?.('click', handler)
+    routeClickHandlers.delete(overlay)
+  }
 
   function planEndpointSnapshot() {
     const plan = activePlan.value || activeDay.value
@@ -129,6 +138,7 @@ export function createPlanMapLayer({
     uniqueEntries.forEach(({ marker, clickHandler }) => marker.off?.('click', clickHandler))
     // Route layers are derived state: remove the old day before drawing the next one.
     const markerOverlays = uniquePlanMarkerOverlays()
+    routeClickHandlers.forEach((_, overlay) => unbindRouteClick(overlay))
     if (map && markerOverlays.length) map.remove(markerOverlays)
     if (map && planPolyline) map.remove(planPolyline)
     const viewedPolylines = [...viewedLegLayers.values()].flatMap((entry) => entry.polylines)
@@ -221,8 +231,8 @@ export function createPlanMapLayer({
     return sequences.join('·')
   }
 
-  function viewportPadding(fallback) {
-    const [top, right, bottom, left] = fitPadding(fallback)
+  function viewportPadding(fallback, visibility = false) {
+    const [top, right, bottom, left] = (visibility ? getVisibilityPadding : fitPadding)(fallback)
     return [top, bottom, left, right]
   }
 
@@ -304,7 +314,7 @@ export function createPlanMapLayer({
       })
       const clickHandler = () => {
         if (item.type === 'meal_area') onDiningAreaSelect?.(item)
-        else focusPlanItem(item, { focus: !['metro', 'station', 'airport'].includes(icon) })
+        else focusPlanItem(item)
       }
       marker.on('click', clickHandler)
       return { entries, marker, markerContent, clickHandler }
@@ -321,11 +331,14 @@ export function createPlanMapLayer({
       lineJoin: 'round',
       zIndex: 220,
     })
+    const overviewClick = () => fitPlanOverview({ preserveOverlays: [planPolyline] })
+    planPolyline.on?.('click', overviewClick)
+    routeClickHandlers.set(planPolyline, overviewClick)
     const markerOverlays = uniquePlanMarkerOverlays()
     map.add([...markerOverlays, planPolyline])
     applyPlanLayerVisibility()
     if (markerOverlays.length) {
-      map.setFitView([...markerOverlays, planPolyline], true, viewportPadding(), 13)
+      fitPlanOverview()
     }
   }
 
@@ -333,19 +346,88 @@ export function createPlanMapLayer({
     return `${leg?.from_item_id || ''}-${leg?.to_item_id || ''}`
   }
 
-  function fitPlanOverview({ immediately = true } = {}) {
+  function overlayPoints(overlay) {
+    const path = overlay.getPath?.()
+    if (path?.length) return path
+    const bounds = overlay.getBounds?.()
+    if (bounds) return [bounds.getSouthWest(), bounds.getNorthEast()]
+    const position = overlay.getPosition?.()
+    return position ? [position] : []
+  }
+
+  function overlaysFitCurrentViewport(overlays) {
+    const { map } = getMapContext()
+    const paths = overlays.flatMap(overlayPoints)
+    if (!paths.length || !map.lngLatToContainer || !map.getSize) return false
+    const size = map.getSize()
+    const [top, bottom, left, right] = viewportPadding(undefined, true)
+    // Fit padding already includes breathing room; allow projection rounding at its edge.
+    const tolerance = 2
+    const inside = paths.every((point) => {
+      const pixel = map.lngLatToContainer(point)
+      const x = pixel.getX?.() ?? pixel.x
+      const y = pixel.getY?.() ?? pixel.y
+      return (
+        x >= left - tolerance &&
+        x <= size.width - right + tolerance &&
+        y >= top - tolerance &&
+        y <= size.height - bottom + tolerance
+      )
+    })
+    if (!inside) return false
+    const container = map.getContainer?.().getBoundingClientRect()
+    if (!container) return true
+    // Marker labels and sequence badges may extend beyond their geographic anchor.
+    return overlays.every((overlay) => {
+      const content = overlay.getContent?.()
+      if (!(content instanceof Element) || !content.isConnected) return true
+      return [content, ...content.querySelectorAll('*')].every((node) => {
+        const rect = node.getBoundingClientRect()
+        if (!rect.width || !rect.height) return true
+        return (
+          rect.left >= container.left + left - tolerance &&
+          rect.right <= container.right - right + tolerance &&
+          rect.top >= container.top + top - tolerance &&
+          rect.bottom <= container.bottom - bottom + tolerance
+        )
+      })
+    })
+  }
+
+  function overviewOverlays() {
+    return [
+      ...uniquePlanMarkerOverlays(),
+      planPolyline,
+      ...getPlanAreaOverlays(),
+      ...expandedPlanLegIds.value.flatMap((id) => viewedLegLayers.get(id)?.polylines || []),
+    ].filter(Boolean)
+  }
+
+  function shouldPreserveOverlays(overlays) {
+    const { map } = getMapContext()
+    if (!map || !routeLayerVisible.value || !overlays.length) return false
+    const fitted = map.getFitZoomAndCenterByOverlays?.(overviewOverlays(), viewportPadding(), 20)
+    if (!fitted) return false
+    // AMap's default getZoom() rounds to two decimals; compare precise levels so an
+    // unchanged overview is not mistaken for a farther view after rounding down.
+    const currentZoom = map.getZoom(10)
+    return currentZoom >= fitted[0] - 1e-8 && overlaysFitCurrentViewport(overlays)
+  }
+
+  function shouldPreservePlanItemView(item) {
+    const areas = ['meal_area', 'route_meal'].includes(item?.type)
+      ? getPlanAreaOverlays(item.item_id)
+      : []
+    const marker = planMarkers.find((entry) => entry.item.item_id === item?.item_id)?.marker
+    return shouldPreserveOverlays(areas.length ? areas : marker ? [marker] : [])
+  }
+
+  function fitPlanOverview({ immediately = true, preserveLeg = null, preserveOverlays = [] } = {}) {
     const { map } = getMapContext()
     if (!map || !planMarkers.length) return
-    map.setFitView(
-      [
-        ...uniquePlanMarkerOverlays(),
-        planPolyline,
-        ...expandedPlanLegIds.value.flatMap((id) => viewedLegLayers.get(id)?.polylines || []),
-      ].filter(Boolean),
-      immediately,
-      viewportPadding(),
-      13,
-    )
+    const padding = viewportPadding()
+    if (shouldPreserveOverlays(preserveLeg?.polylines || preserveOverlays)) return
+    map.setFitView(overviewOverlays(), immediately, padding, 20)
   }
 
   function clearFocusedPlanLeg({ fitOverview = false } = {}) {
@@ -406,9 +488,21 @@ export function createPlanMapLayer({
     if (!map || !polylines.length) return null
     const previous = viewedLegLayers.get(identifier)
     if (previous?.polylines?.length && previous.polylines !== polylines) {
+      previous.polylines.forEach(unbindRouteClick)
       map.remove(previous.polylines)
     }
     const entry = { geometry, polylines }
+    if (!previous || previous.polylines !== polylines) {
+      polylines.forEach((polyline) => {
+        const click = () => {
+          if (!expandedPlanLegIds.value.includes(identifier)) return
+          focusedPlanLegId.value = identifier
+          focusViewedLeg(entry, { identifier })
+        }
+        polyline.on?.('click', click)
+        routeClickHandlers.set(polyline, click)
+      })
+    }
     viewedLegLayers.set(identifier, entry)
     if (!previous || previous.polylines !== polylines) map.add(polylines)
     applyPlanLayerVisibility()
@@ -421,7 +515,7 @@ export function createPlanMapLayer({
     focusedPlanLegGeometry.value = entry.geometry
     focusedPlanLegSegmentCount.value = entry.polylines.length
     applyPlanLayerVisibility()
-    fitPlanOverview()
+    fitPlanOverview({ preserveLeg: entry })
   }
 
   function roadRouteCacheKey(leg, fromEntry, toEntry) {
@@ -526,11 +620,10 @@ export function createPlanMapLayer({
         focusedPlanLegSegmentCount.value = 0
       }
       applyPlanLayerVisibility()
-      fitPlanOverview()
+      fitPlanOverview({ preserveLeg: viewedLegLayers.get(identifier) })
       return
     }
-    clearFocusedPlanLeg()
-    expandedPlanLegIds.value = [identifier]
+    expandedPlanLegIds.value = [...expandedPlanLegIds.value, identifier]
     await showPlanLeg(leg)
   }
 
@@ -554,8 +647,7 @@ export function createPlanMapLayer({
       expandedPlanLegIds.value.join(',') !== identifiers.join(',')
     )
       return
-    const routes = identifiers.flatMap((id) => viewedLegLayers.get(id)?.polylines || [])
-    map.setFitView([...uniquePlanMarkerOverlays(), ...routes], true, viewportPadding(), 13)
+    fitPlanOverview()
   }
 
   function reset() {
@@ -583,6 +675,7 @@ export function createPlanMapLayer({
     applyPlanLayerVisibility,
     renderActivePlanOnMap,
     fitPlanOverview,
+    shouldPreservePlanItemView,
     clearFocusedPlanLeg,
     focusPlanLeg,
     toggleAllPlanLegs,

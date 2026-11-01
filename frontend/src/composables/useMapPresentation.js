@@ -97,16 +97,7 @@ export function useMapPresentation({
   })
 
   function showOnlyGeneratedRoute() {
-    const previous = layerVisibility.value
-    layerVisibility.value = {
-      ...GENERATED_ROUTE_LAYER_VISIBILITY,
-      diningDensity: previous.diningDensity,
-      nanjingCuisine: previous.nanjingCuisine,
-      dining: previous.dining && previous.nanjingCuisine,
-      duckDensity: previous.duckDensity,
-      duck: previous.duck,
-      currentLodging: previous.currentLodging,
-    }
+    layerVisibility.value = { ...GENERATED_ROUTE_LAYER_VISIBILITY }
   }
 
   watch(planState, (state, previousState) => {
@@ -179,14 +170,22 @@ export function useMapPresentation({
   )
 
   async function handlePlanItemFocus(item) {
-    focusPlanItem(item)
-    if (item?.type !== 'meal_area') return
-    selectMealArea(item)
-    if (selectedLocalShop) selectedLocalShop.value = null
-    focusDiningArea(item)
-    layerVisibility.value.dining = true
-    layerVisibility.value.nearbyDining = true
-    selectDockPanel('diningArea')
+    if (item?.type !== 'meal_area') {
+      focusPlanItem(item)
+      return
+    }
+    if (mapFocusInProgress) mapFocusInProgress.value = true
+    try {
+      selectMealArea(item)
+      if (selectedLocalShop) selectedLocalShop.value = null
+      layerVisibility.value.dining = true
+      layerVisibility.value.nearbyDining = true
+      selectDockPanel('diningArea')
+      await nextTick()
+      focusDiningArea(item)
+    } finally {
+      if (mapFocusInProgress) mapFocusInProgress.value = false
+    }
     await loadRestaurants()
   }
 

@@ -262,16 +262,17 @@ export function useTravelMap({
     focusedPlanLegGeometry,
     focusedPlanLegSegmentCount,
     expandedPlanLegIds,
-    fitPadding,
+    fitPadding: planFitPadding,
+    getVisibilityPadding: planVisibilityPadding,
     focusPlanItem,
     onDiningAreaSelect,
+    getPlanAreaOverlays: (itemId) => diningMapLayers?.getAreaOverlays(itemId) || [],
   })
   const {
     clearPlanLayers,
     applyPlanLayerVisibility,
     renderActivePlanOnMap,
     fitPlanOverview,
-    clearFocusedPlanLeg,
     focusPlanLeg,
     toggleAllPlanLegs,
   } = planLayer
@@ -449,6 +450,61 @@ export function useTravelMap({
       sequenceByItemId,
       visible: diningAreaLayerVisible.value,
     })
+  }
+
+  function planFitPadding(fallback, clearance = 16) {
+    const padding = fitPadding(fallback)
+    const container = map?.getContainer?.()
+    if (!container) return padding
+    const bounds = container.getBoundingClientRect()
+    // Route and meal fits must also avoid the visible status and duck-theme banners.
+    for (const node of container.parentElement?.querySelectorAll(
+      '.map-status, .duck-map-decoration__bar',
+    ) || []) {
+      const rect = node.getBoundingClientRect()
+      if (
+        rect.width &&
+        rect.height &&
+        rect.right > bounds.left + padding[3] &&
+        rect.left < bounds.right - padding[1]
+      ) {
+        padding[0] = Math.max(padding[0], rect.bottom - bounds.top + clearance)
+      }
+    }
+    return padding
+  }
+
+  function planVisibilityPadding(fallback) {
+    const container = map?.getContainer?.()
+    const root = container?.closest('.app-shell') || container?.parentElement
+    if (!root) return fitPadding(fallback)
+    const bounds = container.getBoundingClientRect()
+    const padding = [0, 0, 0, 0]
+    const visibleRects = (selector) =>
+      [...root.querySelectorAll(selector)]
+        .map((node) => node.getBoundingClientRect())
+        .filter(
+          (rect) =>
+            rect.width &&
+            rect.height &&
+            rect.right > bounds.left &&
+            rect.left < bounds.right &&
+            rect.bottom > bounds.top &&
+            rect.top < bounds.bottom,
+        )
+    // Fitting leaves comfortable margins. Visibility only excludes actual panels,
+    // so a marker inside that margin is still treated as fully visible.
+    for (const rect of visibleRects('.layer-sidebar'))
+      padding[3] = Math.max(padding[3], rect.right - bounds.left)
+    for (const rect of visibleRects('.info-dock'))
+      padding[1] = Math.max(padding[1], bounds.right - rect.left)
+    for (const rect of visibleRects('.route-timeline'))
+      padding[2] = Math.max(padding[2], bounds.bottom - rect.top)
+    for (const rect of visibleRects('.app-header, .map-status, .duck-map-decoration__bar')) {
+      if (rect.right > bounds.left + padding[3] && rect.left < bounds.right - padding[1])
+        padding[0] = Math.max(padding[0], rect.bottom - bounds.top)
+    }
+    return padding
   }
 
   function syncDiningDensityLayers() {
@@ -649,7 +705,10 @@ export function useTravelMap({
       diningMapLayers = createDiningMapLayers({
         AMap,
         map,
-        getFitPadding: () => fitPadding([130, 110, 180, 110]),
+        getFitPadding: () => {
+          const [top, right, bottom, left] = planFitPadding([130, 110, 180, 110])
+          return [top, bottom, left, right]
+        },
         onAreaSelect: onDiningAreaSelect,
         onRestaurantSelect: (restaurant) => {
           focusLocation(restaurant, restaurant.name, 'search', {
@@ -794,14 +853,18 @@ export function useTravelMap({
   }
 
   function focusPlanItem(item, { focus = true } = {}) {
-    clearFocusedPlanLeg()
+    const move = focus && !planLayer.shouldPreservePlanItemView(item)
     if (item?.type === 'attraction') {
       const attraction = attractions.value.find((candidate) => candidate.id === item.ref_id)
       // Route nodes only carry the PlanResponse snapshot. Reuse the formal attraction path so
       // map and dock details stay identical to clicking the underlying attraction marker.
-      if (attraction && focusAttraction(attraction)) return
+      if (
+        attraction &&
+        focusAttraction(attraction, { kind: 'attraction', item: attraction, focus: move })
+      )
+        return
     }
-    focusLocation(item, item.name, 'search', { kind: 'plan', item, focus })
+    focusLocation(item, item.name, 'search', { kind: 'plan', item, focus: move })
     if (item.type === 'duck_restaurant') {
       guideSelectedRestaurant.value = {
         ...item.duck_restaurant,
@@ -817,7 +880,9 @@ export function useTravelMap({
   }
 
   function focusDiningArea(item) {
-    diningMapLayers?.selectArea(item?.item_id, { focus: Boolean(item) })
+    diningMapLayers?.selectArea(item?.item_id, {
+      focus: Boolean(item) && !planLayer.shouldPreservePlanItemView(item),
+    })
   }
 
   function focusDiningDensityArea(area) {

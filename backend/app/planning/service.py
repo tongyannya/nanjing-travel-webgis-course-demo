@@ -50,6 +50,7 @@ def generate_plans(
     fallback_missing_transit_to_taxi: bool = False,
     plan_types: Sequence[PlanType] | None = None,
     repair_records: dict[str, dict[str, Any]] | None = None,
+    selection_orders: dict[str, list[str]] | None = None,
 ) -> dict[str, Any]:
     """Generate the requested plan variants and validate the public response contract."""
     selected_plan_types = tuple(plan_types) if plan_types is not None else PLAN_TYPES
@@ -60,6 +61,9 @@ def generate_plans(
     ):
         raise ValueError("plan_types 必须是非空、无重复的有效方案类型序列")
     priority_reservations = {plan_type: {} for plan_type in selected_plan_types}
+    selection_orders = selection_orders if selection_orders is not None else {}
+    for plan_type in selected_plan_types:
+        selection_orders[plan_type] = []
     priority_day_targets = {plan_type: {} for plan_type in selected_plan_types}
     progress('selection', '正在根据开放时间和偏好安排各日景点…')
     result = {
@@ -77,6 +81,7 @@ def generate_plans(
                 fallback_missing_transit_to_taxi=fallback_missing_transit_to_taxi,
                 priority_reservations=priority_reservations[plan_type],
                 priority_day_targets=priority_day_targets[plan_type],
+                selection_order=selection_orders.setdefault(plan_type, []),
             )
             for plan_type in selected_plan_types
         ],
@@ -93,6 +98,12 @@ def generate_plans(
     ), request=request, priority_reservations=priority_reservations[plan['plan_type']],
         repair_records=(repair_records.setdefault(plan['plan_type'], {})
         if repair_records is not None else None)) for plan in result['plans']]
+    # Local gap repair may admit a replacement after the original selection.
+    # Cross-day exchanges keep the original attraction's admission rank.
+    for plan in result['plans']:
+        order = selection_orders[plan['plan_type']]
+        order.extend(item['ref_id'] for day in plan['days'] for item in day['items']
+                     if item['type'] == 'attraction' and item['ref_id'] not in order)
     before = response_snapshot(result)
     progress('repair', '正在检查每天的景点距离和游览顺序…')
     result = review_long_distance_days(request, result, traffic=dict(
@@ -100,7 +111,8 @@ def generate_plans(
         transit_details_by_key=transit_details_by_key,
         taxi_fallback_keys=taxi_fallback_keys,
         fallback_missing_transit_to_taxi=fallback_missing_transit_to_taxi),
-        repair_records=repair_records, priority_day_targets=priority_day_targets)
+        repair_records=repair_records, priority_day_targets=priority_day_targets,
+        selection_orders=selection_orders)
     snapshot('repair', '8公里检查及重排当天顺序优化完成，准备查询高德', result,
              previous_plans=before)
     errors = sorted(

@@ -41,7 +41,8 @@ def _day_request(request, plan, index):
                        day_index_offset=index)
 
 
-def review_long_distance_days(request, response, *, traffic=None, repair_records=None, priority_day_targets=None):
+def review_long_distance_days(request, response, *, traffic=None, repair_records=None, priority_day_targets=None,
+                              selection_orders=None):
     result = deepcopy(response)
     catalog = {item['id']: item for item in load_attractions()}
     for plan in result['plans']:
@@ -64,8 +65,10 @@ def review_long_distance_days(request, response, *, traffic=None, repair_records
                  function='review_long_distance_days / build_plan')
             local, options = _day_request(request, plan, index)
             reservations = {}
+            candidate_selection = []
             candidate = build_plan(plan['plan_type'], local, priority_reservations=reservations,
                                    priority_day_targets=targets, priority_trip_request=request,
+                                   selection_order=candidate_selection,
                                    **options, **(traffic or {}))
             checked = optimize_visit_order(candidate, lambda orders: build_plan(
                 plan['plan_type'], local, visit_sequences=orders, preserve_visit_order=True,
@@ -82,6 +85,10 @@ def review_long_distance_days(request, response, *, traffic=None, repair_records
                      function='review_long_distance_days')
                 continue
             plan['days'][index] = new
+            if selection_orders is not None:
+                order = selection_orders.setdefault(plan['plan_type'], [])
+                order[:] = [key for key in order if key not in ids]
+                order.extend(candidate_selection)
             changed_plan = True
             if repair_records is not None:
                 repair_records.get(plan['plan_type'], {}).pop(old['date'], None)

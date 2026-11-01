@@ -95,7 +95,7 @@ export function createDiningMapLayers({
       if (selected) selectedEntry = entry
     })
     if (focus && selectedEntry) {
-      map.setFitView([selectedEntry.overlay], true, getFitPadding(), 15)
+      map.setFitView([selectedEntry.overlay, selectedEntry.labelOverlay], true, getFitPadding(), 20)
     }
   }
 
@@ -318,6 +318,10 @@ export function createDiningMapLayers({
     clearRestaurants,
     destroy,
     getAreaCount: () => areaEntries.length,
+    getAreaOverlays: (itemId) =>
+      areaEntries
+        .filter((entry) => !itemId || entry.items.some((item) => item.item_id === itemId))
+        .flatMap((entry) => [entry.overlay, entry.labelOverlay]),
     getRestaurantCount: () => restaurantEntries.length,
     renderAreas,
     renderRestaurants,

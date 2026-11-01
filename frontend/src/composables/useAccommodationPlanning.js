@@ -263,14 +263,31 @@ export function useAccommodationPlanning({ tripForm }) {
     accommodationStep.value = 'stay-choice'
   }
 
-  // 再次修改：住宿值回显（片区/名称提示），首末日一律清空重新选择。
-  function startEditDraft() {
-    const confirmed = confirmedAccommodation.value
+  // Planner edits reuse confirmed answers; standalone accommodation keeps its original reset flow.
+  function startEditDraft({ preserveEndpoints = false } = {}) {
+    const confirmed = confirmedFromForm(tripForm.value)
+    const endpoints = {}
+    if (preserveEndpoints && confirmed) {
+      for (const field of Object.values(ENDPOINT_FIELDS)) {
+        const location = confirmed[field]?.location
+        endpoints[field] = location
+          ? {
+              kind: 'poi',
+              poi: {
+                name: location.name,
+                location: JSON.parse(JSON.stringify(location.location)),
+                type: location.source_method === 'station' ? '交通服务;火车站' : '',
+                searchIcon: location.display_icon || '',
+              },
+            }
+          : { kind: 'lodging' }
+      }
+    }
     const draft = {
       stayMode: confirmed?.areaId ? 'recommend' : confirmed ? 'poi' : null,
       areaId: confirmed?.areaId || null,
       poiLocation: confirmed?.location ? JSON.parse(JSON.stringify(confirmed.location)) : null,
-      endpoints: {},
+      endpoints,
     }
     accommodationDraft.value = draft
     accommodationStep.value = 'stay-choice'

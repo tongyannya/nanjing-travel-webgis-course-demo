@@ -125,8 +125,10 @@ def fold_meal_breaks(response: dict[str, Any]) -> dict[str, Any]:
                     'meal_kind': item['meal_kind'], 'start_time': item['start_time'],
                     'end_time': item['end_time'], 'duration_minutes': 60,
                     'area_kind': 'ordinary', 'area': None, 'match_source': 'unmatched',
-                    'elapsed_minutes': 0, 'message': '途中预留1小时用餐',
-                } for item in old_items[left + 1:right] if item.get('meal_kind') in MEAL_WINDOWS]
+                    'elapsed_minutes': sum(value['duration_minutes_rounded'] for value in old_legs[left:item_index]),
+                    'message': '途中预留1小时用餐',
+                } for item_index, item in enumerate(old_items[left + 1:right], start=left + 1)
+                    if item.get('meal_kind') in MEAL_WINDOWS]
                 legs.append(leg)
             day['items'] = [old_items[index] for index in kept]
             day['legs'] = legs
@@ -135,7 +137,7 @@ def fold_meal_breaks(response: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _feasible_candidates(meal, leg, previous, following, candidates, duck=False):
+def _feasible_candidates(meal, leg, previous, following, candidates, duck=False, *, preserve_timing=False):
     earliest, window_end = MEAL_WINDOWS[meal['meal_kind']]
     earliest = min(earliest, minutes(meal['start_time']))
     latest = min(window_end - 60, minutes(following['start_time']) - 60)
@@ -148,9 +150,16 @@ def _feasible_candidates(meal, leg, previous, following, candidates, duck=False)
             continue
         enter, exit = candidate['enter'], candidate['exit']
         # Choose an arrival point within the polygon's time interval, not its center.
-        elapsed = max(enter, min(exit, earliest - departure))
-        elapsed = max(0, min(total, math.ceil(elapsed - 1e-8)))
-        start = max(earliest, departure + elapsed)
+        if preserve_timing:
+            # Moving a meal across a checked transit would change its boarding time.
+            elapsed = meal['elapsed_minutes']
+            start = minutes(meal['start_time'])
+            if not enter - 1e-8 <= elapsed <= exit + 1e-8:
+                continue
+        else:
+            elapsed = max(enter, min(exit, earliest - departure))
+            elapsed = max(0, min(total, math.ceil(elapsed - 1e-8)))
+            start = max(earliest, departure + elapsed)
         if start > latest or start + 60 + total - elapsed > minutes(following['start_time']):
             continue
         if candidate['source'] == 'endpoint':
@@ -163,7 +172,7 @@ def _feasible_candidates(meal, leg, previous, following, candidates, duck=False)
     return sorted(valid, key=lambda value: value[0])
 
 
-def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
+def assign_hex_meals(response: dict[str, Any], *, preserve_transit_departures=False) -> dict[str, Any]:
     from .hex_matching import route_hex_candidates
     result = fold_meal_breaks(response)
     snapshot('dining', '将预留饭点连接到相邻地点间的交通段', result)
@@ -175,8 +184,9 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                 previous, following = items[leg['from_item_id']], items[leg['to_item_id']]
                 candidates = route_hex_candidates(leg, previous, following)
                 for meal in leg['meals']:
-                    ordinary = _feasible_candidates(meal, leg, previous, following, candidates)
-                    duck = _feasible_candidates(meal, leg, previous, following, candidates, duck=True)
+                    timing = preserve_transit_departures and leg['mode'] == 'public_transit'
+                    ordinary = _feasible_candidates(meal, leg, previous, following, candidates, preserve_timing=timing)
+                    duck = _feasible_candidates(meal, leg, previous, following, candidates, duck=True, preserve_timing=timing)
                     if ordinary:
                         _apply_candidate(meal, ordinary[0], 'ordinary')
                     if tracing():
@@ -195,7 +205,13 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                              ordinary_candidates=options(ordinary), duck_candidates=options(duck),
                              function='route_hex_candidates / _feasible_candidates')
                     if plan['plan_type'] == 'duck' and duck:
-                        duck_slots.append((duck[0][0], day['date'], meal['meal_kind'], meal, duck[0]))
+                        duck_rank, duck_candidate, elapsed, _ = duck[0]
+                        ordinary_area = ordinary[0][1]['area'] if ordinary else None
+                        # Preserve the richer ordinary meal when equally good duck meals compete.
+                        # Travel-position ties apply only after the ordinary alternative's count.
+                        rank = (duck_rank[0], ordinary_area['ordinary_count'] if ordinary_area else 0,
+                                duck_rank[1], elapsed, duck_candidate['area']['id'])
+                        duck_slots.append((rank, day['date'], meal['meal_kind'], meal, duck[0], ordinary_area))
         if plan['plan_type'] == 'duck':
             target = DUCK_MEAL_TARGETS[len(plan['days'])]
             remaining = list(duck_slots)
@@ -209,13 +225,15 @@ def assign_hex_meals(response: dict[str, Any]) -> dict[str, Any]:
                 meals_per_day[slot[1]] = meals_per_day.get(slot[1], 0) + 1
                 if tracing():
                     emit('dining', f"第{len(selected)}次鸭餐：{slot[1]}{'午餐' if slot[2] == 'lunch' else '晚餐'}",
-                         message='先比较该日期已安排的鸭餐数量，再比较鸭类正餐候选数、是否位于路线端点等。',
+                         message='先尽量分散日期，再优先鸭类正餐候选多的餐次；鸭餐数量相同时，优先将原普通方案餐饮较少的餐次改为鸭餐，保留普通餐饮选择较多的一顿。仍相同才比较交通位置。',
                          duck_slots=[{'date': value[1], 'meal_kind': value[2], 'selected': value is slot,
                                       'already_selected_on_date': meals_per_day.get(value[1], 0) - (1 if value[1] == slot[1] else 0),
                                       'area_name': value[4][1]['area']['name'], 'duck_count': value[4][1]['area']['duck_meal_count'],
+                                      'ordinary_count': value[0][1],
+                                      'ordinary_area_name': value[5]['name'] if value[5] else None,
                                       'source': value[4][1]['source']} for value in [slot, *remaining]],
                          function='assign_hex_meals')
-            for _, _, _, meal, candidate in selected:
+            for _, _, _, meal, candidate, _ in selected:
                 _apply_candidate(meal, candidate, 'duck')
             plan['summary'] = f'按轻松节奏安排景点，途中安排{len(selected)}次南京鸭用餐区域，其余餐次自由选择普通餐饮。'
             if len(selected) < target:

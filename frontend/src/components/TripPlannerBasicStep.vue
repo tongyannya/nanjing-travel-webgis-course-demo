@@ -4,7 +4,7 @@ import UiDateTime from './UiDateTime.vue'
 import { computed, ref } from 'vue'
 
 const form = defineModel({ required: true })
-const emit = defineEmits(['change-calendar'])
+const emit = defineEmits(['change-calendar', 'edit-accommodation'])
 const timeHints = ref({})
 
 function changeTime(day) {
@@ -22,6 +22,25 @@ function changeTime(day) {
 }
 
 const partyLabels = { adult: '成人', student: '学生', child: '儿童' }
+const accommodationRows = computed(() => [
+  {
+    id: 'accommodation',
+    label: '当前住宿',
+    value: form.value.accommodationConfirmed ? form.value.lodging?.name || '未安排' : '未安排',
+  },
+  {
+    id: 'first-start',
+    label: '首日起点',
+    value: form.value.useFirstDayStart
+      ? form.value.firstDayStart?.name || '未安排'
+      : '住处，不额外设置',
+  },
+  {
+    id: 'last-end',
+    label: '末日终点',
+    value: form.value.useLastDayEnd ? form.value.lastDayEnd?.name || '未安排' : '住处，不额外设置',
+  },
+])
 const partyTotal = computed(() =>
   Object.values(form.value.party).reduce((sum, value) => sum + Number(value || 0), 0),
 )
@@ -30,7 +49,25 @@ const partyTotal = computed(() =>
 <template>
   <div class="planner-step" data-testid="planner-basic-step">
     <div class="planner-step__heading">
-      <strong>基本信息</strong><span>日期 · 时间 · 人数</span>
+      <strong>基本信息</strong><span>住宿 · 日期 · 时间 · 人数</span>
+    </div>
+
+    <div
+      v-for="row in accommodationRows"
+      :key="row.id"
+      class="planner-accommodation"
+      :data-testid="`planner-${row.id}`"
+    >
+      <span>{{ row.label }}</span>
+      <strong>{{ row.value }}</strong>
+      <button
+        type="button"
+        class="planner-accommodation__edit"
+        :data-testid="`planner-edit-${row.id}`"
+        @click="emit('edit-accommodation', $event.currentTarget)"
+      >
+        修改
+      </button>
     </div>
 
     <section class="form-section first-section">
@@ -113,7 +150,7 @@ const partyTotal = computed(() =>
           />
         </label>
       </div>
-      <p class="form-hint">共 {{ partyTotal }} 人；住宿和首末日起终点在“住宿安排”中设置。</p>
+      <p class="form-hint">共 {{ partyTotal }} 人；住宿和首末日起终点可通过上方“修改”设置。</p>
     </section>
   </div>
 </template>

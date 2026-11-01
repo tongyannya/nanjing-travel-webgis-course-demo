@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any
+from typing import Any, Mapping, Sequence
 
 from .route_order import visit_orders
 from .schedule import build_plan
@@ -14,12 +14,14 @@ from .trace import emit, tracing, plan_snapshot
 def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *,
                             repaired_days: set[tuple[str, str]],
                             repair_records: dict[str, dict[str, Any]] | None = None,
+                            selection_orders: Mapping[str, Sequence[str]] | None = None,
                             **traffic) -> dict[str, Any]:
     """Keep feasible days' order and repair only conflicting days.
 
     Each day permits at most one accepted local move; later repairs only remove
     visits, so orders cannot oscillate. No new attractions are selected.
-    Optional predecessors yield to must-visits and fixed response nodes.
+    Roll back the latest-admitted optional visit that can affect the conflict,
+    preserving must-visits and fixed response nodes before optional visits.
     Existing opening, budget, meal and endpoint rules remain in build_plan.
     """
     result = deepcopy(response)
@@ -29,6 +31,12 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
     for index, previous in enumerate(response['plans']):
         trace_names = {item['ref_id']: item['name'] for day in previous['days'] for item in day['items'] if item['type'] == 'attraction'} if tracing() else {}
         orders = visit_orders(previous)
+        selection_order = (selection_orders or {}).get(previous['plan_type'], ())
+        # Compatibility for direct callers with an already selected response.
+        # Production supplies the pre-optimization history across every rebuild.
+        selection_order = list(selection_order)
+        selection_order.extend(key for ids in orders.values() for key in ids if key not in selection_order)
+        ranks = {key: index for index, key in enumerate(selection_order)}
         while True:
             plan = build_plan(previous['plan_type'], request, visit_sequences=orders,
                               preserve_visit_order=True, **traffic)
@@ -68,12 +76,16 @@ def reschedule_fixed_routes(request: dict[str, Any], response: dict[str, Any], *
                             break
                     if orders[date] != original:
                         continue
-            predecessors = orders[date][:orders[date].index(attraction_id)]
-            optional = [value for value in predecessors if value not in mandatory]
-            removed = optional[-1] if attraction_id in mandatory and optional else attraction_id
+            # Visits after the conflict cannot delay it. Roll back a contributor
+            # in this prefix by admission rank, not by its optimized position.
+            prefix = orders[date][:orders[date].index(attraction_id) + 1]
+            optional = [value for value in prefix if value not in mandatory]
+            removed = max(optional, key=ranks.__getitem__) if optional else attraction_id
             orders[date].remove(removed)
-            emit('traffic', f'{date}：移出当前无法容纳的景点',
-                 message=f'{trace_names.get(removed, removed)}；保留必去景点优先，继续核对当前日期。', function='reschedule_fixed_routes')
+            emit('traffic', f'{date}：按选入先后撤回景点', removed_id=removed,
+                 conflicting_id=attraction_id, selection_order=selection_order,
+                 message=f'{trace_names.get(removed, removed)}；按最晚选入优先撤回，保留必去／锁定优先，继续核对当前日期。',
+                 function='reschedule_fixed_routes')
 
         removed = [item for day in previous['days'] for item in day['items']
                    if item['type'] == 'attraction' and item['ref_id'] not in kept]
