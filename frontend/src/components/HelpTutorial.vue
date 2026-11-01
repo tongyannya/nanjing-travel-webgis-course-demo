@@ -13,6 +13,7 @@ import TutorialLoading from './TutorialLoading.vue'
 const props = defineProps({
   demo: { type: Boolean, default: false },
   open: { type: Boolean, default: true },
+  background: { type: Boolean, default: false },
   prepareScene: { type: Function, default: async () => {} },
   preload: { type: Function, default: async () => {} },
   getAreaRects: { type: Function, default: () => [] },
@@ -42,7 +43,9 @@ const error = ref('')
 const frameReady = ref(false)
 const frameLoaded = ref(false)
 const frameMounted = ref(true)
-const active = ref(props.open)
+const active = ref(props.open && !(props.demo && props.background))
+const demoBodyWasInert = document.body.inert
+if (props.demo && !active.value) document.body.inert = true
 const leaders = computed(() =>
   highlights.value.map((target) => tutorialLeader(card.value, target)).filter(Boolean),
 )
@@ -55,6 +58,7 @@ const maskClip = computed(() => `path(evenodd, "${maskPath.value}")`)
 const frameUrl = computed(() => {
   const url = new URL(window.location.href)
   url.search = '?tutorial-demo=1&splash=0'
+  if (props.background) url.searchParams.set('tutorial-background', '1')
   url.hash = ''
   return url.href
 })
@@ -70,7 +74,7 @@ function close() {
   else emit('close')
 }
 function measure() {
-  if (!active.value) return
+  if (!active.value && !props.demo) return
   viewport.value = { width: window.innerWidth, height: window.innerHeight }
   if (status.value === 'switching') return
   let targets =
@@ -132,7 +136,7 @@ async function prepare() {
       const start = performance.now()
       const result = await props.preload(task.signal, (stage) => (loadingStage.value = stage))
       await nextTick()
-      await loadingAnimation.value?.finish()
+      if (active.value) await loadingAnimation.value?.finish()
       if (disposed || task.signal.aborted) return
       preloadMs.value = Math.round(performance.now() - start)
       preloadFailures.value = result?.failedSteps || []
@@ -149,7 +153,7 @@ async function prepare() {
       announcedLoaded = true
       window.parent.postMessage({ type: 'webgis-tutorial-loaded' }, window.location.origin)
     }
-    nextButton.value?.focus()
+    if (active.value) nextButton.value?.focus()
   } catch (failure) {
     if (disposed || task.signal.aborted) return
     displayedIndex.value = requestedIndex
@@ -195,6 +199,7 @@ function dismissStepMenu(event) {
 function retryFrame() {
   error.value = ''
   frameReady.value = false
+  frameLoaded.value = false
   frameElement.value.src = frameUrl.value
   startDeadline()
 }
@@ -204,16 +209,27 @@ function startDeadline() {
     if (!frameReady.value) error.value = '演示页面尚未打开，可以重试或退出教程。'
   }, 30000)
 }
+function sendFrameMessage(type) {
+  frameElement.value?.contentWindow.postMessage({ type }, window.location.origin)
+}
 function receive(event) {
   if (props.demo) {
     if (event.source !== window.parent || event.origin !== window.location.origin) return
     if (event.data?.type === 'webgis-tutorial-pause') {
       active.value = false
       controller?.abort()
+      document.body.inert = true
+      deactivateOverlay()
+    } else if (event.data?.type === 'webgis-tutorial-background') {
+      // Keep an unfinished preparation running without intercepting input or focus.
+      active.value = false
+      document.body.inert = true
       deactivateOverlay()
     } else if (event.data?.type === 'webgis-tutorial-resume') {
+      document.body.inert = demoBodyWasInert
       active.value = true
       activateOverlay()
+      if (status.value === 'loading' && !preloaded.value) return
       if (stepIndex.value === 0) void prepare()
       else stepIndex.value = 0
     }
@@ -224,9 +240,13 @@ function receive(event) {
   if (event.data?.type === 'webgis-tutorial-ready') {
     frameReady.value = true
     clearTimeout(startupTimer)
-    if (active.value) frameElement.value?.focus()
+    if (active.value) {
+      sendFrameMessage('webgis-tutorial-resume')
+      frameElement.value?.focus()
+    }
   } else if (event.data?.type === 'webgis-tutorial-loaded') {
     frameLoaded.value = true
+    if (!active.value) sendFrameMessage('webgis-tutorial-pause')
   } else if (event.data?.type === 'webgis-tutorial-close') close()
 }
 function handleKeydown(event) {
@@ -317,19 +337,12 @@ watch(
       frameMounted.value = true
       activateOverlay()
       await nextTick()
-      if (frameLoaded.value)
-        frameElement.value?.contentWindow.postMessage(
-          { type: 'webgis-tutorial-resume' },
-          window.location.origin,
-        )
+      if (frameReady.value) sendFrameMessage('webgis-tutorial-resume')
       else startDeadline()
       frameElement.value?.focus()
     } else {
-      if (frameLoaded.value)
-        frameElement.value?.contentWindow.postMessage(
-          { type: 'webgis-tutorial-pause' },
-          window.location.origin,
-        )
+      if (frameLoaded.value) sendFrameMessage('webgis-tutorial-pause')
+      else if (props.background) sendFrameMessage('webgis-tutorial-background')
       else {
         // Leaving before preparation completes cancels the unfinished demonstration.
         frameMounted.value = false
@@ -352,6 +365,7 @@ onBeforeUnmount(() => {
   disposed = true
   controller?.abort()
   deactivateOverlay()
+  if (props.demo) document.body.inert = demoBodyWasInert
   window.removeEventListener('message', receive)
 })
 </script>
@@ -359,8 +373,9 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <section
-      v-show="active"
+      v-show="active || (!demo && background && !frameLoaded)"
       class="help-tutorial"
+      :class="{ 'help-tutorial--background': !active }"
       role="dialog"
       aria-modal="true"
       :aria-hidden="!active"
